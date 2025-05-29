@@ -25,7 +25,7 @@ return (
 );
 };
 
-export const ModernButton = ({ icon, label, className = "" }) => {
+export const ModernButton = ({ icon, label, className = "", onClick, href }) => {
 const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
 const [hoverOpacity, setHoverOpacity] = useState(0);
 const buttonRef = useRef(null);
@@ -36,11 +36,44 @@ setCursorPosition({ x: event.clientX - rect.left, y: event.clientY - rect.top, }
 };
 const handleMouseEnter = () => setHoverOpacity(1);
 const handleMouseLeave = () => setHoverOpacity(0);
-return (
-<button ref={buttonRef} onMouseMove={handleMouseMove} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className={`relative flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-black px-5 py-3 text-sm uppercase text-white border border-gray-800 font-body ${className}`}>
+const handleClick = (e) => {
+if (href) {
+e.preventDefault();
+const element = document.getElementById(href.replace('#', ''));
+if (element) {
+element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+}
+if (onClick) onClick(e);
+};
+
+const ButtonContent = () => (
+<>
 <div className="pointer-events-none absolute -inset-px opacity-0 transition duration-300" style={{ opacity: hoverOpacity, background: `radial-gradient(100px circle at ${cursorPosition.x}px ${cursorPosition.y}px, #ffffff33, #00000026)`, }} />
 <span className="relative z-20">{icon}</span>
 <span className="relative z-20">{label}</span>
+</>
+);
+
+if (href) {
+return (
+<a 
+ref={buttonRef} 
+href={href}
+onMouseMove={handleMouseMove} 
+onMouseEnter={handleMouseEnter} 
+onMouseLeave={handleMouseLeave}
+onClick={handleClick}
+className={`relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-black px-5 py-3 text-sm uppercase text-white border border-gray-800 font-body ${className}`}
+>
+<ButtonContent />
+</a>
+);
+}
+
+return (
+<button ref={buttonRef} onMouseMove={handleMouseMove} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={handleClick} className={`relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-black px-5 py-3 text-sm uppercase text-white border border-gray-800 font-body ${className}`}>
+<ButtonContent />
 </button>
 );
 };
@@ -344,7 +377,8 @@ d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2
 </svg>
 } 
 label="SCHEDULE CONSULTATION" 
-className="text-base py-4 px-8" 
+className="text-base py-4 px-8"
+href="#contact"
 />
 </div>
 </div>

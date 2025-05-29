@@ -52,6 +52,85 @@ const AlertTriangle = ({ size = 20, ...props }) => (
   </svg>
 );
 
+// ModernButton component (from your Hero.jsx)
+const ModernButton = ({ icon, label, className = "", onClick, href, disabled }) => {
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [hoverOpacity, setHoverOpacity] = useState(0);
+  const buttonRef = useRef(null);
+  
+  const handleMouseMove = (event) => {
+    if (!buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    setCursorPosition({ 
+      x: event.clientX - rect.left, 
+      y: event.clientY - rect.top, 
+    });
+  };
+  
+  const handleMouseEnter = () => setHoverOpacity(1);
+  const handleMouseLeave = () => setHoverOpacity(0);
+  
+  const handleClick = (e) => {
+    if (disabled) {
+      e.preventDefault();
+      return;
+    }
+    
+    if (href) {
+      e.preventDefault();
+      const element = document.getElementById(href.replace('#', ''));
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+    if (onClick) onClick(e);
+  };
+
+  const ButtonContent = () => (
+    <>
+      <div 
+        className="pointer-events-none absolute -inset-px opacity-0 transition duration-300" 
+        style={{ 
+          opacity: hoverOpacity, 
+          background: `radial-gradient(100px circle at ${cursorPosition.x}px ${cursorPosition.y}px, #ffffff33, #00000026)`, 
+        }} 
+      />
+      <span className="relative z-20">{icon}</span>
+      <span className="relative z-20">{label}</span>
+    </>
+  );
+
+  if (href) {
+    return (
+      <a 
+        ref={buttonRef} 
+        href={href}
+        onMouseMove={handleMouseMove} 
+        onMouseEnter={handleMouseEnter} 
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
+        className={`relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-black px-5 py-3 text-sm uppercase text-white border border-gray-800 font-body transition-all duration-300 hover:border-white/30 ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+      >
+        <ButtonContent />
+      </a>
+    );
+  }
+
+  return (
+    <button 
+      ref={buttonRef} 
+      onMouseMove={handleMouseMove} 
+      onMouseEnter={handleMouseEnter} 
+      onMouseLeave={handleMouseLeave} 
+      onClick={handleClick}
+      disabled={disabled}
+      className={`relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-black/20 px-5 py-3 text-sm uppercase text-white border border-gray-800 font-body transition-all duration-300 hover:border-white/30 ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+    >
+      <ButtonContent />
+    </button>
+  );
+};
+
 // Luxury Card Component
 const LuxuryCard = ({ children, className = "" }) => {
   return (
@@ -526,26 +605,21 @@ function LuxuryContactSection() {
                       <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span className="tracking-wide">Response within 24 hours</span>
                     </div>
-                    <button
-                      onClick={handleSubmit}
-                      disabled={isLoading || !FORMSPREE_ENDPOINT}
-                      className="relative group overflow-hidden order-1 sm:order-2 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-white via-gray-200 to-white rounded-xl transition-all duration-500 group-hover:shadow-lg group-hover:shadow-white/20" />
-                      <div className="relative bg-white text-black font-light py-3 sm:py-4 px-8 sm:px-10 rounded-xl transition-all duration-300 flex items-center justify-center space-x-3 group-hover:bg-gray-100 tracking-wide text-sm sm:text-base">
-                        {isLoading ? (
-                          <>
-                            <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                            <span>Sending...</span>
-                          </>
+                    
+                    {/* Replaced the old button with ModernButton */}
+                    <div className="order-1 sm:order-2 w-full sm:w-auto">
+                      <ModernButton
+                        icon={isLoading ? (
+                          <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
-                          <>
-                            <Send className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:translate-x-1" />
-                            <span>Send Message</span>
-                          </>
+                          <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                         )}
-                      </div>
-                    </button>
+                        label={isLoading ? "Sending..." : "Send Message"}
+                        onClick={handleSubmit}
+                        disabled={isLoading || !FORMSPREE_ENDPOINT}
+                        className="w-full sm:w-auto px-8 py-4 text-base"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -556,6 +630,5 @@ function LuxuryContactSection() {
     </div>
   );
 }
-
 
 export default LuxuryContactSection;

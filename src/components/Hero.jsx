@@ -3,7 +3,79 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
 import { TiLocationArrow } from "react-icons/ti";
 import { useEffect, useState, useRef } from "react";
-import Button from "./Button";
+
+// ModernButton component (imported from your Features.jsx)
+const ModernButton = ({ icon, label, className = "", onClick, href }) => {
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [hoverOpacity, setHoverOpacity] = useState(0);
+  const buttonRef = useRef(null);
+  
+  const handleMouseMove = (event) => {
+    if (!buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    setCursorPosition({ 
+      x: event.clientX - rect.left, 
+      y: event.clientY - rect.top, 
+    });
+  };
+  
+  const handleMouseEnter = () => setHoverOpacity(1);
+  const handleMouseLeave = () => setHoverOpacity(0);
+  
+  const handleClick = (e) => {
+    if (href) {
+      e.preventDefault();
+      const element = document.getElementById(href.replace('#', ''));
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+    if (onClick) onClick(e);
+  };
+
+  const ButtonContent = () => (
+    <>
+      <div 
+        className="pointer-events-none absolute -inset-px opacity-0 transition duration-300" 
+        style={{ 
+          opacity: hoverOpacity, 
+          background: `radial-gradient(100px circle at ${cursorPosition.x}px ${cursorPosition.y}px, #ffffff33, #00000026)`, 
+        }} 
+      />
+      <span className="relative z-20">{icon}</span>
+      <span className="relative z-20">{label}</span>
+    </>
+  );
+
+  if (href) {
+    return (
+      <a 
+        ref={buttonRef} 
+        href={href}
+        onMouseMove={handleMouseMove} 
+        onMouseEnter={handleMouseEnter} 
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
+        className={`relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-black px-5 py-3 text-sm uppercase text-white border border-gray-800 font-body ${className}`}
+      >
+        <ButtonContent />
+      </a>
+    );
+  }
+
+  return (
+    <button 
+      ref={buttonRef} 
+      onMouseMove={handleMouseMove} 
+      onMouseEnter={handleMouseEnter} 
+      onMouseLeave={handleMouseLeave} 
+      onClick={handleClick} 
+      className={`relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-black px-5 py-3 text-sm uppercase text-white border border-gray-800 font-body ${className}`}
+    >
+      <ButtonContent />
+    </button>
+  );
+};
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -182,11 +254,11 @@ const Hero = () => {
               Ready to bring your creative vision to life? Let's discuss your project and create something extraordinary together.
             </p>
             <div className="appointment-buttons flex flex-col sm:flex-row gap-4 justify-center items-center opacity-0 translate-y-4">
-              <Button
-                id="schedule-call"
-                title="Schedule a Call"
-                leftIcon={<TiLocationArrow />}
-                containerClass="bg-white text-black flex-center gap-2 text-sm sm:text-base px-6 py-3 hover:bg-gray-200 transition-all duration-300 font-brand font-medium"
+              <ModernButton
+                icon={<TiLocationArrow className="h-5 w-5" />}
+                label="Schedule a Call"
+                href="#contact"
+                className="text-base px-8 py-4"
               />
             </div>
           </div>
