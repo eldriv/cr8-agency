@@ -303,7 +303,7 @@ const VerticalTextSlider = () => {
             <div className="flex flex-col gap-2 items-end">
               <button onClick={toggleVideo2Sound} className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30 font-medium w-fit flex items-center gap-2">
                 {!video2Started ? (
-                  'Play Video'
+                  'Start Video'
                 ) : (
                   <>
                     {isMuted2 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
