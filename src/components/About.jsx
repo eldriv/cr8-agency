@@ -200,68 +200,68 @@ const VerticalTextSlider = () => {
           </div>
         </div>
 
-        <div ref={slide2Ref} className="slide-2 absolute inset-0 h-full w-full bg-black" style={{ willChange: 'transform' }}>
-          <div className="slide-overlay absolute inset-0 bg-gradient-to-br from-black/90 via-black/80 to-black/90 pointer-events-none" />
-          <div className="slide-content absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-8 max-w-6xl mx-auto">
-            <h1 className="text-4xl md:text-7xl font-display font-bold mb-12 tracking-tight">
-              <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent" id="services">
-                SERVICES OFFERED
-              </span>
-            </h1>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-5xl">
-              <div className="group p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                <div className="w-12 h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-4 flex mx-auto items-center justify-center">
-                  <Palette className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-display font-bold mb-3">Graphic Design</h3>
-                <p className="text-white/80 font-body leading-relaxed">From logos to comprehensive brand visuals</p>
-              </div>
-
-              <div className="group p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                <div className="w-12 h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-4 mx-auto flex items-center justify-center">
-                  <Film className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-display font-bold mb-3">Video Editing</h3>
-                <p className="text-white/80 font-body leading-relaxed">Crafting dynamic content that captures attention</p>
-              </div>
-
-              <div className="group p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                <div className="w-12 h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-4 mx-auto flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-display font-bold mb-3">Motion Graphics</h3>
-                <p className="text-white/80 font-body leading-relaxed">Elevating your visuals with movements</p>
-              </div>
-
-              <div className="group p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                <div className="w-12 h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-4 mx-auto flex items-center justify-center">
-                  <Layers className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-display font-bold mb-3">2D/3D Animation</h3>
-                <p className="text-white/80 font-body leading-relaxed">Bringing your ideas to life with dimension</p>
-              </div>
-
-              <div className="group p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                <div className="w-12 h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-4 mx-auto flex items-center justify-center">
-                  <RotateCcw className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-display font-bold mb-3">Logo Animation</h3>
-                <p className="text-white/80 font-body leading-relaxed">Giving your brand identity dynamic edge</p>
-              </div>
-
-              <div className="group p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105">
-                <div className="w-12 h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-4 mx-auto flex items-center justify-center">
-                  <Code className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-xl font-display font-bold mb-3">Web Development</h3>
-                <p className="text-white/80 font-body leading-relaxed">Build website effectively and promotes a brand</p>
-              </div>
+       <div ref={slide2Ref} className="slide-2 relative min-h-screen w-full bg-black" style={{ willChange: 'transform' }}>
+      <div className="slide-overlay absolute inset-0 bg-gradient-to-br from-black/90 via-black/80 to-black/90 pointer-events-none" />
+      <div className="slide-content relative flex flex-col justify-center items-center text-center text-white z-10 px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20 max-w-7xl mx-auto min-h-screen">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold mb-8 sm:mb-10 md:mb-12 tracking-tight">
+          <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent" id="services">
+            SERVICES OFFERED
+          </span>
+        </h1>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 w-full max-w-6xl">
+          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 flex mx-auto items-center justify-center">
+              <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Graphic Design</h3>
+            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">From logos to comprehensive brand visuals</p>
+          </div>
 
-            <div className="mt-12 w-32 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
+          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
+              <Film className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Video Editing</h3>
+            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Crafting dynamic content that captures attention</p>
+          </div>
+
+          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95 sm:col-span-2 lg:col-span-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
+              <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Motion Graphics</h3>
+            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Elevating your visuals with movements</p>
+          </div>
+
+          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
+              <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">2D/3D Animation</h3>
+            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Bringing your ideas to life with dimension</p>
+          </div>
+
+          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
+              <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Logo Animation</h3>
+            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Giving your brand identity dynamic edge</p>
+          </div>
+
+          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95 sm:col-span-2 lg:col-span-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
+              <Code className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Web Development</h3>
+            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Build websites effectively and promote your brand</p>
           </div>
         </div>
+
+        <div className="mt-8 sm:mt-10 md:mt-12 w-24 sm:w-32 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
+      </div>
+    </div>
 
         <div ref={slide3Ref} className="slide-3 absolute inset-0 h-full w-full" style={{ willChange: 'transform' }}>
           <div className="slide-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black pointer-events-none" />
