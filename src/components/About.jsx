@@ -91,11 +91,63 @@ const VerticalTextSlider = () => {
   };
 
   useEffect(() => {
-    const initializeVideos=()=>{if(!loading){if(videoRef.current){try{videoRef.current.load();videoRef.current.loop=true;videoRef.current.muted=true;videoRef.current.preload="auto";const onCanPlayThrough=()=>{setVideoReady(true);console.log('Video initialized and ready to play');videoRef.current.removeEventListener('canplaythrough',onCanPlayThrough);};videoRef.current.addEventListener('canplaythrough',onCanPlayThrough);videoRef.current.addEventListener('error',(e)=>{console.error('Video loading error:',e);setVideoReady(true);},{once:true});}catch(error){console.log('Video initialization error:',error);setVideoReady(true);}}if(video2Ref.current){try{video2Ref.current.load();video2Ref.current.loop=true;video2Ref.current.muted=true;video2Ref.current.preload="auto";const onCanPlayThrough2=()=>{setVideo2Ready(true);console.log('Video 2 initialized and ready to play');video2Ref.current.removeEventListener('canplaythrough',onCanPlayThrough2);};video2Ref.current.addEventListener('canplaythrough',onCanPlayThrough2);video2Ref.current.addEventListener('error',(e)=>{console.error('Video 2 loading error:',e);setVideo2Ready(true);},{once:true});}catch(error){console.log('Video 2 initialization error:',error);setVideo2Ready(true);}}}};
+    const initializeVideos = () => {
+      if (!loading) {
+        if (videoRef.current) {
+          try {
+            videoRef.current.preload = "auto";
+            videoRef.current.loop = true;
+            videoRef.current.muted = true;
+            const onLoadedData = () => {
+              setVideoReady(true);
+              console.log('Video initialized and ready to play');
+              videoRef.current.removeEventListener('loadeddata', onLoadedData);
+            };
+            videoRef.current.addEventListener('loadeddata', onLoadedData);
+            videoRef.current.addEventListener('error', (e) => {
+              console.error('Video loading error:', e);
+              setVideoReady(true);
+            }, { once: true });
+          } catch (error) {
+            console.log('Video initialization error:', error);
+            setVideoReady(true);
+          }
+        }
+        if (video2Ref.current) {
+          try {
+            video2Ref.current.preload = "auto";
+            video2Ref.current.loop = true;
+            video2Ref.current.muted = true;
+            const onLoadedData2 = () => {
+              setVideo2Ready(true);
+              console.log('Video 2 initialized and ready to play');
+              video2Ref.current.removeEventListener('loadeddata', onLoadedData2);
+            };
+            video2Ref.current.addEventListener('loadeddata', onLoadedData2);
+            video2Ref.current.addEventListener('error', (e) => {
+              console.error('Video 2 loading error:', e);
+              setVideo2Ready(true);
+            }, { once: true });
+          } catch (error) {
+            console.log('Video 2 initialization error:', error);
+            setVideo2Ready(true);
+          }
+        }
+      }
+    };
 
     if (!loading) initializeVideos();
 
-    return()=>{if(videoRef.current){videoRef.current.removeEventListener('canplaythrough',()=>{});videoRef.current.removeEventListener('error',()=>{});}if(video2Ref.current){video2Ref.current.removeEventListener('canplaythrough',()=>{});video2Ref.current.removeEventListener('error',()=>{});}};
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.removeEventListener('loadeddata', () => {});
+        videoRef.current.removeEventListener('error', () => {});
+      }
+      if (video2Ref.current) {
+        video2Ref.current.removeEventListener('loadeddata', () => {});
+        video2Ref.current.removeEventListener('error', () => {});
+      }
+    };
   }, [loading]);
 
   useEffect(() => {
@@ -105,8 +157,8 @@ const VerticalTextSlider = () => {
       scrollTrigger: {
         trigger: containerRef.current,
         start: "top top",
-        end: "+=600%",
-        scrub: 0.5,
+        end: "+=300%",
+        scrub: 0.3,
         pin: true,
         anticipatePin: 1,
         invalidateOnRefresh: true,
@@ -131,7 +183,28 @@ const VerticalTextSlider = () => {
     gsap.set(".slide-4 video", { scale: 1, force3D: true });
     gsap.set(".slide-5 video", { scale: 1, force3D: true });
 
-    tl.to(".slide-1 .slide-content",{y:0,opacity:1,duration:0.16,ease:"power3.out",force3D:true}).to(".slide-1 .slide-overlay",{opacity:0.4,duration:0.12,ease:"power2.out"},"<").to([slide2Ref.current,slide1Ref.current],{y:(i)=>i===0?"0vh":"-100vh",duration:0.16,ease:"power2.out",force3D:true,stagger:0},0.16).to(".slide-1 .slide-content",{y:-40,opacity:0,duration:0.12,ease:"power2.in",force3D:true},0.16).to(".slide-1 .slide-overlay",{opacity:0.8,duration:0.12,ease:"power2.in"},0.16).to(".slide-2 .slide-content",{y:0,opacity:1,duration:0.2,ease:"power3.out",force3D:true},0.24).to(".slide-2 .slide-overlay",{opacity:0.3,duration:0.16,ease:"power2.out"},0.24).to(".slide-2 .slide-content",{y:-40,opacity:0,duration:0.16,ease:"power2.in",force3D:true},0.32).to(".slide-2 .slide-overlay",{opacity:0.8,duration:0.16,ease:"power2.in"},0.32).to([slide3Ref.current,slide2Ref.current],{y:(i)=>i===0?"0vh":"-100vh",duration:0.16,ease:"power2.out",force3D:true,stagger:0},0.36).to(".slide-3 .slide-content",{y:0,opacity:1,duration:0.2,ease:"power3.out",force3D:true},0.44).to(".slide-3 .slide-overlay",{opacity:0.3,duration:0.16,ease:"power2.out"},0.44).to(".slide-3 .slide-content",{y:-40,opacity:0,duration:0.16,ease:"power2.inOut",force3D:true},0.48).to(".slide-3 .slide-overlay",{opacity:0.8,duration:0.16,ease:"power2.inOut"},0.48).to(slide4Ref.current,{x:"0vw",duration:0.16,ease:"power2.inOut",force3D:true},0.52).to(".slide-4",{opacity:1,duration:0.12,ease:"power2.inOut",force3D:true},0.56).to(".slide-4 video",{scale:1.02,duration:0.12,ease:"power2.inOut",force3D:true},0.6).to(".slide-4 video",{scale:1.04,duration:0.16,ease:"power2.inOut",force3D:true},0.68).to(slide5Ref.current,{x:"0vw",duration:0.16,ease:"power2.inOut",force3D:true},0.8).to(".slide-5",{opacity:1,duration:0.12,ease:"power2.inOut",force3D:true},0.84).to(".slide-5 video",{scale:1.02,duration:0.12,ease:"power2.inOut",force3D:true},0.86).to(".slide-5 video",{scale:1.05,duration:0.1,ease:"power2.inOut",force3D:true},0.9);
+    tl.to(".slide-1 .slide-content", { y: 0, opacity: 1, duration: 0.1, ease: "power3.out", force3D: true })
+      .to(".slide-1 .slide-overlay", { opacity: 0.4, duration: 0.1, ease: "power2.out" }, "<")
+      .to([slide2Ref.current, slide1Ref.current], { y: (i) => (i === 0 ? "0vh" : "-100vh"), duration: 0.1, ease: "power2.out", force3D: true }, 0.1)
+      .to(".slide-1 .slide-content", { y: -40, opacity: 0, duration: 0.1, ease: "power2.in", force3D: true }, 0.1)
+      .to(".slide-1 .slide-overlay", { opacity: 0.8, duration: 0.1, ease: "power2.in" }, 0.1)
+      .to(".slide-2 .slide-content", { y: 0, opacity: 1, duration: 0.1, ease: "power3.out", force3D: true }, 0.2)
+      .to(".slide-2 .slide-overlay", { opacity: 0.3, duration: 0.1, ease: "power2.out" }, 0.2)
+      .to(".slide-2 .slide-content", { y: -40, opacity: 0, duration: 0.1, ease: "power2.in", force3D: true }, 0.3)
+      .to(".slide-2 .slide-overlay", { opacity: 0.8, duration: 0.1, ease: "power2.in" }, 0.3)
+      .to([slide3Ref.current, slide2Ref.current], { y: (i) => (i === 0 ? "0vh" : "-100vh"), duration: 0.1, ease: "power2.out", force3D: true }, 0.4)
+      .to(".slide-3 .slide-content", { y: 0, opacity: 1, duration: 0.1, ease: "power3.out", force3D: true }, 0.5)
+      .to(".slide-3 .slide-overlay", { opacity: 0.3, duration: 0.1, ease: "power2.out" }, 0.5)
+      .to(".slide-3 .slide-content", { y: -40, opacity: 0, duration: 0.1, ease: "power2.inOut", force3D: true }, 0.6)
+      .to(".slide-3 .slide-overlay", { opacity: 0.8, duration: 0.1, ease: "power2.inOut" }, 0.6)
+      .to(slide4Ref.current, { x: "0vw", duration: 0.1, ease: "power2.inOut", force3D: true }, 0.7)
+      .to(".slide-4", { opacity: 1, duration: 0.1, ease: "power2.inOut", force3D: true }, 0.8)
+      .to(".slide-4 video", { scale: 1.02, duration: 0.1, ease: "power2.inOut", force3D: true }, 0.9)
+      .to(".slide-4 video", { scale: 1.04, duration: 0.1, ease: "power2.inOut", force3D: true }, 1.0)
+      .to(slide5Ref.current, { x: "0vw", duration: 0.1, ease: "power2.inOut", force3D: true }, 1.1)
+      .to(".slide-5", { opacity: 1, duration: 0.1, ease: "power2.inOut", force3D: true }, 1.2)
+      .to(".slide-5 video", { scale: 1.02, duration: 0.1, ease: "power2.inOut", force3D: true }, 1.3)
+      .to(".slide-5 video", { scale: 1.05, duration: 0.1, ease: "power2.inOut", force3D: true }, 1.4);
 
     return () => {
       ScrollTrigger.getAll().forEach(st => st.kill());
@@ -254,7 +327,7 @@ const VerticalTextSlider = () => {
         </div>
 
         <div ref={slide4Ref} className="slide-4 absolute inset-0 h-full w-full opacity-0 overflow-hidden" style={{ willChange: 'transform, opacity' }}>
-          <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" style={{ willChange: 'transform' }} src="videos/hero-2.mp4" loop playsInline preload="auto" onLoadedData={() => console.log('Video loaded successfully')} onCanPlay={() => console.log('Video can start playing')} onError={(e) => console.error('Video loading error:', e)} onLoadStart={() => console.log('Video loading started')} />
+          <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" style={{ willChange: 'transform' }} src="videos/hero-2.mp4" loop playsInline preload="auto" onLoadedData={() => console.log('Video loaded successfully')} onError={(e) => console.error('Video loading error:', e)} />
           <div className="absolute bottom-16 left-8 z-10">
             <h2 className="text-white text-2xl md:text-4xl font-display font-bold mb-2">
               Experience the Creativity.
@@ -290,7 +363,7 @@ const VerticalTextSlider = () => {
             </div>
           )}
           
-          <video ref={video2Ref} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${video2Started ? 'opacity-100' : 'opacity-0'}`} style={{ willChange: 'transform' }} src="videos/hero-3.mp4" loop playsInline preload="auto" onLoadedData={() => console.log('Video 2 loaded successfully')} onCanPlay={() => console.log('Video 2 can start playing')} onError={(e) => console.error('Video 2 loading error:', e)} onLoadStart={() => console.log('Video 2 loading started')} />
+          <video ref={video2Ref} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${video2Started ? 'opacity-100' : 'opacity-0'}`} style={{ willChange: 'transform' }} src="videos/hero-3.mp4" loop playsInline preload="auto" onLoadedData={() => console.log('Video 2 loaded successfully')} onError={(e) => console.error('Video 2 loading error:', e)} />
           
           <div className="absolute bottom-16 right-8 z-10 text-right">
             <h2 className="text-white text-2xl md:text-4xl font-display font-bold mb-2">
