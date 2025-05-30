@@ -501,18 +501,8 @@ function LuxuryContactSection() {
           }}
         >
           <div className="w-full max-w-[1200px]">
-            {/* Status indicator */}
-            <div className="flex items-center justify-center mb-6 sm:mt-10 lg:mt-40">
-              <LuxuryCard className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 border-white/20">
-                <div className="flex items-center space-x-3 sm:space-x-4">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full animate-pulse" />
-                  <span className="text-white text-xs sm:text-sm font-light tracking-widest uppercase">Available for Projects</span>
-                </div>
-              </LuxuryCard>
-            </div>
-
             {/* Header */}
-            <div className="text-center mb-10 sm:mb-12 lg:mb-16 px-4">
+            <div className="text-center mb-10 sm:mb-12 lg:mb-16 px-4 mt-60">
               <h1 className="font-display text-[36px] sm:text-[48px] md:text-[60px] font-bold text-white leading-tight">
                 Let's Collaborate
               </h1>
