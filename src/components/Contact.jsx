@@ -502,7 +502,7 @@ function LuxuryContactSection() {
         >
           <div className="w-full max-w-[1200px]">
             {/* Status indicator */}
-            <div className="flex items-center justify-center mb-6 sm:mb-8 mt-40">
+            <div className="flex items-center justify-center mb-6 sm:mt-10 lg:mt-40">
               <LuxuryCard className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 border-white/20">
                 <div className="flex items-center space-x-3 sm:space-x-4">
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full animate-pulse" />
@@ -522,7 +522,7 @@ function LuxuryContactSection() {
             </div>
 
             {/* Form Container */}
-            <LuxuryCard className="p-4 sm:p-6 md:p-8 lg:p-16 shadow-2xl mx-2 sm:mx-0">
+            <LuxuryCard className="p-4 sm:p-10 md:p-8 lg:p-16 shadow-2xl mx-2 sm:mx-0 sm:mb-30">
               {isSubmitted ? (
                 <div className="text-center py-12 sm:py-16 lg:py-20">
                   <div 
