@@ -250,7 +250,7 @@ const Hero = () => {
             <h2 className="appointment-title font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight opacity-0 translate-y-8 leading-tight">
               Book an Appointment
             </h2>
-            <p className="appointment-description font-body text-lg sm:text-xl md:text-2xl opacity-80 mb-8 max-w-2xl mx-auto leading-relaxed translate-y-6">
+            <p className="appointment-description font-body font-light tracking-wide opacity-90 text-lg sm:text-xl md:text-2xl mb-8 max-w-2xl mx-auto leading-relaxed translate-y-6">
               Ready to bring your creative vision to life? Let's discuss your project and create something extraordinary together.
             </p>
             <div className="appointment-buttons flex flex-col sm:flex-row gap-4 justify-center items-center opacity-0 translate-y-4">

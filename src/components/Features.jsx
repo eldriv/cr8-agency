@@ -80,13 +80,13 @@ return (
 
 const FilterButton = ({ label, isActive, onClick }) => {
 return (
-<button onClick={onClick} className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${isActive ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+<button onClick={onClick} className={`px-3 py-2 sm:px-4 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${isActive ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'}`}>
 {label}
 </button>
 );
 };
 
-const styles = `@keyframes pulse-subtle { 0% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); }100% { opacity: 0.8; transform: scale(1); } } @keyframes ping-slow { 0% { transform: scale(0.8); opacity: 0.3; } 100% { transform: scale(1.8); opacity: 0; } } @keyframes ping-slower { 0% { transform: scale(0.7); opacity: 0.3; } 100% { transform: scale(1.7); opacity: 0; } } @keyframes ping-slowest { 0% { transform: scale(0.6); opacity: 0.3; } 100% { transform: scale(1.6); opacity: 0; } } @keyframes slideHorizontal { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } @keyframes float-icon { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-5px) rotate(2deg); } 50% { transform: translateY(-10px) rotate(0deg); } 75% { transform: translateY(-5px) rotate(-2deg); } } @keyframes glow-pulse { 0%, 100% { box-shadow: 0 0 20px rgba(138, 43, 226, 0.3); } 50% { box-shadow: 0 0 40px rgba(138, 43, 226, 0.6); } } .slider-container { animation: slideHorizontal 30s linear infinite; } .slider-container.paused { animation-play-state: paused; } .slider-container.static { animation: none; } .animate-pulse-subtle { animation: pulse-subtle 3s infinite ease-in-out; } .animate-ping-slow { animation: ping-slow 3s infinite cubic-bezier(0, 0, 0.2, 1); } .animate-ping-slower { animation: ping-slower 4s infinite cubic-bezier(0, 0, 0.2, 1); } .animate-ping-slowest { animation: ping-slowest 5s infinite cubic-bezier(0, 0, 0.2, 1); } .animate-float-icon { animation: float-icon 4s ease-in-out infinite; } .animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; } .perspective-1000 { perspective: 1000px; } .transform-style-3d { transform-style: preserve-3d; } .rotate-x-180 { transform: rotateX(180deg); } .scale-y-flip { transform: scaleY(-1); } .lightbox-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); } .lightbox-content { position: relative; width: 80%; max-width: 1200px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(138, 43, 226, 0.3); } .lightbox-close { position: absolute; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.6); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.2); transition: background 0.3s ease; z-index: 10000; } .lightbox-close:hover { background: rgba(255, 255, 255, 0.2); } .nav-arrow { background: rgba(0, 0, 0, 0.6); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; } .nav-arrow:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.1); } .nav-arrow.prev, .nav-arrow.next { position: static; } .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; } .video-card-fade { opacity: 0.3; transition: opacity 0.5s ease; } .video-card-show { opacity: 1; transition: opacity 0.5s ease; }`;
+const styles = `@keyframes pulse-subtle { 0% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); }100% { opacity: 0.8; transform: scale(1); } } @keyframes ping-slow { 0% { transform: scale(0.8); opacity: 0.3; } 100% { transform: scale(1.8); opacity: 0; } } @keyframes ping-slower { 0% { transform: scale(0.7); opacity: 0.3; } 100% { transform: scale(1.7); opacity: 0; } } @keyframes ping-slowest { 0% { transform: scale(0.6); opacity: 0.3; } 100% { transform: scale(1.6); opacity: 0; } } @keyframes slideHorizontal { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } @keyframes float-icon { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-5px) rotate(2deg); } 50% { transform: translateY(-10px) rotate(0deg); } 75% { transform: translateY(-5px) rotate(-2deg); } } @keyframes glow-pulse { 0%, 100% { box-shadow: 0 0 20px rgba(138, 43, 226, 0.3); } 50% { box-shadow: 0 0 40px rgba(138, 43, 226, 0.6); } } .slider-container { animation: slideHorizontal 30s linear infinite; } .slider-container.paused { animation-play-state: paused; } .slider-container.static { animation: none; } .animate-pulse-subtle { animation: pulse-subtle 3s infinite ease-in-out; } .animate-ping-slow { animation: ping-slow 3s infinite cubic-bezier(0, 0, 0.2, 1); } .animate-ping-slower { animation: ping-slower 4s infinite cubic-bezier(0, 0, 0.2, 1); } .animate-ping-slowest { animation: ping-slowest 5s infinite cubic-bezier(0, 0, 0.2, 1); } .animate-float-icon { animation: float-icon 4s ease-in-out infinite; } .animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; } .perspective-1000 { perspective: 1000px; } .transform-style-3d { transform-style: preserve-3d; } .rotate-x-180 { transform: rotateX(180deg); } .scale-y-flip { transform: scaleY(-1); } .lightbox-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); } .lightbox-content { position: relative; width: 90%; max-width: 1200px; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(138, 43, 226, 0.3); } @media (max-width: 768px) { .lightbox-content { width: 95%; max-width: none; } } .lightbox-close { position: absolute; top: 15px; right: 15px; background: rgba(0, 0, 0, 0.6); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.2); transition: background 0.3s ease; z-index: 10000; } @media (max-width: 768px) { .lightbox-close { top: 10px; right: 10px; width: 30px; height: 30px; } } .lightbox-close:hover { background: rgba(255, 255, 255, 0.2); } .nav-arrow { background: rgba(0, 0, 0, 0.6); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; } @media (max-width: 768px) { .nav-arrow { width: 35px; height: 35px; } } .nav-arrow:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.1); } .nav-arrow.prev, .nav-arrow.next { position: static; } .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; } .video-card-fade { opacity: 0.3; transition: opacity 0.5s ease; } .video-card-show { opacity: 1; transition: opacity 0.5s ease; }`;
 
 const VideoLightbox = ({ video, onClose }) => {
 const videoRef = useRef(null);
@@ -104,10 +104,10 @@ return (
 <div className="lightbox-content" onClick={handleContentClick}>
 <video ref={videoRef} className="w-full h-full object-contain" controls autoPlay loop src={video.video} />
 <button className="lightbox-close" onClick={handleCloseClick}>
-<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+<svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
 </button>
-<div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
-<h3 className="font-bold text-xl text-white font-creative">{video.title}</h3>
+<div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 bg-gradient-to-t from-black to-transparent">
+<h3 className="font-bold text-lg sm:text-xl text-white font-creative">{video.title}</h3>
 </div>
 </div>
 </div>
@@ -150,21 +150,21 @@ cardRef.current.style.opacity = '1';
 }, [isFiltered, shouldShow]);
 
 return (
-<div ref={cardRef} className={`w-[380px] h-[540px] mx-4 flex-shrink-0 perspective-1000 cursor-pointer transform rotate-y-10 transition-all duration-500 hover:scale-105 ${!shouldShow && isFiltered ? 'video-card-fade' : 'video-card-show'}`} style={{ transform: "perspective(1000px) rotateY(-15deg)" }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={() => onClick(video)}>
+<div ref={cardRef} className={`w-[280px] sm:w-[320px] lg:w-[380px] h-[400px] sm:h-[480px] lg:h-[540px] mx-2 sm:mx-4 flex-shrink-0 perspective-1000 cursor-pointer transform rotate-y-10 transition-all duration-500 hover:scale-105 ${!shouldShow && isFiltered ? 'video-card-fade' : 'video-card-show'}`} style={{ transform: "perspective(1000px) rotateY(-15deg)" }} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={() => onClick(video)}>
 <div className="relative w-full h-full rounded-xl overflow-hidden shadow-2xl border border-white/10 group">
 <div className={`absolute inset-0 z-10 bg-cover bg-center transition-opacity duration-300 ${isPlaying ? "opacity-0" : "opacity-100"}`} style={{ backgroundImage: `url(${video.thumbnail})` }} />
 <video ref={videoRef} className="w-full h-full object-cover" loop muted playsInline src={video.video} />
 <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 to-transparent pointer-events-none" />
 <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isPlaying ? "opacity-0" : "opacity-100"}`}>
-<div className="w-16 h-16 rounded-full bg-black/30 flex items-center justify-center backdrop-blur-sm transform transition-transform group-hover:scale-110">
-<svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+<div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-black/30 flex items-center justify-center backdrop-blur-sm transform transition-transform group-hover:scale-110">
+<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
 </div>
 </div>
 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-<span className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-white font-medium font-body">Click to View</span>
+<span className="bg-white/10 backdrop-blur-sm px-3 py-2 sm:px-4 rounded-full text-white font-medium font-body text-sm">Click to View</span>
 </div>
-<div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-<h3 className="font-bold text-lg drop-shadow-lg font-creative">{video.title}</h3>
+<div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 text-white">
+<h3 className="font-bold text-base sm:text-lg drop-shadow-lg font-creative">{video.title}</h3>
 </div>
 </div>
 </div>
@@ -175,9 +175,26 @@ const HorizontalVideoShowcase = () => {
 const [selectedVideo, setSelectedVideo] = useState(null);
 const [isPaused, setIsPaused] = useState(false);
 const [activeFilter, setActiveFilter] = useState('All');
+const [isMobile, setIsMobile] = useState(false);
 const sliderRef = useRef(null);
 const [isNavigating, setIsNavigating] = useState(false);
 const showcaseRef = useRef(null);
+
+useEffect(() => {
+const checkMobile = () => {
+setIsMobile(window.innerWidth < 768);
+};
+checkMobile();
+window.addEventListener('resize', checkMobile);
+return () => window.removeEventListener('resize', checkMobile);
+}, []);
+
+// On mobile, show all videos by default
+useEffect(() => {
+if (isMobile) {
+setActiveFilter('All');
+}
+}, [isMobile]);
 
 const videos = [
 { id: 1, title: "Brand Animation", category: "Animation", thumbnail: "/api/placeholder/400/300", video: "/api/placeholder/400/300", },
@@ -218,7 +235,7 @@ const scroll = (direction) => {
 if (!sliderRef.current || isNavigating || isFiltered) return;
 setIsNavigating(true);
 setIsPaused(true);
-const scrollAmount = 368;
+const scrollAmount = isMobile ? 288 : 368;
 const container = sliderRef.current;
 const currentScroll = container.scrollLeft;
 const newScrollPosition = direction === "left" ? Math.max(currentScroll - scrollAmount, 0) : currentScroll + scrollAmount;
@@ -252,17 +269,20 @@ return () => { slider.removeEventListener("animationiteration", handleAnimationI
 }, [isFiltered]);
 
 return (
-<div ref={showcaseRef} className="w-full relative overflow-hidden py-8" onMouseEnter={handleShowcaseMouseEnter} onMouseLeave={handleShowcaseMouseLeave}>
-<div className="flex justify-between items-center mb-6">
-<h2 className="text-3xl font-bold text-white font-display">OUR WORKS</h2>
+<div ref={showcaseRef} className="w-full relative overflow-hidden py-4 sm:py-8" onMouseEnter={handleShowcaseMouseEnter} onMouseLeave={handleShowcaseMouseLeave}>
+<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-4">
+<h2 className="text-2xl sm:text-3xl font-bold text-white font-display">OUR WORKS</h2>
 <div className="flex gap-2">
 <FilterButton label="All" isActive={activeFilter === 'All'} onClick={() => handleFilterChange('All')} />
+{/* Only show Video editing button on desktop */}
+{!isMobile && (
 <FilterButton label="Video editing" isActive={activeFilter === 'Video editing'} onClick={() => handleFilterChange('Video editing')} />
+)}
 </div>
 </div>
-<div className="relative h-[650px] perspective-1000">
+<div className="relative h-[500px] sm:h-[580px] lg:h-[650px] perspective-1000">
 <div ref={sliderRef} className="overflow-x-hidden scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none", position: "relative", zIndex: 10, }}>
-<div className={`flex items-center py-4 slider-container ${isPaused || isFiltered ? "paused static" : ""}`} style={{ width: isFiltered ? 'auto' : `${videos.length * 368}px`, paddingLeft: "12px", paddingRight: "12px", justifyContent: isFiltered ? 'flex-start' : 'initial', gap: isFiltered ? '16px' : '0', flexWrap: isFiltered ? 'wrap' : 'nowrap' }}>
+<div className={`flex items-center py-4 slider-container ${isPaused || isFiltered ? "paused static" : ""}`} style={{ width: isFiltered ? 'auto' : `${videos.length * (isMobile ? 288 : 368)}px`, paddingLeft: isMobile ? "8px" : "12px", paddingRight: isMobile ? "8px" : "12px", justifyContent: isFiltered ? 'flex-start' : 'initial', gap: isFiltered ? (isMobile ? '12px' : '16px') : '0', flexWrap: isFiltered ? 'wrap' : 'nowrap' }}>
 {isFiltered ? filteredVideos.map((video) => ( 
 <VideoCard 
 key={video.id} 
@@ -283,12 +303,12 @@ shouldShow={activeFilter === 'All' || video.category === activeFilter}
 </div>
 </div>
 {!isFiltered && (
-<div className="absolute bottom-4 left-4 flex gap-4" style={{ zIndex: 25 }}>
+<div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 flex gap-2 sm:gap-4" style={{ zIndex: 25 }}>
 <button className="nav-arrow prev" onClick={() => scroll("left")} aria-label="Previous slide">
-<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
 </button>
 <button className="nav-arrow next" onClick={() => scroll("right")} aria-label="Next slide">
-<svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
 </button>
 </div>
 )}
@@ -330,15 +350,15 @@ toggleActions: "play none none reverse"
 return (
 <div 
 ref={consultationRef}
-className="relative mb-16 group"
+className="relative mb-8 sm:mb-16 group"
 >
-<div className="flex flex-col lg:flex-row gap-12 items-center">
+<div className="flex flex-col lg:flex-row gap-8 sm:gap-12 items-center">
 <div className="flex-1">
-<div className="flex items-center gap-4 mb-6">
+<div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
 <div className="consultation-icon animate-float-icon">
 <svg 
 xmlns="http://www.w3.org/2000/svg" 
-className="h-8 w-8 text-purple-400" 
+className="h-6 w-6 sm:h-8 sm:w-8 text-purple-400" 
 fill="none" 
 viewBox="0 0 24 24" 
 stroke="currentColor"
@@ -351,11 +371,11 @@ d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 
 />
 </svg>
 </div>
-<h2 className="text-4xl font-bold text-white font-display group-hover:text-purple-300 transition-colors duration-300" id="works" >
+<h2 className="text-2xl sm:text-4xl font-bold text-white font-display group-hover:text-purple-300 transition-colors duration-300" id="works" >
 CONSULTATION
 </h2>
 </div>
-<p className="font-body text-gray-200 text-xl mb-8 leading-relaxed group-hover:text-white transition-colors duration-300">
+<p className="font-body text-gray-200 text-lg sm:text-xl mb-6 sm:mb-8 leading-relaxed group-hover:text-white transition-colors duration-300">
 We begin with an in-depth consultation to understand your brand's needs, goals, and vision. Whether you need motion graphics, animation, or a full-scale video production, our team is ready to help transform your ideas into stunning visual content.
 </p>
 <div>
@@ -363,7 +383,7 @@ We begin with an in-depth consultation to understand your brand's needs, goals, 
 icon={
 <svg 
 xmlns="http://www.w3.org/2000/svg" 
-className="h-5 w-5" 
+className="h-4 w-4 sm:h-5 sm:w-5" 
 fill="none" 
 viewBox="0 0 24 24" 
 stroke="currentColor"
@@ -377,7 +397,7 @@ d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2
 </svg>
 } 
 label="SCHEDULE CONSULTATION" 
-className="text-base py-4 px-8"
+className="text-sm sm:text-base py-3 px-6 sm:py-4 sm:px-8"
 href="#contact"
 />
 </div>
@@ -387,7 +407,7 @@ href="#contact"
 <div className="animate-pulse-subtle consultation-icon">
 <svg 
 xmlns="http://www.w3.org/2000/svg" 
-className="h-32 w-32 text-white opacity-80 group-hover:opacity-100 transition-opacity duration-300" 
+className="h-24 w-24 sm:h-32 sm:w-32 text-white opacity-80 group-hover:opacity-100 transition-opacity duration-300" 
 fill="none" 
 viewBox="0 0 24 24" 
 stroke="currentColor"
@@ -415,7 +435,6 @@ d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 
 const Features = () => {
 const sectionRef = useRef(null);
 const showcaseBoxRef = useRef(null);
-
 useGSAP(() => {
 gsap.fromTo(sectionRef.current, 
 { opacity: 0, y: 50 }, 

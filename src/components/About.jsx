@@ -346,12 +346,12 @@ const VerticalTextSlider = () => {
         </div>
 
         {!isVideoSlideActive && (
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-            <div className="w-6 ml-4 h-10 border-2 border-white/50 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-bounce"></div>
-            </div>
-            <p className="text-white/60 text-sm mt-2 text-center tracking-wider font-body">SCROLL</p>
-          </div>
+       <div className="absolute bottom-8 right-8 md:right-auto md:left-1/2 md:transform md:-translate-x-1/2 z-20">
+       <div className="w-6 ml-4 h-10 border-2 border-white/50 rounded-full flex justify-center">
+         <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-bounce"></div>
+       </div>
+       <p className="text-white/60 text-sm mt-2 text-right tracking-wider font-body">SCROLL</p>
+     </div>
         )}
       </div>
 
