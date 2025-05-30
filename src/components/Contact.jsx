@@ -492,7 +492,7 @@ function LuxuryContactSection() {
         {/* Form Container - Appears when circle expands */}
         <div 
           ref={formContainerRef}
-          className="absolute inset-0 flex items-center justify-center z-20 px-4 sm:px-6 lg:px-8 pb-36"
+          className="absolute inset-0 flex items-center justify-center z-20 px-4 sm:px-6 lg:px-8 sm:pb-80 pt-40"
           style={{
             opacity: 0,
             transform: 'translateY(50px)',
@@ -512,7 +512,7 @@ function LuxuryContactSection() {
             </div>
 
             {/* Form Container */}
-            <LuxuryCard className="p-4 sm:p-10 md:p-8 lg:p-16 shadow-2xl mx-2 sm:mx-0 sm:mb-30">
+            <LuxuryCard className="p-4 sm:p-10 md:p-8 lg:p-16 shadow-2xl mx-2 sm:mx-0">
               {isSubmitted ? (
                 <div className="text-center py-12 sm:py-16 lg:py-20">
                   <div 
