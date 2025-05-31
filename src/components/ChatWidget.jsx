@@ -36,9 +36,9 @@ const ChatbaseWidget = () => {
 
       const onLoad = function() {
         const script = document.createElement("script");
-        script.src = process.env.NEXT_PUBLIC_CHATBASE_SCRIPT_SRC;
-        script.id = process.env.NEXT_PUBLIC_CHATBASE_SCRIPT_ID;
-        script.domain = process.env.NEXT_PUBLIC_CHATBASE_DOMAIN;
+        script.src = "https://www.chatbase.co/embed.min.js";
+        script.id = "OlxoEDml0kLdxELksJg-s";
+        script.domain = "www.chatbase.co";
         document.body.appendChild(script);
         isLoadedRef.current = true;
       };
@@ -55,7 +55,6 @@ const ChatbaseWidget = () => {
 
     initializeChatbase();
 
-    // Cleanup function
     return () => {
       // Remove event listener if component unmounts before page load
       if (document.readyState !== "complete" && onLoadRef.current) {
