@@ -25,16 +25,6 @@ const GeminiChatbot = () => {
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
-    // Check if API key is set
-    if (!GEMINI_API_KEY || GEMINI_API_KEY.length < 30) {
-      setMessages(prev => [...prev, 
-        { role: 'user', content: inputMessage },
-        { role: 'assistant', content: 'API key appears to be invalid. Please check your Gemini API key.' }
-      ]);
-      setInputMessage('');
-      return;
-    }
-
     const userMessage = inputMessage.trim();
     setInputMessage('');
     
