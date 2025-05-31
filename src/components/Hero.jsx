@@ -207,16 +207,6 @@ const Hero = () => {
     <div id="home" className="relative h-[300vh]">
       <div ref={heroRef} className="sticky top-0 h-screen w-screen overflow-hidden bg-black">
 
-        {/* Loading screen */}
-        {loading && (
-          <div className="flex-center absolute z-[100] h-screen w-screen overflow-hidden bg-black">
-            <div className="three-body">
-              <div className="three-body__dot"></div>
-              <div className="three-body__dot"></div>
-              <div className="three-body__dot"></div>
-            </div>
-          </div>
-        )}
 
         {/* Main video container */}
         <div

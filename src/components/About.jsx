@@ -175,14 +175,21 @@ const VerticalTextSlider = () => {
     <div className="relative h-[700vh]">
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-white/20 rounded-full animate-spin" style={{ animationDelay: '150ms' }}></div>
+          <div className="relative flex items-center">
+            <video
+              className="w-300 h-300 object-cover rounded-full"
+              autoPlay
+              loop
+              muted
+              playsInline
+            >
+              <source src="/videos/loading.mp4" type="video/mp4" />
+              {/* Fallback spinner if video fails to load */}
+              <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+            </video>
           </div>
-          <p className="ml-4 text-white font-body font-light text-lg tracking-wider">Loading Experience...</p>
         </div>
       )}
-
       <div ref={containerRef} className="sticky top-0 h-screen w-screen overflow-hidden" style={{ willChange: 'transform' }}>
         <div ref={slide1Ref} className="slide-1 absolute inset-0 h-full w-full" style={{ willChange: 'transform' }}>
           <div className="slide-overlay absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black pointer-events-none" />
