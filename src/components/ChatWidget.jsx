@@ -55,41 +55,72 @@ const GeminiChatbot = () => {
   }, [isOpen, isMinimized]);
 
   const loadTrainingData = async () => {
-    const possiblePaths = [
-      '/src/data/training.txt',
-      './src/data/training.txt', 
-      '../src/data/training.txt',
-      '/data/training.txt',
-      './data/training.txt',
-      '../data/training.txt',
-      '/training.txt',
-      './training.txt',
-      'src/data/training.txt',
-      'data/training.txt',
-      'training.txt'
-    ];
-
     setTrainingDataStatus('loading');
     
-    for (const path of possiblePaths) {
+    // For production deployments (Vercel, Netlify, GitHub Pages, etc.)
+    // Files in /public folder are served from root
+    const trainingDataPaths = [
+      '/data/training.txt',          // Most likely path for Vercel/Netlify
+      '/training.txt',               // If file is directly in public folder
+      './data/training.txt',         // Relative path fallback
+      './training.txt',              // Relative path fallback
+    ];
+
+    for (const path of trainingDataPaths) {
       try {
-        const response = await fetch(path);
+        console.log(`Attempting to load training data from: ${path}`);
+        
+        const response = await fetch(path, {
+          method: 'GET',
+          headers: {
+            'Accept': 'text/plain',
+            'Cache-Control': 'no-cache'
+          },
+        });
         
         if (response.ok) {
           const data = await response.text();
-          setTrainingData(data);
-          setTrainingDataStatus('loaded');
-          return;
+          if (data && data.trim().length > 10) { // Ensure we have meaningful content
+            console.log(`✅ Successfully loaded training data from: ${path}`);
+            console.log(`Training data length: ${data.length} characters`);
+            setTrainingData(data);
+            setTrainingDataStatus('loaded');
+            return;
+          } else {
+            console.warn(`⚠️ Empty or too short content from ${path}`);
+          }
+        } else {
+          console.warn(`❌ HTTP ${response.status} for ${path}`);
         }
       } catch (error) {
+        console.warn(`❌ Failed to load from ${path}:`, error.message);
         continue;
       }
     }
     
-    setTrainingData('You are a helpful AI assistant. Please provide helpful and accurate responses.');
-    setTrainingDataStatus('error');
+    // If all paths fail, try API endpoint as backup
+    try {
+      console.log('Trying API endpoint for training data...');
+      const response = await fetch(`${API_BASE}/api/training-data`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'text/plain',
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.text();
+        if (data && data.trim().length > 10) {
+          console.log('✅ Successfully loaded training data from API');
+          setTrainingData(data);
+          setTrainingDataStatus('loaded');
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn('❌ API endpoint also failed:', error.message);
+    }
   };
-
   const checkBackendConnection = async () => {
     try {
       const response = await fetch(HEALTH_CHECK_URL, {
@@ -205,7 +236,6 @@ const GeminiChatbot = () => {
     setIsMinimized(!isMinimized);
   };
 
-
   const clearChat = () => {
     if (messages.length > 0) {
       setChatHistory([...chatHistory, { messages, timestamp: new Date() }]);
@@ -247,6 +277,25 @@ const GeminiChatbot = () => {
         Unknown
       </div>
     );
+  };
+
+  const TrainingDataStatus = () => {
+    if (trainingDataStatus === 'fallback' && 'loaded') {
+      return (
+        <div className="flex items-center text-yellow-400 text-xs">
+          <div className="w-2 h-2 bg-yellow-400 rounded-full mr-1"></div>
+          Using Fallback Data
+        </div>
+      );
+    } else if (trainingDataStatus === 'loading') {
+      return (
+        <div className="flex items-center text-blue-400 text-xs">
+          <div className="w-2 h-2 bg-blue-400 rounded-full mr-1 animate-pulse"></div>
+          Loading Training Data...
+        </div>
+      );
+    }
+    return null;
   };
 
   const formatTime = (timestamp) => {
@@ -313,6 +362,7 @@ const GeminiChatbot = () => {
                   <span className="font-bold text-lg">AI Assistant</span>
                   <div className="flex items-center space-x-3">
                     <ConnectionStatus />
+                    <TrainingDataStatus />
                   </div>
                 </div>
               </div>
@@ -500,6 +550,7 @@ const GeminiChatbot = () => {
                   <span className="font-bold text-lg">AI Assistant</span>
                   <div className="flex items-center space-x-3">
                     <ConnectionStatus />
+                    <TrainingDataStatus />
                   </div>
                 </div>
               </div>
@@ -615,7 +666,6 @@ const GeminiChatbot = () => {
               )}
               <div ref={messagesEndRef} />
             </div>
-
             {/* Input Area - Mobile */}
             <div className="border-t border-gray-800 p-4 bg-black safe-area-bottom">
               <div className="flex space-x-3">
