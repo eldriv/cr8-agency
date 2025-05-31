@@ -4,7 +4,6 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // Your existing custom fonts from @font-face declarations
         'circular-web': ['circular-web', 'sans-serif'],
         'general': ['general', 'sans-serif'],
         'robert-medium': ['robert-medium', 'sans-serif'],
