@@ -33,8 +33,8 @@ const Chatbot = () => {
   };
 
   const API_BASE = getApiBase();
-  const BACKEND_PROXY_URL = `${API_BASE}backend/api/ai`;
-  const HEALTH_CHECK_URL = `${API_BASE}backend/api/health`;
+  const BACKEND_PROXY_URL = `${API_BASE}/backend/api/ai`;
+  const HEALTH_CHECK_URL = `${API_BASE}/backend/api/health`;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

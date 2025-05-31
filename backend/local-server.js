@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'Backend server is running', status: 'OK' });
 });
 
-app.get('/api/health', (req, res) => {
+app.get('/backend/api/health', (req, res) => {
   res.json({
     message: 'API is working',
     timestamp: new Date().toISOString(),
@@ -44,7 +44,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.post('/api/gemini', async (req, res) => {
+app.post('/backend/api/gemini', async (req, res) => {
   const { prompt } = req.body;
 
   if (!process.env.GEMINI_API_KEY) {
@@ -99,6 +99,6 @@ app.post('/api/gemini', async (req, res) => {
 // Start the server
 app.listen(PORT, () => {
   console.log(`Backend server running at http://localhost:${PORT}`);
-  console.log(`Health check available at http://localhost:${PORT}/api/health`);
+  console.log(`Health check available at http://localhost:${PORT}/backend/api/health`);
   console.log(`API Key present: ${!!process.env.GEMINI_API_KEY}`);
 });
