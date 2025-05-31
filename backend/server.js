@@ -30,7 +30,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Gemini API URL with your key from .env
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
 // Root route — health check or simple confirmation
@@ -38,7 +37,6 @@ app.get('/', (req, res) => {
   res.json({ message: 'Backend server is running', status: 'OK' });
 });
 
-// Health check for API (removed duplicate)
 app.get('/api/health', (req, res) => {
   res.json({
     message: 'API is working',
@@ -47,11 +45,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Proxy POST request to Gemini API
 app.post('/api/gemini', async (req, res) => {
   const { prompt } = req.body;
 
-  // Validate API key
   if (!process.env.GEMINI_API_KEY) {
     return res.status(500).json({
       error: 'GEMINI_API_KEY not found in environment variables'
