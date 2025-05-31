@@ -465,7 +465,7 @@ const GeminiChatbot = () => {
                     </button>
                   </div>
                   <div className="mt-2 text-xs text-gray-500 text-center">
-                    Press Enter to send • Shift + Enter for new line
+                    Press Enter to send
                   </div>
                 </div>
               </>
