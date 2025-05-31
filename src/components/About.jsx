@@ -371,7 +371,7 @@ const VerticalTextSlider = () => {
         </div>
 
         {!isVideoSlideActive && (
-       <div className="absolute bottom-8 right-8 md:right-auto md:left-1/2 md:transform md:-translate-x-1/2 z-20">
+  <div className="absolute bottom-8 left-40 md:right-auto md:left-1/2 md:transform md:-translate-x-1/2 z-20">
   <div className="w-6 ml-4 h-10 border-2 border-white/50 rounded-full flex justify-center">
     <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-bounce"></div>
   </div>
@@ -380,7 +380,7 @@ const VerticalTextSlider = () => {
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         * {
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
