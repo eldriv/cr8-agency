@@ -12,7 +12,7 @@ export default {
         'zentry': ['zentry', 'sans-serif'],
         
         // Display fonts - for headlines and hero text
-        display: ["Playfair Display", "Times New Roman", "serif"],
+        display: ["Poppins", "sans-serif"],
         heading: ["Montserrat", "Arial", "sans-serif"],
         
         // Body fonts - for readability
