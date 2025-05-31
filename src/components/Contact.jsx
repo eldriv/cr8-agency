@@ -502,8 +502,8 @@ function LuxuryContactSection() {
         >
           <div className="w-full max-w-[1200px] mb-20 sm:mb-0">
             {/* Header */}
-            <div className="text-center mb-10 sm:mb-12 lg:mb-16 px-4 lg:mt-80">
-              <h1 className="font-display text-[36px] sm:text-[48px] md:text-[60px] font-bold text-white leading-tight">
+            <div className="text-center mb-10 sm:mb-12 lg:mb-16 px-4 lg:mt-[45vh]">
+              <h1 className="font-display text-[36px] sm:text-[48px] md:text-[60px] font-bold text-white leading-tight ">
                 Let's Collaborate
               </h1>
               <p className="mt-10 font-body sm:text-[24px] text-white opacity-80 max-w-md sm:max-w-2xl md:max-w-4xl mx-auto leading-relaxed">
