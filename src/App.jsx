@@ -1,5 +1,6 @@
 // src/App.jsx
 import { useEffect } from "react";
+import ChatbaseWidget from "./components/ChatWidget"; 
 import About from "./components/About";
 import Hero from "./components/Hero";
 import NavBar from "./components/Navbar";
@@ -10,7 +11,7 @@ import Footer from "./components/Footer";
 
 function App() {
   useEffect(() => {
-    const sections = ["home", "services", "works", "contact"];
+    const sections = ["home", "services", "works", "contact", "Chat"];
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -25,12 +26,12 @@ function App() {
         threshold: 0.5,
       }
     );
-
+    
     sections.forEach((id) => {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
-
+    
     return () => observer.disconnect();
   }, []);
 
@@ -43,6 +44,7 @@ function App() {
       <Logo id="works" />
       <Contact id="contact" />
       <Footer />
+      <ChatbaseWidget id="Chat" enabled={true} />
     </main>
   );
 }
