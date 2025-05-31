@@ -4,13 +4,12 @@ Meta Description:
 At CR8, we provide top-tier graphic design, video editing, motion graphics, and animation services to elevate your brand. Collaborate with us to bring your creative vision to life. Book a free consultation today!
 
 
-HeaderCR8 – Your Vision. Our Creation.Phone: 000-000-0000 | Email: creativscr8@gmail.com
 
-Hero SectionLet’s Create & Unleash Your Creative VisionAt CR8, we craft unique visual stories that amplify your brand and captivate your audience. From design to production, we partner with you every step of the way to bring your ideas to life.
-[Start Your Journey – Book a Free Consultation] (CTA Button)
+Let’s Create & Unleash Your Creative VisionAt CR8, we craft unique visual stories that amplify your brand and captivate your audience. From design to production, we partner with you every step of the way to bring your ideas to life.
 
-ConsultationBring Your Ideas to LifeWe begin with an in-depth consultation to understand your brand’s needs, goals, and vision. Whether you need motion graphics, animation, or a full-scale video production, our team is ready to help shape and execute your creative vision.
-[Schedule Your Free Consultation] (CTA Button)
+Consultation
+Bring Your Ideas to LifeWe begin with an in-depth consultation to understand your brand’s needs, goals, and vision. Whether you need motion graphics, animation, or a full-scale video production, our team is ready to help shape and execute your creative vision.
+
 
 Services OfferedExpert Creative Services Tailored for Your BrandAt CR8, we specialize in providing impactful visual solutions. We’re ready to support your project with:
 	Graphic Design: From logos to brand visuals
@@ -18,11 +17,11 @@ Services OfferedExpert Creative Services Tailored for Your BrandAt CR8, we speci
 	Motion Graphics: Elevating your visuals with animation
 	2D/3D Animation: Bringing your ideas to life with movement
 	Logo Animation: Giving your brand the extra edge
-[Learn More About Our Services] (CTA Button)
 
-About UsAt CR8, we are dedicated to creating high-quality campaigns that align seamlessly with your brand’s values and trends. Trusted by leading brands, we uphold a commitment to excellence and innovation, delivering creative solutions that resonate with your audience.
+At CR8, we are dedicated to creating high-quality campaigns that align seamlessly with your brand’s values and trends. Trusted by leading brands, we uphold a commitment to excellence and innovation, delivering creative solutions that resonate with your audience.
 
-Our Production ProcessWe make every project smooth and efficient. Here’s how we work:
+Our Production Process
+We make every project smooth and efficient. Here’s how we work:
 1.	Discovery – We dive deep into your brand to understand your vision (1-2 days).
 2.	Storyboard – Drafting visual concepts to guide the project (1-2 days).
 3.	Production – Bringing the vision to life through design, animation, and editing (3-5 days).
@@ -35,33 +34,105 @@ Pricing and PackagesFlexible Packages for Every NeedWe offer a variety of packag
 	Growth Pack: Motion Graphics & Professional Video Editing
 	Premium Pack: Full Branding with Advanced Animation
 Custom packages are also available to fit your specific needs.
-[Request a Custom Quote] (CTA Button)
 
-Our Work with Top BrandsWe’re proud to have partnered with some of the most well-known brands, helping them elevate their public image and connect with their audiences. Our work speaks for itself.
-Brands We’ve Worked With:[Brand Logos/Names Here]
-
-
-Portfolio: See Our Creative Impact
-Explore our portfolio to see the creativity, precision, and innovation that CR8 brings to every project. We’ve collaborated with a wide range of brands across industries, delivering standout results that captivate audiences.
-Featured Projects:
-	Brand Campaign for [Brand Name]: A complete rebranding package with logo animation and motion graphics to enhance the company’s market presence.
-	Product Launch Video for [Brand Name]: Dynamic video editing and 2D animation to introduce a new product and generate excitement.
-	Social Media Campaign for [Brand Name]: Engaging, trend-aligned graphic design and motion graphics tailored for maximum impact on social platforms.
-[View Our Full Portfolio] (CTA Button)
-
-Meet Our Production TeamBehind every successful project is a passionate, expert team using the industry’s top creative tools:
+creative tools:
 	Adobe Photoshop
 	Illustrator
 	InDesign
 	Premiere Pro
 	After Effects
+	FinalCut
 Our team ensures that each project is a perfect blend of creativity and technical excellence.
 
-Client TestimonialsWhat Our Clients Are Saying"CR8 transformed our vision into a stunning reality. Their professionalism and creativity exceeded all expectations." – [Client Name]
-"Their ability to turn ideas into compelling visual stories was truly impressive. We couldn’t be happier with the results." – [Client Name]
+Company Overview
 
-Call to ActionReady to unleash your brand’s creative potential? Whether you need design, video editing, or animation, CR8 is here to bring your ideas to life with stunning visuals and flawless execution.
-[Get Started – Book a Free Consultation]
+Name: CR8
+Tagline: Let’s Create & Unleash Your Creative Vision
+Contact Email: eldriv@proton.me
 
-FooterCR8 – Your Vision. Our Creation.Email: eldriv@proton.me | Fill on the blanks at the contact PageFollow us on: [Social Media Icons]
+What We Do
 
+We are digital creatives offering a variety of services including:
+
+    Graphic Design
+
+    Video Editing
+
+    Motion Graphics
+
+    Animation
+
+    Logo Animation
+
+Who We Do It For
+
+We serve clients who need visual storytelling and branding services. Our goal is to bring your vision to life through creativity and expert execution.
+Production Process
+
+    Understanding Your Brand
+
+        We exchange ideas and information to enhance your brand value and create visuals aligned with your vision.
+
+    Drafting Storyboard (24–48 hours)
+
+        We present an outline for the final output. Once approved, changes during production may incur a fee.
+
+    Production Process (12–72 hours)
+
+        Our team edits and designs the project based on the approved storyboard. Output is reviewed by our QA team.
+
+    Client Approval
+
+        The client reviews and gives feedback via Frame.io. A walkthrough is provided if needed.
+
+    Revision
+
+        Feedback is incorporated. After 3 rounds of revisions, additional fees may apply.
+
+Packages
+LOE 1 – Level of Effort 1
+
+Includes:
+
+    Basic Short Form (30s–1m)
+
+    Basic Long Form (5m–10m)
+
+    Basic Motion Graphic Elements (Lower Thirds)
+
+LOE 2 – Level of Effort 2
+
+Includes:
+
+    Short Form (30s–1m)
+
+    Long Form (5m–20m)
+
+    Motion Graphic Elements (Lower Thirds, Intro Animation, Logo Animation)
+
+LOE 3 – Level of Effort 3
+
+Includes:
+
+    Advanced Video Editing with VFX
+
+    Template Creation
+
+    Full Motion Graphics (Lower Thirds, Intro Animation, Logo Animation)
+
+Customized Package
+
+Choose any combination of services from above based on your needs.
+Software We Use
+
+    [List of software can be inserted here, if specified]
+
+Client Trust
+
+We’ve collaborated with top-tier brands, delivering campaigns that:
+
+    Uphold high-quality standards
+
+    Align with brand identity
+
+    Follow current design trends
