@@ -1,5 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Palette, Film, Zap, Layers, RotateCcw, Code, VolumeX, Volume2 } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const VerticalTextSlider = () => {
   const containerRef = useRef(null);
@@ -18,25 +22,20 @@ const VerticalTextSlider = () => {
   const [isMuted2, setIsMuted2] = useState(true);
   const [videoStarted, setVideoStarted] = useState(false);
   const [video2Started, setVideo2Started] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(1);
 
   // Set initial positions immediately on mount
   useEffect(() => {
     if (slide2Ref.current && slide3Ref.current && slide4Ref.current && slide5Ref.current) {
-      // Using inline styles instead of gsap.set for initial positions
-      slide2Ref.current.style.transform = 'translateY(100vh)';
-      slide3Ref.current.style.transform = 'translateY(100vh)';
-      slide4Ref.current.style.transform = 'translateX(100vw)';
-      slide5Ref.current.style.transform = 'translateX(-100vw)';
-      
-      // Set initial opacity for overlays and content
-      document.querySelectorAll('.slide-overlay').forEach(el => el.style.opacity = '0');
-      document.querySelectorAll('.slide-content').forEach(el => {
-        el.style.transform = 'translateY(-60px)';
-        el.style.opacity = '0';
-      });
-      document.querySelector('.slide-4').style.opacity = '0';
-      document.querySelector('.slide-5').style.opacity = '0';
+      gsap.set(slide2Ref.current, { y: "100vh", force3D: true });
+      gsap.set(slide3Ref.current, { y: "100vh", force3D: true });
+      gsap.set(slide4Ref.current, { x: "100vw", force3D: true });
+      gsap.set(slide5Ref.current, { x: "-100vw", force3D: true });
+      gsap.set(".slide-overlay", { opacity: 0, force3D: true });
+      gsap.set(".slide-content", { y: -60, opacity: 0, force3D: true });
+      gsap.set(".slide-4", { opacity: 0, force3D: true });
+      gsap.set(".slide-5", { opacity: 0, force3D: true });
+      gsap.set(".slide-4 video", { scale: 1, force3D: true });
+      gsap.set(".slide-5 video", { scale: 1, force3D: true });
     }
   }, []);
 
@@ -108,187 +107,59 @@ const VerticalTextSlider = () => {
   };
 
   useEffect(() => {
-    const initializeVideos = () => {
-      if (!loading) {
-        if (videoRef.current) {
-          try {
-            videoRef.current.load();
-            videoRef.current.loop = true;
-            videoRef.current.muted = true;
-            videoRef.current.preload = "auto";
-            const onCanPlayThrough = () => {
-              setVideoReady(true);
-              console.log('Video initialized and ready to play');
-              videoRef.current.removeEventListener('canplaythrough', onCanPlayThrough);
-            };
-            videoRef.current.addEventListener('canplaythrough', onCanPlayThrough);
-            videoRef.current.addEventListener('error', (e) => {
-              console.error('Video loading error:', e);
-              setVideoReady(true);
-            }, { once: true });
-          } catch (error) {
-            console.log('Video initialization error:', error);
-            setVideoReady(true);
-          }
-        }
-        if (video2Ref.current) {
-          try {
-            video2Ref.current.load();
-            video2Ref.current.loop = true;
-            video2Ref.current.muted = true;
-            video2Ref.current.preload = "auto";
-            const onCanPlayThrough2 = () => {
-              setVideo2Ready(true);
-              console.log('Video 2 initialized and ready to play');
-              video2Ref.current.removeEventListener('canplaythrough', onCanPlayThrough2);
-            };
-            video2Ref.current.addEventListener('canplaythrough', onCanPlayThrough2);
-            video2Ref.current.addEventListener('error', (e) => {
-              console.error('Video 2 loading error:', e);
-              setVideo2Ready(true);
-            }, { once: true });
-          } catch (error) {
-            console.log('Video 2 initialization error:', error);
-            setVideo2Ready(true);
-          }
-        }
-      }
-    };
+    const initializeVideos=()=>{if(!loading){if(videoRef.current){try{videoRef.current.load();videoRef.current.loop=true;videoRef.current.muted=true;videoRef.current.preload="auto";const onCanPlayThrough=()=>{setVideoReady(true);console.log('Video initialized and ready to play');videoRef.current.removeEventListener('canplaythrough',onCanPlayThrough);};videoRef.current.addEventListener('canplaythrough',onCanPlayThrough);videoRef.current.addEventListener('error',(e)=>{console.error('Video loading error:',e);setVideoReady(true);},{once:true});}catch(error){console.log('Video initialization error:',error);setVideoReady(true);}}if(video2Ref.current){try{video2Ref.current.load();video2Ref.current.loop=true;video2Ref.current.muted=true;video2Ref.current.preload="auto";const onCanPlayThrough2=()=>{setVideo2Ready(true);console.log('Video 2 initialized and ready to play');video2Ref.current.removeEventListener('canplaythrough',onCanPlayThrough2);};video2Ref.current.addEventListener('canplaythrough',onCanPlayThrough2);video2Ref.current.addEventListener('error',(e)=>{console.error('Video 2 loading error:',e);setVideo2Ready(true);},{once:true});}catch(error){console.log('Video 2 initialization error:',error);setVideo2Ready(true);}}}};
 
     if (!loading) initializeVideos();
 
-    return () => {
-      if (videoRef.current) {
-        videoRef.current.removeEventListener('canplaythrough', () => {});
-        videoRef.current.removeEventListener('error', () => {});
-      }
-      if (video2Ref.current) {
-        video2Ref.current.removeEventListener('canplaythrough', () => {});
-        video2Ref.current.removeEventListener('error', () => {});
-      }
-    };
+    return()=>{if(videoRef.current){videoRef.current.removeEventListener('canplaythrough',()=>{});videoRef.current.removeEventListener('error',()=>{});}if(video2Ref.current){video2Ref.current.removeEventListener('canplaythrough',()=>{});video2Ref.current.removeEventListener('error',()=>{});}};
   }, [loading]);
 
-  // Custom scroll handler for slide transitions
   useEffect(() => {
     if (loading || !videoReady || !video2Ready) return;
 
-    let isTransitioning = false;
-    let scrollTimeout;
+    // Ensure initial positions are set before creating timeline
+    gsap.set(slide2Ref.current, { y: "100vh", force3D: true });
+    gsap.set(slide3Ref.current, { y: "100vh", force3D: true });
+    gsap.set(slide4Ref.current, { x: "100vw", force3D: true });
+    gsap.set(slide5Ref.current, { x: "-100vw", force3D: true });
+    gsap.set(".slide-overlay", { opacity: 0, force3D: true });
+    gsap.set(".slide-content", { y: -60, opacity: 0, force3D: true });
+    gsap.set(".slide-4", { opacity: 0, force3D: true });
+    gsap.set(".slide-5", { opacity: 0, force3D: true });
+    gsap.set(".slide-4 video", { scale: 1, force3D: true });
+    gsap.set(".slide-5 video", { scale: 1, force3D: true });
 
-    const handleScroll = (e) => {
-      if (isTransitioning) {
-        e.preventDefault();
-        return;
-      }
+    // Small delay to ensure DOM is fully ready
+    const initAnimation = () => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "+=600%",
+          scrub: 0.5,
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          refreshPriority: -1,
+          onUpdate: (self) => {
+            if (self.progress > 0.8) {
+              setIsVideoSlideActive(true);
+            } else {
+              setIsVideoSlideActive(false);
+            }
+          }
+        }
+      });
 
-      const deltaY = e.deltaY;
-      const scrollingDown = deltaY > 0;
-      const scrollingUp = deltaY < 0;
-
-      // Handle transitions between slides
-      if (currentSlide === 1 && scrollingDown) {
-        e.preventDefault();
-        isTransitioning = true;
-        transitionToSlide2();
-        setTimeout(() => { isTransitioning = false; }, 800);
-      } else if (currentSlide === 2 && scrollingUp && slide2Ref.current.scrollTop <= 0) {
-        e.preventDefault();
-        isTransitioning = true;
-        transitionToSlide1();
-        setTimeout(() => { isTransitioning = false; }, 800);
-      } else if (currentSlide === 2 && scrollingDown && slide2Ref.current.scrollTop >= slide2Ref.current.scrollHeight - slide2Ref.current.clientHeight) {
-        e.preventDefault();
-        isTransitioning = true;
-        transitionToSlide3();
-        setTimeout(() => { isTransitioning = false; }, 800);
-      } else if (currentSlide === 3 && scrollingUp) {
-        e.preventDefault();
-        isTransitioning = true;
-        transitionToSlide2();
-        setTimeout(() => { isTransitioning = false; }, 800);
-      } else if (currentSlide === 3 && scrollingDown) {
-        e.preventDefault();
-        isTransitioning = true;
-        transitionToSlide4();
-        setTimeout(() => { isTransitioning = false; }, 800);
-      } else if (currentSlide === 4 && scrollingUp) {
-        e.preventDefault();
-        isTransitioning = true;
-        transitionToSlide3();
-        setTimeout(() => { isTransitioning = false; }, 800);
-      } else if (currentSlide === 4 && scrollingDown) {
-        e.preventDefault();
-        isTransitioning = true;
-        transitionToSlide5();
-        setTimeout(() => { isTransitioning = false; }, 800);
-      } else if (currentSlide === 5 && scrollingUp) {
-        e.preventDefault();
-        isTransitioning = true;
-        transitionToSlide4();
-        setTimeout(() => { isTransitioning = false; }, 800);
-      }
-
-      // Allow normal scrolling within slide 2
-      if (currentSlide === 2) {
-        // Don't prevent default - allow normal scrolling
-        return;
-      }
+      tl.to(".slide-1 .slide-content",{y:0,opacity:1,duration:0.16,ease:"power3.out",force3D:true}).to(".slide-1 .slide-overlay",{opacity:0.4,duration:0.12,ease:"power2.out"},"<").to([slide2Ref.current,slide1Ref.current],{y:(i)=>i===0?"0vh":"-100vh",duration:0.16,ease:"power2.out",force3D:true,stagger:0},0.16).to(".slide-1 .slide-content",{y:-40,opacity:0,duration:0.12,ease:"power2.in",force3D:true},0.16).to(".slide-1 .slide-overlay",{opacity:0.8,duration:0.12,ease:"power2.in"},0.16).to(".slide-2 .slide-content",{y:0,opacity:1,duration:0.2,ease:"power3.out",force3D:true},0.24).to(".slide-2 .slide-overlay",{opacity:0.3,duration:0.16,ease:"power2.out"},0.24).to(".slide-2 .slide-content",{y:-40,opacity:0,duration:0.16,ease:"power2.in",force3D:true},0.32).to(".slide-2 .slide-overlay",{opacity:0.8,duration:0.16,ease:"power2.in"},0.32).to([slide3Ref.current,slide2Ref.current],{y:(i)=>i===0?"0vh":"-100vh",duration:0.16,ease:"power2.out",force3D:true,stagger:0},0.36).to(".slide-3 .slide-content",{y:0,opacity:1,duration:0.2,ease:"power3.out",force3D:true},0.44).to(".slide-3 .slide-overlay",{opacity:0.3,duration:0.16,ease:"power2.out"},0.44).to(".slide-3 .slide-content",{y:-40,opacity:0,duration:0.16,ease:"power2.inOut",force3D:true},0.48).to(".slide-3 .slide-overlay",{opacity:0.8,duration:0.16,ease:"power2.inOut"},0.48).to(slide4Ref.current,{x:"0vw",duration:0.16,ease:"power2.inOut",force3D:true},0.52).to(".slide-4",{opacity:1,duration:0.12,ease:"power2.inOut",force3D:true},0.56).to(".slide-4 video",{scale:1.02,duration:0.12,ease:"power2.inOut",force3D:true},0.6).to(".slide-4 video",{scale:1.04,duration:0.16,ease:"power2.inOut",force3D:true},0.68).to(slide5Ref.current,{x:"0vw",duration:0.16,ease:"power2.inOut",force3D:true},0.8).to(".slide-5",{opacity:1,duration:0.12,ease:"power2.inOut",force3D:true},0.84).to(".slide-5 video",{scale:1.02,duration:0.12,ease:"power2.inOut",force3D:true},0.86).to(".slide-5 video",{scale:1.05,duration:0.1,ease:"power2.inOut",force3D:true},0.9);
     };
 
-    const transitionToSlide1 = () => {
-      setCurrentSlide(1);
-      slide1Ref.current.style.transform = 'translateY(0)';
-      slide2Ref.current.style.transform = 'translateY(100vh)';
-      slide1Ref.current.querySelector('.slide-content').style.transform = 'translateY(0)';
-      slide1Ref.current.querySelector('.slide-content').style.opacity = '1';
-      slide1Ref.current.querySelector('.slide-overlay').style.opacity = '0.4';
-    };
-
-    const transitionToSlide2 = () => {
-      setCurrentSlide(2);
-      slide1Ref.current.style.transform = 'translateY(-100vh)';
-      slide2Ref.current.style.transform = 'translateY(0)';
-      slide2Ref.current.scrollTop = currentSlide === 1 ? 0 : slide2Ref.current.scrollHeight;
-      slide2Ref.current.querySelector('.slide-content').style.transform = 'translateY(0)';
-      slide2Ref.current.querySelector('.slide-content').style.opacity = '1';
-      slide2Ref.current.querySelector('.slide-overlay').style.opacity = '0.3';
-    };
-
-    const transitionToSlide3 = () => {
-      setCurrentSlide(3);
-      slide2Ref.current.style.transform = 'translateY(-100vh)';
-      slide3Ref.current.style.transform = 'translateY(0)';
-      slide3Ref.current.querySelector('.slide-content').style.transform = 'translateY(0)';
-      slide3Ref.current.querySelector('.slide-content').style.opacity = '1';
-      slide3Ref.current.querySelector('.slide-overlay').style.opacity = '0.3';
-    };
-
-    const transitionToSlide4 = () => {
-      setCurrentSlide(4);
-      slide4Ref.current.style.transform = 'translateX(0)';
-      slide4Ref.current.style.opacity = '1';
-      startVideoPlayback();
-      setIsVideoSlideActive(true);
-    };
-
-    const transitionToSlide5 = () => {
-      setCurrentSlide(5);
-      slide5Ref.current.style.transform = 'translateX(0)';
-      slide5Ref.current.style.opacity = '1';
-      startVideo2Playback();
-    };
-
-    // Initialize slide 1
-    slide1Ref.current.querySelector('.slide-content').style.transform = 'translateY(0)';
-    slide1Ref.current.querySelector('.slide-content').style.opacity = '1';
-    slide1Ref.current.querySelector('.slide-overlay').style.opacity = '0.4';
-
-    document.addEventListener('wheel', handleScroll, { passive: false });
+    // Small delay to ensure everything is properly initialized
+    const timeoutId = setTimeout(initAnimation, 100);
 
     return () => {
-      document.removeEventListener('wheel', handleScroll);
-      clearTimeout(scrollTimeout);
+      clearTimeout(timeoutId);
+      ScrollTrigger.getAll().forEach(st => st.kill());
       if (videoRef.current) {
         videoRef.current.pause();
         videoRef.current.muted = true;
@@ -298,10 +169,10 @@ const VerticalTextSlider = () => {
         video2Ref.current.muted = true;
       }
     };
-  }, [loading, videoReady, video2Ready, currentSlide]);
+  }, [loading, videoReady, video2Ready]);
 
   return (
-    <div className="relative h-screen overflow-hidden">
+    <div className="relative h-[700vh]">
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
           <div className="relative">
@@ -312,10 +183,10 @@ const VerticalTextSlider = () => {
         </div>
       )}
 
-      <div ref={containerRef} className="relative h-screen w-screen overflow-hidden">
-        <div ref={slide1Ref} className="slide-1 absolute inset-0 h-full w-full transition-transform duration-700 ease-out" style={{ willChange: 'transform' }}>
-          <div className="slide-overlay absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black pointer-events-none transition-opacity duration-500" />
-          <div className="slide-content absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-8 transition-all duration-500">
+      <div ref={containerRef} className="sticky top-0 h-screen w-screen overflow-hidden" style={{ willChange: 'transform' }}>
+        <div ref={slide1Ref} className="slide-1 absolute inset-0 h-full w-full" style={{ willChange: 'transform' }}>
+          <div className="slide-overlay absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black pointer-events-none" />
+          <div className="slide-content absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-8">
             <h1 className="text-3xl md:text-6xl font-display font-bold mb-6 tracking-tight">
               <span className="bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
                 Let's Create Your Creative Vision
@@ -329,97 +200,72 @@ const VerticalTextSlider = () => {
           </div>
         </div>
 
-        <div ref={slide2Ref} className="slide-2 absolute inset-0 h-full w-full bg-black transition-transform duration-700 ease-out overflow-y-auto" style={{ willChange: 'transform' }}>
-          <div className="slide-overlay absolute inset-0 bg-gradient-to-br from-black/90 via-black/80 to-black/90 pointer-events-none transition-opacity duration-500" />
-          <div className="slide-content relative flex flex-col justify-center items-center text-center text-white z-10 px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20 max-w-7xl mx-auto min-h-screen transition-all duration-500">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold mb-8 sm:mb-10 md:mb-12 tracking-tight">
-              <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent" id="services">
-                SERVICES OFFERED
-              </span>
-            </h1>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 w-full max-w-6xl">
-              <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 flex mx-auto items-center justify-center">
-                  <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Graphic Design</h3>
-                <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">From logos to comprehensive brand visuals</p>
-              </div>
-
-              <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
-                  <Film className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Video Editing</h3>
-                <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Crafting dynamic content that captures attention</p>
-              </div>
-
-              <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95 sm:col-span-2 lg:col-span-1">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
-                  <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Motion Graphics</h3>
-                <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Elevating your visuals with movements</p>
-              </div>
-
-              <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
-                  <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">2D/3D Animation</h3>
-                <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Bringing your ideas to life with dimension</p>
-              </div>
-
-              <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
-                  <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Logo Animation</h3>
-                <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Giving your brand identity dynamic edge</p>
-              </div>
-
-              <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95 sm:col-span-2 lg:col-span-1">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
-                  <Code className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Web Development</h3>
-                <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Build websites effectively and promote your brand</p>
-              </div>
+       <div ref={slide2Ref} className="slide-2 relative min-h-screen w-full bg-black" style={{ willChange: 'transform' }}>
+      <div className="slide-overlay absolute inset-0 bg-gradient-to-br from-black/90 via-black/80 to-black/90 pointer-events-none" />
+      <div className="slide-content relative flex flex-col justify-center items-center text-center text-white z-10 px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20 max-w-7xl mx-auto min-h-screen">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold mb-8 sm:mb-10 md:mb-12 tracking-tight">
+          <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent" id="services">
+            SERVICES OFFERED
+          </span>
+        </h1>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 w-full max-w-6xl">
+          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 flex mx-auto items-center justify-center">
+              <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Graphic Design</h3>
+            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">From logos to comprehensive brand visuals</p>
+          </div>
 
-            <div className="mt-8 sm:mt-10 md:mt-12 w-24 sm:w-32 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
-            
-            {/* Extra content to make slide 2 scrollable */}
-            <div className="mt-16 max-w-4xl mx-auto">
-              <h2 className="text-2xl md:text-4xl font-display font-bold mb-8 text-center">
-                Why Choose Our Services?
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-                <div className="bg-white/5 p-6 rounded-lg">
-                  <h3 className="text-xl font-bold mb-4">Creative Excellence</h3>
-                  <p className="text-white/80">We bring fresh perspectives and innovative solutions to every project, ensuring your brand stands out in a crowded marketplace.</p>
-                </div>
-                <div className="bg-white/5 p-6 rounded-lg">
-                  <h3 className="text-xl font-bold mb-4">Technical Expertise</h3>
-                  <p className="text-white/80">Our team combines artistic vision with technical proficiency to deliver high-quality results that meet industry standards.</p>
-                </div>
-                <div className="bg-white/5 p-6 rounded-lg">
-                  <h3 className="text-xl font-bold mb-4">Client Partnership</h3>
-                  <p className="text-white/80">We work closely with you throughout the entire process, ensuring your vision is realized and your goals are achieved.</p>
-                </div>
-                <div className="bg-white/5 p-6 rounded-lg">
-                  <h3 className="text-xl font-bold mb-4">Timely Delivery</h3>
-                  <p className="text-white/80">We understand the importance of deadlines and consistently deliver projects on time without compromising quality.</p>
-                </div>
-              </div>
+          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
+              <Film className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Video Editing</h3>
+            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Crafting dynamic content that captures attention</p>
+          </div>
+
+          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95 sm:col-span-2 lg:col-span-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
+              <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Motion Graphics</h3>
+            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Elevating your visuals with movements</p>
+          </div>
+
+          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
+              <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">2D/3D Animation</h3>
+            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Bringing your ideas to life with dimension</p>
+          </div>
+
+          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
+              <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Logo Animation</h3>
+            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Giving your brand identity dynamic edge</p>
+          </div>
+
+          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95 sm:col-span-2 lg:col-span-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
+              <Code className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            </div>
+            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Web Development</h3>
+            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Build websites effectively and promote your brand</p>
           </div>
         </div>
 
-        <div ref={slide3Ref} className="slide-3 absolute inset-0 h-full w-full transition-transform duration-700 ease-out" style={{ willChange: 'transform' }}>
-          <div className="slide-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black pointer-events-none transition-opacity duration-500" />
-          <div className="slide-content absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-8 transition-all duration-500">
+        <div className="mt-8 sm:mt-10 md:mt-12 w-24 sm:w-32 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
+      </div>
+    </div>
+
+        <div ref={slide3Ref} className="slide-3 absolute inset-0 h-full w-full" style={{ willChange: 'transform' }}>
+          <div className="slide-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black pointer-events-none" />
+          <div className="slide-content absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-8">
             <h1 className="text-4xl md:text-7xl font-display font-bold mb-8 tracking-tight leading-tight">
               <span className="bg-gradient-to-r from-white via-white to-white-800 bg-clip-text">
               See Our Creative Impact
@@ -432,8 +278,8 @@ const VerticalTextSlider = () => {
           </div>
         </div>
 
-        <div ref={slide4Ref} className="slide-4 absolute inset-0 h-full w-full opacity-0 overflow-hidden transition-all duration-700 ease-out" style={{ willChange: 'transform, opacity' }}>
-          <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" style={{ willChange: 'transform' }} loop playsInline preload="auto" onLoadedData={() => console.log('Video loaded successfully')} onCanPlay={() => console.log('Video can start playing')} onError={(e) => console.error('Video loading error:', e)} onLoadStart={() => console.log('Video loading started')} />
+        <div ref={slide4Ref} className="slide-4 absolute inset-0 h-full w-full opacity-0 overflow-hidden" style={{ willChange: 'transform, opacity' }}>
+          <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" style={{ willChange: 'transform' }} src="videos/hero-2.mp4" loop playsInline preload="auto" onLoadedData={() => console.log('Video loaded successfully')} onCanPlay={() => console.log('Video can start playing')} onError={(e) => console.error('Video loading error:', e)} onLoadStart={() => console.log('Video loading started')} />
           <div className="absolute bottom-16 left-8 z-10">
             <h2 className="text-white text-2xl md:text-4xl font-display font-bold mb-2">
               Experience the Creativity.
@@ -463,18 +309,12 @@ const VerticalTextSlider = () => {
           </div>
         </div>
 
-        <div ref={slide5Ref} className="slide-5 absolute inset-0 h-full w-full opacity-0 overflow-hidden transition-all duration-700 ease-out" style={{ willChange: 'transform, opacity' }}>
-          {!video2Started && (
-            <div className="absolute inset-0 w-full h-full bg-gray-900">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-white text-center">
-                  <div className="w-24 h-24 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-                  <p>Loading video...</p>
-                </div>
-              </div>
-            </div>
-          )}
-          <video ref={video2Ref} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${video2Started ? 'opacity-100' : 'opacity-0'}`} style={{ willChange: 'transform' }} loop playsInline preload="auto" onLoadedData={() => console.log('Video 2 loaded successfully')} onCanPlay={() => console.log('Video 2 can start playing')} onError={(e) => console.error('Video 2 loading error:', e)} onLoadStart={() => console.log('Video 2 loading started')} />
+	<div ref={slide5Ref} className="slide-5 absolute inset-0 h-full w-full opacity-0 overflow-hidden" style={{ willChange: 'transform, opacity' }}>
+  {!video2Started && (
+    <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat" style={{backgroundImage: `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url('img/thumbnail.png')`}}>
+    </div>
+  )}
+          <video ref={video2Ref} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${video2Started ? 'opacity-100' : 'opacity-0'}`} style={{ willChange: 'transform' }} src="videos/hero-3.mp4" loop playsInline preload="auto" onLoadedData={() => console.log('Video 2 loaded successfully')} onCanPlay={() => console.log('Video 2 can start playing')} onError={(e) => console.error('Video 2 loading error:', e)} onLoadStart={() => console.log('Video 2 loading started')} />
           
           <div className="absolute bottom-16 right-8 z-10 text-right">
             <h2 className="text-white text-2xl md:text-4xl font-display font-bold mb-2">
@@ -507,11 +347,11 @@ const VerticalTextSlider = () => {
 
         {!isVideoSlideActive && (
        <div className="absolute bottom-8 right-8 md:right-auto md:left-1/2 md:transform md:-translate-x-1/2 z-20">
-       <div className="w-6 ml-4 h-10 border-2 border-white/50 rounded-full flex justify-center">
-         <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-bounce"></div>
-       </div>
-       <p className="text-white/60 text-sm mt-2 text-right tracking-wider font-body">SCROLL</p>
-     </div>
+  <div className="w-6 ml-4 h-10 border-2 border-white/50 rounded-full flex justify-center">
+    <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-bounce"></div>
+  </div>
+  <p className="text-white/60 text-sm mt-2 text-right tracking-wider font-body">SCROLL</p>
+</div>
         )}
       </div>
 

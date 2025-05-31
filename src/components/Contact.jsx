@@ -492,7 +492,7 @@ function LuxuryContactSection() {
         {/* Form Container - Appears when circle expands */}
         <div 
           ref={formContainerRef}
-          className="absolute inset-0 flex items-center justify-center z-20 px-4 sm:px-6 lg:px-8 sm:pb-80"
+          className="absolute inset-0 flex items-center justify-center z-20 px-4 sm:px-6 lg:px-8 sm:mb-20 sm:pb-80"
           style={{
             opacity: 0,
             transform: 'translateY(50px)',
@@ -500,7 +500,7 @@ function LuxuryContactSection() {
             pointerEvents: showForm ? 'auto' : 'none'
           }}
         >
-          <div className="w-full max-w-[1200px]">
+          <div className="w-full max-w-[1200px] mb-20 sm:mb-0">
             {/* Header */}
             <div className="text-center mb-10 sm:mb-12 lg:mb-16 px-4 lg:mt-80">
               <h1 className="font-display text-[36px] sm:text-[48px] md:text-[60px] font-bold text-white leading-tight">
@@ -534,7 +534,7 @@ function LuxuryContactSection() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-6 sm:space-y-8 lg:space-y-10">
+                <div className="space-y-6 sm:space-y-8 lg:space-y-10 ">
                   {/* Form Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                     <InputField
