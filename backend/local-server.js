@@ -32,6 +32,7 @@ app.use((req, res, next) => {
 
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
+// Root route — health check or simple confirmation
 app.get('/', (req, res) => {
   res.json({ message: 'Backend server is running', status: 'OK' });
 });
@@ -61,6 +62,8 @@ app.post('/api/gemini', async (req, res) => {
   }
 
   try {
+    console.log('Forwarding request to Gemini API...');
+    
     const response = await fetch(GEMINI_API_URL, {
       method: 'POST',
       headers: {
@@ -86,9 +89,11 @@ app.post('/api/gemini', async (req, res) => {
       return res.status(response.status).json(data);
     }
 
+    console.log('Gemini API response received successfully');
     res.status(200).json(data);
 
   } catch (error) {
+    console.error('Error forwarding to Gemini API:', error);
     res.status(500).json({
       error: 'Internal Server Error',
       details: error.message

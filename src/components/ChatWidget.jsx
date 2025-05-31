@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot, User, AlertCircle, Trash2, Minimize2, Maximize2, Copy, RotateCcw } from 'lucide-react';
 
-const Chatbot = () => {
+const GeminiChatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -25,8 +25,7 @@ const Chatbot = () => {
       if (hostname === 'localhost' || hostname === '127.0.0.1') {
         return 'http://localhost:3001';
       }
-      
-      // Production - use same domain
+      // Production
       return `${protocol}//${hostname}`;
     }
     return '';
@@ -357,11 +356,9 @@ const Chatbot = () => {
                 <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
                   {messages.length === 0 && (
                     <div className="text-center py-12 animate-fade-in">
-                      <img
-                        src="img/logo.png" // Replace with your actual image path
-                        alt="Bot Icon"
-                        className="mx-auto h-20 w-30 text-gray-400"
-                      />
+                      <div className="relative mb-4">
+                        <Bot size={48} className="mx-auto text-gray-400" />
+                      </div>
                       <h3 className="text-white font-semibold text-lg mb-2">Welcome to CR8 AI Assistant</h3>
                       <p className="text-gray-400 text-sm mb-4">I'm here to help you with any questions.</p>
                       <div className="flex flex-wrap gap-2 justify-center">
@@ -539,11 +536,7 @@ const Chatbot = () => {
               {messages.length === 0 && (
                 <div className="text-center py-12 animate-fade-in">
                   <div className="relative mb-4">
-                  <img
-                    src="img/logo.png"
-                    alt="image Icon"
-                    className="mx-auto h-12 w-12 text-gray-400"
-                  />
+                    <Bot size={48} className="mx-auto text-gray-400" />
                   </div>
                   <h3 className="text-white font-semibold text-lg mb-2">Welcome to CR8 AI Assistant</h3>
                   <p className="text-gray-400 text-sm mb-4">I'm here to help you with any questions.</p>
@@ -647,7 +640,7 @@ const Chatbot = () => {
                 </button>
               </div>
               <div className="mt-2 text-xs text-gray-500 text-center">
-                Press Enter to send.
+                Press Enter to send • Shift + Enter for new line
               </div>
             </div>
           </div>
@@ -657,4 +650,4 @@ const Chatbot = () => {
   );
 };
 
-export default Chatbot;
+export default GeminiChatbot;
