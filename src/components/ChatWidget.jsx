@@ -15,8 +15,26 @@ const GeminiChatbot = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  const BACKEND_PROXY_URL = 'http://localhost:3001/api/gemini';
-  const HEALTH_CHECK_URL = 'http://localhost:3001/api/health';
+  // Dynamic API URLs based on environment
+  const getApiBase = () => {
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname;
+      const protocol = window.location.protocol;
+      
+      // Local development
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:3001';
+      }
+      
+      // Production - use same domain
+      return `${protocol}//${hostname}`;
+    }
+    return '';
+  };
+
+  const API_BASE = getApiBase();
+  const BACKEND_PROXY_URL = `${API_BASE}/api/gemini`;
+  const HEALTH_CHECK_URL = `${API_BASE}/api/health`;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -88,6 +106,7 @@ const GeminiChatbot = () => {
         setConnectionStatus('disconnected');
       }
     } catch (error) {
+      console.error('Backend connection check failed:', error);
       setConnectionStatus('disconnected');
     }
   };
@@ -116,7 +135,6 @@ const GeminiChatbot = () => {
     setMessages(newMessages);
     setIsLoading(true);
 
-    // Add temporary message for typing effect
     const tempMessage = { role: 'assistant', content: '', timestamp: new Date(), isTyping: true };
     setMessages([...newMessages, tempMessage]);
 
@@ -129,7 +147,6 @@ const GeminiChatbot = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ prompt }),
-        timeout: 30000,
       });
 
       if (!response.ok) {
@@ -151,6 +168,7 @@ const GeminiChatbot = () => {
       setConnectionStatus('connected');
       
     } catch (error) {
+      console.error('Send message error:', error);
       let errorMessage = 'Sorry, I encountered an error. ';
       
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
@@ -187,6 +205,7 @@ const GeminiChatbot = () => {
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
   };
+
 
   const clearChat = () => {
     if (messages.length > 0) {
