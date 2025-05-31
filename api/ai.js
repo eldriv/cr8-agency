@@ -1,4 +1,3 @@
-// api/gemini.js
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -34,8 +33,6 @@ export default async function handler(req, res) {
   const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
   try {
-    console.log('Forwarding request to Gemini API...');
-    
     const response = await fetch(GEMINI_API_URL, {
       method: 'POST',
       headers: {
@@ -57,14 +54,10 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Gemini API Error:', data);
       return res.status(response.status).json(data);
     }
-
-    console.log('Gemini API response received successfully');
     res.status(200).json(data);
   } catch (error) {
-    console.error('Error forwarding to Gemini API:', error);
     res.status(500).json({
       error: 'Internal Server Error',
       details: error.message

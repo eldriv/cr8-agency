@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot, User, AlertCircle, Trash2, Minimize2, Maximize2, Copy, RotateCcw } from 'lucide-react';
 
-const GeminiChatbot = () => {
+const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -33,7 +33,7 @@ const GeminiChatbot = () => {
   };
 
   const API_BASE = getApiBase();
-  const BACKEND_PROXY_URL = `${API_BASE}/api/gemini`;
+  const BACKEND_PROXY_URL = `${API_BASE}/api/ai`;
   const HEALTH_CHECK_URL = `${API_BASE}/api/health`;
 
   const scrollToBottom = () => {
@@ -357,9 +357,11 @@ const GeminiChatbot = () => {
                 <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
                   {messages.length === 0 && (
                     <div className="text-center py-12 animate-fade-in">
-                      <div className="relative mb-4">
-                        <Bot size={48} className="mx-auto text-gray-400" />
-                      </div>
+                      <img
+                        src="img/logo.png" // Replace with your actual image path
+                        alt="Bot Icon"
+                        className="mx-auto h-20 w-30 text-gray-400"
+                      />
                       <h3 className="text-white font-semibold text-lg mb-2">Welcome to CR8 AI Assistant</h3>
                       <p className="text-gray-400 text-sm mb-4">I'm here to help you with any questions.</p>
                       <div className="flex flex-wrap gap-2 justify-center">
@@ -537,7 +539,11 @@ const GeminiChatbot = () => {
               {messages.length === 0 && (
                 <div className="text-center py-12 animate-fade-in">
                   <div className="relative mb-4">
-                    <Bot size={48} className="mx-auto text-gray-400" />
+                  <img
+                    src="img/logo.png"
+                    alt="image Icon"
+                    className="mx-auto h-12 w-12 text-gray-400"
+                  />
                   </div>
                   <h3 className="text-white font-semibold text-lg mb-2">Welcome to CR8 AI Assistant</h3>
                   <p className="text-gray-400 text-sm mb-4">I'm here to help you with any questions.</p>
@@ -641,7 +647,7 @@ const GeminiChatbot = () => {
                 </button>
               </div>
               <div className="mt-2 text-xs text-gray-500 text-center">
-                Press Enter to send • Shift + Enter for new line
+                Press Enter to send.
               </div>
             </div>
           </div>
@@ -651,4 +657,4 @@ const GeminiChatbot = () => {
   );
 };
 
-export default GeminiChatbot;
+export default Chatbot;
