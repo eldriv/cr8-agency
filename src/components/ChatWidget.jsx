@@ -32,7 +32,7 @@ const GeminiChatbot = () => {
   };
 
   const API_BASE = getApiBase();
-  const BACKEND_PROXY_URL = `${API_BASE}/api/ai`;
+  const BACKEND_PROXY_URL = `${API_BASE}/api/gemini`;
   const HEALTH_CHECK_URL = `${API_BASE}/api/health`;
 
   const scrollToBottom = () => {

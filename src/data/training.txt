@@ -1,138 +1,60 @@
-Title Tag:
-Creative Design & Animation Studio | CR8 - Unleash Your Brand’s Potential
-Meta Description:
-At CR8, we provide top-tier graphic design, video editing, motion graphics, and animation services to elevate your brand. Collaborate with us to bring your creative vision to life. Book a free consultation today!
+What is CR8?
+CR8 is a digital creative agency that helps clients bring their creative vision to life through graphic design, video editing, animation, and motion graphics.
 
+What’s the tagline of CR8?
+Let’s Create & Unleash Your Creative Vision.
 
+How can I contact CR8?
+You can reach us via email at creativscr8@gmail.com or eldriv@proton.me
 
-Let’s Create & Unleash Your Creative VisionAt CR8, we craft unique visual stories that amplify your brand and captivate your audience. From design to production, we partner with you every step of the way to bring your ideas to life.
+Where can I view CR8’s portfolio?
+You can view our portfolio here: https://cr8-nine.vercel.app/#works
 
-Consultation
-Bring Your Ideas to LifeWe begin with an in-depth consultation to understand your brand’s needs, goals, and vision. Whether you need motion graphics, animation, or a full-scale video production, our team is ready to help shape and execute your creative vision.
+What services does CR8 offer?
+We offer the following creative services:
+- Graphic Design
+- Video Editing
+- Motion Graphics
+- Animation
+- Logo Animation
 
+Who does CR8 serve?
+We serve clients who need visual storytelling and branding services. Our goal is to bring your vision to life with creative execution.
 
-Services OfferedExpert Creative Services Tailored for Your BrandAt CR8, we specialize in providing impactful visual solutions. We’re ready to support your project with:
-	Graphic Design: From logos to brand visuals
-	Video Editing: Crafting dynamic and engaging content
-	Motion Graphics: Elevating your visuals with animation
-	2D/3D Animation: Bringing your ideas to life with movement
-	Logo Animation: Giving your brand the extra edge
+What is CR8’s production process?
+Our production process includes:
+1. Understanding Your Brand – We exchange ideas to align with your vision.
+2. Drafting Storyboard (24–48 hours) – We prepare and finalize a storyboard; changes during production may incur fees.
+3. Production (12–72 hours) – Our team executes and reviews the project based on the approved storyboard.
+4. Client Approval – Feedback is collected through Frame.io, with support available.
+5. Revision – Revisions are made based on feedback. After 3 rounds, extra fees may apply.
 
-At CR8, we are dedicated to creating high-quality campaigns that align seamlessly with your brand’s values and trends. Trusted by leading brands, we uphold a commitment to excellence and innovation, delivering creative solutions that resonate with your audience.
+What’s included in the LOE 1 package?
+LOE 1 includes:
+- Basic Short Form Video (30s–1m)
+- Basic Long Form Video (5m–10m)
+- Basic Motion Graphic Elements (Lower Thirds)
 
-Our Production Process
-We make every project smooth and efficient. Here’s how we work:
-1.	Discovery – We dive deep into your brand to understand your vision (1-2 days).
-2.	Storyboard – Drafting visual concepts to guide the project (1-2 days).
-3.	Production – Bringing the vision to life through design, animation, and editing (3-5 days).
-4.	Quality Check – Ensuring every detail meets our high standards.
-5.	Client Feedback – Your input is key to refining the project.
-6.	Final Revisions – We perfect the final product based on your feedback.
+What’s included in the LOE 2 package?
+LOE 2 includes:
+- Short Form Video (30s–1m)
+- Long Form Video (5m–20m)
+- Motion Graphics (Lower Thirds, Intro Animation, Logo Animation)
 
-Pricing and PackagesFlexible Packages for Every NeedWe offer a variety of packages designed to fit projects of all sizes:
-	Starter Pack: Logo Animation & Basic Graphic Design
-	Growth Pack: Motion Graphics & Professional Video Editing
-	Premium Pack: Full Branding with Advanced Animation
-Custom packages are also available to fit your specific needs.
+What’s included in the LOE 3 package?
+LOE 3 includes:
+- Advanced Video Editing with VFX
+- Template Creation
+- Full Motion Graphics (Lower Thirds, Intro Animation, Logo Animation)
 
-creative tools:
-	Adobe Photoshop
-	Illustrator
-	InDesign
-	Premiere Pro
-	After Effects
-	FinalCut
-Our team ensures that each project is a perfect blend of creativity and technical excellence.
+Can I customize a package?
+Yes! You can choose any combination of services from our packages to create a customized solution based on your needs.
 
-Company Overview
+What software does CR8 use?
+[Software list can be inserted here.]
 
-Name: CR8
-Tagline: Let’s Create & Unleash Your Creative Vision
-Contact Email: eldriv@proton.me
-
-What We Do
-
-We are digital creatives offering a variety of services including:
-
-    Graphic Design
-
-    Video Editing
-
-    Motion Graphics
-
-    Animation
-
-    Logo Animation
-
-Who We Do It For
-
-We serve clients who need visual storytelling and branding services. Our goal is to bring your vision to life through creativity and expert execution.
-Production Process
-
-    Understanding Your Brand
-
-        We exchange ideas and information to enhance your brand value and create visuals aligned with your vision.
-
-    Drafting Storyboard (24–48 hours)
-
-        We present an outline for the final output. Once approved, changes during production may incur a fee.
-
-    Production Process (12–72 hours)
-
-        Our team edits and designs the project based on the approved storyboard. Output is reviewed by our QA team.
-
-    Client Approval
-
-        The client reviews and gives feedback via Frame.io. A walkthrough is provided if needed.
-
-    Revision
-
-        Feedback is incorporated. After 3 rounds of revisions, additional fees may apply.
-
-Packages
-LOE 1 – Level of Effort 1
-
-Includes:
-
-    Basic Short Form (30s–1m)
-
-    Basic Long Form (5m–10m)
-
-    Basic Motion Graphic Elements (Lower Thirds)
-
-LOE 2 – Level of Effort 2
-
-Includes:
-
-    Short Form (30s–1m)
-
-    Long Form (5m–20m)
-
-    Motion Graphic Elements (Lower Thirds, Intro Animation, Logo Animation)
-
-LOE 3 – Level of Effort 3
-
-Includes:
-
-    Advanced Video Editing with VFX
-
-    Template Creation
-
-    Full Motion Graphics (Lower Thirds, Intro Animation, Logo Animation)
-
-Customized Package
-
-Choose any combination of services from above based on your needs.
-Software We Use
-
-    [List of software can be inserted here, if specified]
-
-Client Trust
-
-We’ve collaborated with top-tier brands, delivering campaigns that:
-
-    Uphold high-quality standards
-
-    Align with brand identity
-
-    Follow current design trends
+Why do brands trust CR8?
+Brands trust CR8 because we:
+- Uphold the highest quality standards
+- Align projects with brand identity
+- Stay current with industry trends

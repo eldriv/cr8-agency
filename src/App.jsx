@@ -5,7 +5,6 @@ import About from "./components/About";
 import Hero from "./components/Hero";
 import NavBar from "./components/Navbar";
 import Features from "./components/Features";
-import Logo from "./components/logo";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 
@@ -41,7 +40,6 @@ function App() {
       <Hero id="home" />
       <About id="about" />
       <Features id="services" />
-      <Logo id="works" />
       <Contact id="contact" />
       <Footer />
       <ChatbaseWidget id="Chat" enabled={true} />
