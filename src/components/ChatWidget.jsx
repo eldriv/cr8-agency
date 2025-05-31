@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot, User, AlertCircle, Trash2, Minimize2, Maximize2, Copy, RotateCcw } from 'lucide-react';
 
-const Chatbot = () => {
+const GeminiChatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -32,7 +32,7 @@ const Chatbot = () => {
   };
 
   const API_BASE = getApiBase();
-  const BACKEND_PROXY_URL = `${API_BASE}/api/ai`;
+  const BACKEND_PROXY_URL = `${API_BASE}/api/gemini`;
   const HEALTH_CHECK_URL = `${API_BASE}/api/health`;
 
   const scrollToBottom = () => {
@@ -650,4 +650,4 @@ const Chatbot = () => {
   );
 };
 
-export default Chatbot;
+export default GeminiChatbot;
