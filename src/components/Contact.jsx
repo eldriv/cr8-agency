@@ -57,25 +57,24 @@ const ModernButton = ({ icon, label, className = "", onClick, href, disabled }) 
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [hoverOpacity, setHoverOpacity] = useState(0);
   const buttonRef = useRef(null);
-  
+
   const handleMouseMove = (event) => {
     if (!buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
-    setCursorPosition({ 
-      x: event.clientX - rect.left, 
-      y: event.clientY - rect.top, 
+    setCursorPosition({
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
     });
   };
-  
+
   const handleMouseEnter = () => setHoverOpacity(1);
   const handleMouseLeave = () => setHoverOpacity(0);
-  
+
   const handleClick = (e) => {
     if (disabled) {
       e.preventDefault();
       return;
     }
-    
     if (href) {
       e.preventDefault();
       const element = document.getElementById(href.replace('#', ''));
@@ -88,12 +87,12 @@ const ModernButton = ({ icon, label, className = "", onClick, href, disabled }) 
 
   const ButtonContent = () => (
     <>
-      <div 
-        className="pointer-events-none absolute -inset-px opacity-0 transition duration-300" 
-        style={{ 
-          opacity: hoverOpacity, 
-          background: `radial-gradient(100px circle at ${cursorPosition.x}px ${cursorPosition.y}px, #ffffff33, #00000026)`, 
-        }} 
+      <div
+        className="pointer-events-none absolute -inset-px opacity-0 transition duration-300"
+        style={{
+          opacity: hoverOpacity,
+          background: `radial-gradient(100px circle at ${cursorPosition.x}px ${cursorPosition.y}px, #ffffff33, #00000026)`,
+        }}
       />
       <span className="relative z-20">{icon}</span>
       <span className="relative z-20">{label}</span>
@@ -102,11 +101,11 @@ const ModernButton = ({ icon, label, className = "", onClick, href, disabled }) 
 
   if (href) {
     return (
-      <a 
-        ref={buttonRef} 
+      <a
+        ref={buttonRef}
         href={href}
-        onMouseMove={handleMouseMove} 
-        onMouseEnter={handleMouseEnter} 
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={handleClick}
         className={`relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-black px-5 py-3 text-sm uppercase text-white border border-gray-800 font-body transition-all duration-300 hover:border-white/30 ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
@@ -117,11 +116,11 @@ const ModernButton = ({ icon, label, className = "", onClick, href, disabled }) 
   }
 
   return (
-    <button 
-      ref={buttonRef} 
-      onMouseMove={handleMouseMove} 
-      onMouseEnter={handleMouseEnter} 
-      onMouseLeave={handleMouseLeave} 
+    <button
+      ref={buttonRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onClick={handleClick}
       disabled={disabled}
       className={`relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-black/20 px-5 py-3 text-sm uppercase text-white border border-gray-800 font-body transition-all duration-300 hover:border-white/30 ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
@@ -143,16 +142,16 @@ const LuxuryCard = ({ children, className = "" }) => {
   );
 };
 
-const InputField = ({ 
-  icon: Icon, 
-  label, 
-  type = 'text', 
-  name, 
-  placeholder, 
-  rows, 
-  value, 
-  onChange, 
-  error 
+const InputField = ({
+  icon: Icon,
+  label,
+  type = 'text',
+  name,
+  placeholder,
+  rows,
+  value,
+  onChange,
+  error
 }) => {
   const isTextarea = type === 'textarea';
   const hasValue = value;
@@ -213,15 +212,16 @@ function LuxuryContactSection() {
     subject: '',
     message: ''
   });
+
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [sectionProgress, setSectionProgress] = useState(0);
   const [showForm, setShowForm] = useState(false);
-  
+
   // For demo purposes - replace with your actual Formspree endpoint
   const FORMSPREE_ENDPOINT = "https://formspree.io/f/xovdzpnj"; // Your endpoint from env
-  
+
   // Animation Refs
   const sectionRef = useRef(null);
   const circleRef = useRef(null);
@@ -234,40 +234,40 @@ function LuxuryContactSection() {
   useEffect(() => {
     const handleScroll = () => {
       if (!sectionRef.current) return;
-      
+
       const rect = sectionRef.current.getBoundingClientRect();
       const sectionHeight = rect.height;
       const windowHeight = window.innerHeight;
-      
+
       // Calculate how much of the section is visible
       const visibleTop = Math.max(0, -rect.top);
       const visibleBottom = Math.min(sectionHeight, windowHeight - rect.top);
       const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-      
+
       // Progress through the section (0 to 1)
       const progress = Math.min(Math.max(visibleHeight / windowHeight, 0), 1);
       setSectionProgress(progress);
-      
+
       // Circle expansion phases - made slower and more gradual
       const circleExpansionStart = 0.5;
       const circleExpansionEnd = 2; // Extended end point for slower expansion
       const formFadeStart = 0.7; // Start form fade later
-      
+
       if (progress >= circleExpansionStart && progress <= circleExpansionEnd) {
         const expansionProgress = (progress - circleExpansionStart) / (circleExpansionEnd - circleExpansionStart);
         // Use a more gradual easing function
         const easeProgress = 1 - Math.pow(1 - expansionProgress, 4); // Slower ease out
-        
+
         // Calculate scale to cover full viewport
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
         const diagonal = Math.sqrt(windowWidth * windowWidth + windowHeight * windowHeight);
+
         // Start with small circle (32px diameter) and scale to cover diagonal + extra
         const startSize = 32; // 8 * 4 (w-8 h-8)
         const maxScale = (diagonal * 1.5) / startSize; // 1.5x for safety margin
-        
         const currentScale = 1 + (maxScale * easeProgress);
-        
+
         if (circleRef.current) {
           circleRef.current.style.transform = `scale(${currentScale})`;
           // Fade out circle more gradually
@@ -279,7 +279,7 @@ function LuxuryContactSection() {
             circleRef.current.style.opacity = '1';
           }
         }
-        
+
         // Fade out pulse as circle expands
         if (pulseRef.current) {
           pulseRef.current.style.opacity = Math.max(0, 1 - expansionProgress * 1.5);
@@ -294,7 +294,7 @@ function LuxuryContactSection() {
           pulseRef.current.style.opacity = '1';
         }
       }
-      
+
       // Title and subtitle fade out - made more gradual
       if (titleRef.current) {
         const titleFadeStart = 0.2;
@@ -310,14 +310,14 @@ function LuxuryContactSection() {
         subtitleRef.current.style.opacity = subtitleOpacity;
         subtitleRef.current.style.transform = `translateY(${progress * 20}px)`;
       }
-      
+
       // Form fade in - more gradual
       if (progress >= formFadeStart) {
         setShowForm(true);
         const formProgress = (progress - formFadeStart) / (1 - formFadeStart);
         const formOpacity = Math.min(1, formProgress * 1.5);
         const formTranslateY = Math.max(0, 50 - formProgress * 50);
-        
+
         if (formContainerRef.current) {
           formContainerRef.current.style.opacity = formOpacity;
           formContainerRef.current.style.transform = `translateY(${formTranslateY}px)`;
@@ -333,7 +333,7 @@ function LuxuryContactSection() {
 
     window.addEventListener('scroll', handleScroll);
     handleScroll(); // Initial call
-    
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -343,6 +343,7 @@ function LuxuryContactSection() {
       ...prev,
       [name]: value
     }));
+
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -353,42 +354,40 @@ function LuxuryContactSection() {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
-    
+
     if (!formData.subject.trim()) {
       newErrors.subject = 'Subject is required';
     }
-    
+
     if (!formData.message.trim()) {
       newErrors.message = 'Message is required';
     }
-    
+
     return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Check if Formspree endpoint is configured
     if (!FORMSPREE_ENDPOINT) {
       setErrors({ submit: 'Contact form is not configured. Please check environment variables.' });
       return;
     }
-    
+
     const newErrors = validateForm();
-    
     if (Object.keys(newErrors).length === 0) {
       setIsLoading(true);
-      
       try {
         const response = await fetch(FORMSPREE_ENDPOINT, {
           method: 'POST',
@@ -443,32 +442,30 @@ function LuxuryContactSection() {
             transform: scale(1.2);
           }
         }
-
         code {
           font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', 'Source Code Pro', monospace;
         }
       `}</style>
-      
-      <section 
-        className="bg-black relative overflow-hidden min-h-screen py-20 sm:py-16 lg:py-20" 
+
+      <section
+        className="bg-black relative overflow-hidden min-h-screen py-8 sm:py-16 lg:py-20"
         ref={sectionRef}
       >
         {/* Hero Content - Always visible initially */}
-        <div className="absolute inset-0 flex items-center justify-center z-10 px" id="contact">
+        <div className="absolute inset-0 flex items-center justify-center z-10 px-4" id="contact">
           <div className="text-center relative">
             {/* Expanding Circle with Pulse */}
-            <div className="relative mb-6 sm:mb-8 flex items-center justify-center">
+            <div className="relative mb-4 sm:mb-6 lg:mb-8 flex items-center justify-center">
               {/* Pulsing dot */}
-              <div 
+              <div
                 ref={pulseRef}
                 className="absolute w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full z-20 transition-opacity duration-700"
                 style={{
                   animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
                 }}
               />
-              
               {/* Expanding circle */}
-              <div 
+              <div
                 ref={circleRef}
                 className="w-6 h-6 sm:w-8 sm:h-8 border border-white/60 rounded-full transition-all duration-1000 ease-out origin-center"
                 style={{
@@ -476,13 +473,13 @@ function LuxuryContactSection() {
                 }}
               />
             </div>
-            
-            <h1 ref={titleRef} className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-thin tracking-widest text-white/90 transition-all duration-1000">
+
+            <h1 ref={titleRef} className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-thin tracking-widest text-white/90 transition-all duration-1000">
               CONTACT
             </h1>
-            <p 
+            <p
               ref={subtitleRef}
-              className="text-xs sm:text-sm tracking-wider mt-3 sm:mt-4 text-white/60 transition-all duration-1000 px-4"
+              className="text-xs sm:text-sm tracking-wider mt-2 sm:mt-3 lg:mt-4 text-white/60 transition-all duration-1000 px-4"
             >
               Scroll to begin your journey
             </p>
@@ -490,9 +487,9 @@ function LuxuryContactSection() {
         </div>
 
         {/* Form Container - Appears when circle expands */}
-        <div 
+        <div
           ref={formContainerRef}
-          className="absolute inset-0 flex items-center justify-center z-20 px-4 sm:px-6 lg:px-8 sm:mb-20 sm:pb-80"
+          className="absolute inset-0 flex items-center justify-center z-20 px-4 sm:px-6 lg:px-8"
           style={{
             opacity: 0,
             transform: 'translateY(50px)',
@@ -500,43 +497,43 @@ function LuxuryContactSection() {
             pointerEvents: showForm ? 'auto' : 'none'
           }}
         >
-          <div className="w-full max-w-[1200px] mb-20 sm:mb-0">
+          <div className="w-full max-w-[1200px] pb-8 sm:pb-16 lg:pb-20">
             {/* Header */}
-            <div className="text-center mb-10 sm:mb-12 lg:mb-16 px-4 lg:mt-[45vh]">
-              <h1 className="font-display text-[36px] sm:text-[48px] md:text-[60px] font-bold text-white leading-tight ">
+            <div className="text-center mb-8 sm:mb-10 lg:mb-16 px-2 sm:px-4 mt-8 sm:mt-16 lg:mt-[15vh]">
+              <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-[60px] font-bold text-white leading-tight">
                 Let's Collaborate
               </h1>
-              <p className="mt-10 font-body sm:text-[24px] text-white opacity-80 max-w-md sm:max-w-2xl md:max-w-4xl mx-auto leading-relaxed">
+              <p className="mt-4 sm:mt-6 lg:mt-10 font-body text-sm sm:text-base lg:text-[24px] text-white opacity-80 max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl mx-auto leading-relaxed px-2">
                 Exceptional projects begin with meaningful conversations. Share your vision, and let's create something extraordinary together.
               </p>
             </div>
 
             {/* Form Container */}
-            <LuxuryCard className="p-4 sm:p-10 md:p-8 lg:p-16 shadow-2xl mx-2 sm:mx-0 lg:mt-40">
+            <LuxuryCard className="p-4 sm:p-6 md:p-8 lg:p-16 shadow-2xl mx-2 sm:mx-4 lg:mx-0 lg:mt-40">
               {isSubmitted ? (
-                <div className="text-center py-12 sm:py-16 lg:py-20">
-                  <div 
-                    className="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 rounded-full bg-gradient-to-br from-white/10 to-white/5 border border-white/20 flex items-center justify-center mx-auto mb-6 sm:mb-8 lg:mb-10"
+                <div className="text-center py-8 sm:py-12 lg:py-20">
+                  <div
+                    className="w-16 h-16 sm:w-20 sm:h-20 lg:w-32 lg:h-32 rounded-full bg-gradient-to-br from-white/10 to-white/5 border border-white/20 flex items-center justify-center mx-auto mb-4 sm:mb-6 lg:mb-10"
                     style={{
                       animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
                     }}
                   >
-                    <CheckCircle className="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 text-white" />
+                    <CheckCircle className="w-8 h-8 sm:w-10 sm:h-10 lg:w-16 lg:h-16 text-white" />
                   </div>
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-thin text-white mb-6 sm:mb-8 tracking-tight px-4">Message Delivered</h2>
-                  <p className="text-gray-300 text-base sm:text-lg leading-relaxed max-w-xs sm:max-w-md mx-auto font-light px-4">
+                  <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-thin text-white mb-4 sm:mb-6 lg:mb-8 tracking-tight px-4">Message Delivered</h2>
+                  <p className="text-gray-300 text-sm sm:text-base lg:text-lg leading-relaxed max-w-xs sm:max-w-md mx-auto font-light px-4">
                     Your message has been received with care. Expect a thoughtful response within 24 hours.
                   </p>
-                  <div className="mt-8 sm:mt-12 flex justify-center">
-                    <LuxuryCard className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+                  <div className="mt-6 sm:mt-8 lg:mt-12 flex justify-center">
+                    <LuxuryCard className="px-3 sm:px-4 lg:px-8 py-2 sm:py-3 lg:py-4">
                       <span className="text-white/60 text-xs sm:text-sm font-light tracking-wide">Form will reset shortly...</span>
                     </LuxuryCard>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-6 sm:space-y-8 lg:space-y-10 ">
+                <div className="space-y-4 sm:space-y-6 lg:space-y-10">
                   {/* Form Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                     <InputField
                       icon={User}
                       label="Your Name"
@@ -582,20 +579,20 @@ function LuxuryContactSection() {
 
                   {/* Submit Error */}
                   {errors.submit && (
-                    <LuxuryCard className="p-4 sm:p-6 border-red-400/30 bg-red-500/5">
-                      <p className="text-red-300 text-sm flex items-center font-light">
+                    <LuxuryCard className="p-3 sm:p-4 lg:p-6 border-red-400/30 bg-red-500/5">
+                      <p className="text-red-300 text-xs sm:text-sm flex items-center font-light">
                         <div className="w-2 h-2 bg-red-400 rounded-full mr-3" />
                         {errors.submit}
                       </p>
                     </LuxuryCard>
-                  )}     
+                  )}
 
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 lg:gap-6">
                     <div className="flex items-center text-gray-400 text-xs sm:text-sm space-x-2 sm:space-x-3 font-light order-2 sm:order-1">
                       <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span className="tracking-wide">Response within 24 hours</span>
                     </div>
-                    
+
                     {/* Replaced the old button with ModernButton */}
                     <div className="order-1 sm:order-2 w-full sm:w-auto">
                       <ModernButton
@@ -607,13 +604,13 @@ function LuxuryContactSection() {
                         label={isLoading ? "Sending..." : "Send Message"}
                         onClick={handleSubmit}
                         disabled={isLoading || !FORMSPREE_ENDPOINT}
-                        className="w-full sm:w-auto px-8 py-4 text-base"
+                        className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base"
                       />
                     </div>
                   </div>
                 </div>
               )}
-            </LuxuryCard>  
+            </LuxuryCard>
           </div>
         </div>
       </section>
