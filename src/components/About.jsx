@@ -217,55 +217,73 @@ const VerticalTextSlider = () => {
         </h1>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 w-full max-w-6xl">
-          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 flex mx-auto items-center justify-center">
-              <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <div className="group relative overflow-hidden p-6 sm:p-7 md:p-8 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-2xl border border-white/20 rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/20 hover:border-white/40 hover:bg-gradient-to-br hover:from-white/30 hover:via-white/20 hover:to-white/15 cursor-pointer">
+            <div className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div className="relative z-10">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-black/10 via-white/15 to-white/5 backdrop-blur-sm rounded-xl mb-4 sm:mb-5 flex mx-auto items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-white/40 group-hover:via-white/25 group-hover:to-white/10 transition-all duration-500 group-hover:shadow-white/30">
+                <Palette className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow-lg group-hover:drop-shadow-xl transition-all duration-300" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-display font-bold mb-3 sm:mb-4 text-white drop-shadow-sm group-hover:text-white group-hover:drop-shadow-lg transition-all duration-300">Graphic Design</h3>
+              <p className="text-white/85 font-body leading-relaxed text-sm sm:text-base drop-shadow-sm group-hover:text-white/95 transition-all duration-300">From logos to comprehensive brand visuals</p>
             </div>
-            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Graphic Design</h3>
-            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">From logos to comprehensive brand visuals</p>
           </div>
 
-          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
-              <Film className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <div className="group relative overflow-hidden p-6 sm:p-7 md:p-8 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-2xl border border-white/20 rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/20 hover:border-white/40 hover:bg-gradient-to-br hover:from-white/30 hover:via-white/20 hover:to-white/15 cursor-pointer">
+            <div className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div className="relative z-10">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-white/25 via-white/15 to-white/5 backdrop-blur-sm rounded-xl mb-4 sm:mb-5 mx-auto flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-white/40 group-hover:via-white/25 group-hover:to-white/10 transition-all duration-500 group-hover:shadow-white/30">
+                <Film className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow-lg group-hover:drop-shadow-xl transition-all duration-300" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-display font-bold mb-3 sm:mb-4 text-white drop-shadow-sm group-hover:text-white group-hover:drop-shadow-lg transition-all duration-300">Video Editing</h3>
+              <p className="text-white/85 font-body leading-relaxed text-sm sm:text-base drop-shadow-sm group-hover:text-white/95 transition-all duration-300">Crafting dynamic content that captures attention</p>
             </div>
-            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Video Editing</h3>
-            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Crafting dynamic content that captures attention</p>
           </div>
 
-          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95 sm:col-span-2 lg:col-span-1">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
-              <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <div className="group relative overflow-hidden p-6 sm:p-7 md:p-8 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-2xl border border-white/20 rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/20 hover:border-white/40 hover:bg-gradient-to-br hover:from-white/30 hover:via-white/20 hover:to-white/15 cursor-pointer sm:col-span-2 lg:col-span-1">
+            <div className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div className="relative z-10">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-white/25 via-white/15 to-white/5 backdrop-blur-sm rounded-xl mb-4 sm:mb-5 mx-auto flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-white/40 group-hover:via-white/25 group-hover:to-white/10 transition-all duration-500 group-hover:shadow-white/30">
+                <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow-lg group-hover:drop-shadow-xl transition-all duration-300" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-display font-bold mb-3 sm:mb-4 text-white drop-shadow-sm group-hover:text-white group-hover:drop-shadow-lg transition-all duration-300">Motion Graphics</h3>
+              <p className="text-white/85 font-body leading-relaxed text-sm sm:text-base drop-shadow-sm group-hover:text-white/95 transition-all duration-300">Elevating your visuals with movements</p>
             </div>
-            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Motion Graphics</h3>
-            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Elevating your visuals with movements</p>
           </div>
 
-          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
-              <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <div className="group relative overflow-hidden p-6 sm:p-7 md:p-8 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-2xl border border-white/20 rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/20 hover:border-white/40 hover:bg-gradient-to-br hover:from-white/30 hover:via-white/20 hover:to-white/15 cursor-pointer">
+            <div className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div className="relative z-10">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-white/25 via-white/15 to-white/5 backdrop-blur-sm rounded-xl mb-4 sm:mb-5 mx-auto flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-white/40 group-hover:via-white/25 group-hover:to-white/10 transition-all duration-500 group-hover:shadow-white/30">
+                <Layers className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow-lg group-hover:drop-shadow-xl transition-all duration-300" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-display font-bold mb-3 sm:mb-4 text-white drop-shadow-sm group-hover:text-white group-hover:drop-shadow-lg transition-all duration-300">2D/3D Animation</h3>
+              <p className="text-white/85 font-body leading-relaxed text-sm sm:text-base drop-shadow-sm group-hover:text-white/95 transition-all duration-300">Bringing your ideas to life with dimension</p>
             </div>
-            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">2D/3D Animation</h3>
-            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Bringing your ideas to life with dimension</p>
           </div>
 
-          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
-              <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <div className="group relative overflow-hidden p-6 sm:p-7 md:p-8 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-2xl border border-white/20 rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/20 hover:border-white/40 hover:bg-gradient-to-br hover:from-white/30 hover:via-white/20 hover:to-white/15 cursor-pointer">
+            <div className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div className="relative z-10">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-white/25 via-white/15 to-white/5 backdrop-blur-sm rounded-xl mb-4 sm:mb-5 mx-auto flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-white/40 group-hover:via-white/25 group-hover:to-white/10 transition-all duration-500 group-hover:shadow-white/30">
+                <RotateCcw className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow-lg group-hover:drop-shadow-xl transition-all duration-300" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-display font-bold mb-3 sm:mb-4 text-white drop-shadow-sm group-hover:text-white group-hover:drop-shadow-lg transition-all duration-300">Logo Animation</h3>
+              <p className="text-white/85 font-body leading-relaxed text-sm sm:text-base drop-shadow-sm group-hover:text-white/95 transition-all duration-300">Giving your brand identity dynamic edge</p>
             </div>
-            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Logo Animation</h3>
-            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Giving your brand identity dynamic edge</p>
           </div>
 
-          <div className="group p-4 sm:p-5 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95 sm:col-span-2 lg:col-span-1">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-transparent to-white/10 rounded-lg mb-3 sm:mb-4 mx-auto flex items-center justify-center">
-              <Code className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          <div className="group relative overflow-hidden p-6 sm:p-7 md:p-8 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-2xl border border-white/20 rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/20 hover:border-white/40 hover:bg-gradient-to-br hover:from-white/30 hover:via-white/20 hover:to-white/15 cursor-pointer sm:col-span-2 lg:col-span-1">
+            <div className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            <div className="relative z-10">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-white/25 via-white/15 to-white/5 backdrop-blur-sm rounded-xl mb-4 sm:mb-5 mx-auto flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-white/40 group-hover:via-white/25 group-hover:to-white/10 transition-all duration-500 group-hover:shadow-white/30">
+                <Code className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow-lg group-hover:drop-shadow-xl transition-all duration-300" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-display font-bold mb-3 sm:mb-4 text-white drop-shadow-sm group-hover:text-white group-hover:drop-shadow-lg transition-all duration-300">Web Development</h3>
+              <p className="text-white/85 font-body leading-relaxed text-sm sm:text-base drop-shadow-sm group-hover:text-white/95 transition-all duration-300">Build websites effectively and promote your brand</p>
             </div>
-            <h3 className="text-lg sm:text-xl font-display font-bold mb-2 sm:mb-3">Web Development</h3>
-            <p className="text-white/80 font-body leading-relaxed text-sm sm:text-base">Build websites effectively and promote your brand</p>
           </div>
         </div>
-
+        
         <div className="mt-8 sm:mt-10 md:mt-12 w-24 sm:w-32 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
       </div>
     </div>
