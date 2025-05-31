@@ -80,7 +80,7 @@ const GeminiChatbot = () => {
         
         if (response.ok) {
           const data = await response.text();
-          if (data && data.trim().length > 10) { // Ensure we have meaningful content
+          if (data && data.trim().length > 10) { 
             console.log(`✅ Successfully loaded training data from: ${path}`);
             console.log(`Training data length: ${data.length} characters`);
             setTrainingData(data);
@@ -406,9 +406,12 @@ const GeminiChatbot = () => {
                 <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
                   {messages.length === 0 && (
                     <div className="text-center py-12 animate-fade-in">
-                      <div className="relative mb-4">
-                        <Bot size={48} className="mx-auto text-gray-400" />
-                      </div>
+                     <img
+                        src="img/logo.png"
+                        alt="Bot Icon"
+                        className="mx-auto h-24 w-32 text-gray-400"
+                      />
+
                       <h3 className="text-white font-semibold text-lg mb-2">Welcome to CR8 AI Assistant</h3>
                       <p className="text-gray-400 text-sm mb-4">I'm here to help you with any questions.</p>
                       <div className="flex flex-wrap gap-2 justify-center">
@@ -501,9 +504,7 @@ const GeminiChatbot = () => {
                         className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white focus:ring-2 focus:ring-white focus:ring-opacity-20 transition-all duration-200 placeholder-gray-400"
                         disabled={isLoading || connectionStatus === 'disconnected'}
                       />
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
-                        {inputMessage.length}/500
-                      </div>
+                
                     </div>
                     <button
                       onClick={sendMessage}
@@ -550,7 +551,6 @@ const GeminiChatbot = () => {
                   <span className="font-bold text-lg">AI Assistant</span>
                   <div className="flex items-center space-x-3">
                     <ConnectionStatus />
-                    <TrainingDataStatus />
                   </div>
                 </div>
               </div>
@@ -586,9 +586,11 @@ const GeminiChatbot = () => {
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
               {messages.length === 0 && (
                 <div className="text-center py-12 animate-fade-in">
-                  <div className="relative mb-4">
-                    <Bot size={48} className="mx-auto text-gray-400" />
-                  </div>
+                    <img
+                        src="img/logo.png"
+                        alt="Bot Icon"
+                        className="mx-auto h-24 w-32 text-gray-400"
+                      />
                   <h3 className="text-white font-semibold text-lg mb-2">Welcome to CR8 AI Assistant</h3>
                   <p className="text-gray-400 text-sm mb-4">I'm here to help you with any questions.</p>
                   <div className="flex flex-col space-y-2 max-w-xs mx-auto">
