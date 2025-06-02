@@ -4,7 +4,6 @@
     <img src="https://img.shields.io/badge/-React_JS-black?style=for-the-badge&logoColor=white&logo=react&color=88CE02" alt="react.js" />
     <img src="https://img.shields.io/badge/-GSAP-black?style=for-the-badge&logoColor=white&logo=greensock&color=61DAFB" alt="greensock" />
     <img src="https://img.shields.io/badge/-Tailwind_CSS-black?style=for-the-badge&logoColor=white&logo=tailwindcss&color=06B6D4" alt="tailwindcss" />
-    <img src="https://img.shields.io/badge/logo-javascript-blue?logo=javascript" alt="js" />
 </div>
 
 This is the official web project for CR8 Agency, built with a modern JavaScript stack to reflect the brand's creative identity and deliver a fast, responsive user experience.
