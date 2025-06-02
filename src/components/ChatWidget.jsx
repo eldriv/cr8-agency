@@ -1,5 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, User, AlertCircle, Trash2, Minimize2, Maximize2, Copy, RotateCcw } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
+import { CONFIG, PROMPT_TEMPLATE, UTILS } from '/backend/config';
+import { WelcomeMessage, Message, TypingIndicator } from '/src/components/ChatInterface';
+import { ChatHeader, ChatInputArea, ChatStyles } from '/src/components/ChatLayout';
 
 const GeminiChatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,25 +18,9 @@ const GeminiChatbot = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Dynamic API URLs based on environment
-  const getApiBase = () => {
-    if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname;
-      const protocol = window.location.protocol;
-      
-      // Local development
-      if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return 'http://localhost:3001';
-      }
-      // Production
-      return `${protocol}//${hostname}`;
-    }
-    return '';
-  };
-
-  const API_BASE = getApiBase();
-  const BACKEND_PROXY_URL = `${API_BASE}/api/gemini`;
-  const HEALTH_CHECK_URL = `${API_BASE}/api/health`;
+  // Get API configuration
+  const API_BASE = CONFIG.API.getApiBase();
+  const ENDPOINTS = CONFIG.API.getEndpoints(API_BASE);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -57,30 +44,22 @@ const GeminiChatbot = () => {
   const loadTrainingData = async () => {
     setTrainingDataStatus('loading');
     
-    // For production deployments (Vercel, Netlify, GitHub Pages, etc.)
-    // Files in /public folder are served from root
-    const trainingDataPaths = [
-      '/data/training.txt',          // Most likely path for Vercel/Netlify
-      '/training.txt',               // If file is directly in public folder
-      './data/training.txt',         // Relative path fallback
-      './training.txt',              // Relative path fallback
-    ];
-
-    for (const path of trainingDataPaths) {
+    // Try each training data path
+    for (const path of CONFIG.TRAINING_DATA_PATHS) {
       try {
         console.log(`Attempting to load training data from: ${path}`);
         
         const response = await fetch(path, {
           method: 'GET',
           headers: {
-            'Accept': 'text/plain',
-            'Cache-Control': 'no-cache'
+            'Accept': CONFIG.FETCH.HEADERS.ACCEPT_TEXT,
+            'Cache-Control': CONFIG.FETCH.HEADERS.CACHE_CONTROL
           },
         });
         
         if (response.ok) {
           const data = await response.text();
-          if (data && data.trim().length > 10) { 
+          if (data && data.trim().length > CONFIG.FETCH.MIN_CONTENT_LENGTH) { 
             console.log(`✅ Successfully loaded training data from: ${path}`);
             console.log(`Training data length: ${data.length} characters`);
             setTrainingData(data);
@@ -98,19 +77,19 @@ const GeminiChatbot = () => {
       }
     }
     
-    // If all paths fail, try API endpoint as backup
+    // Try API endpoint as backup
     try {
       console.log('Trying API endpoint for training data...');
-      const response = await fetch(`${API_BASE}/api/training-data`, {
+      const response = await fetch(ENDPOINTS.TRAINING_DATA, {
         method: 'GET',
         headers: {
-          'Accept': 'text/plain',
+          'Accept': CONFIG.FETCH.HEADERS.ACCEPT_TEXT,
         },
       });
       
       if (response.ok) {
         const data = await response.text();
-        if (data && data.trim().length > 10) {
+        if (data && data.trim().length > CONFIG.FETCH.MIN_CONTENT_LENGTH) {
           console.log('✅ Successfully loaded training data from API');
           setTrainingData(data);
           setTrainingDataStatus('loaded');
@@ -120,13 +99,19 @@ const GeminiChatbot = () => {
     } catch (error) {
       console.warn('❌ API endpoint also failed:', error.message);
     }
+
+    // Fallback
+    console.log('⚠️ No training data loaded, will answer general questions only');
+    setTrainingData(CONFIG.MESSAGES.NO_TRAINING_DATA);
+    setTrainingDataStatus('fallback');
   };
+
   const checkBackendConnection = async () => {
     try {
-      const response = await fetch(HEALTH_CHECK_URL, {
+      const response = await fetch(ENDPOINTS.HEALTH_CHECK, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON,
         },
       });
       
@@ -149,7 +134,7 @@ const GeminiChatbot = () => {
     for (let i = 0; i < words.length; i++) {
       currentMessage += (i === 0 ? '' : ' ') + words[i];
       callback(currentMessage);
-      await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 50));
+      await UTILS.sleep(CONFIG.UI.ANIMATIONS.TYPING_DELAY.BASE + Math.random() * CONFIG.UI.ANIMATIONS.TYPING_DELAY.RANDOM);
     }
     
     setIsTyping(false);
@@ -169,12 +154,12 @@ const GeminiChatbot = () => {
     setMessages([...newMessages, tempMessage]);
 
     try {
-      const prompt = `${trainingData}\n\nUser Question: ${userMessage}\n\nPlease provide a helpful response based on the training data above:`;
+      const prompt = PROMPT_TEMPLATE.buildHybridPrompt(userMessage, trainingData);
 
-      const response = await fetch(BACKEND_PROXY_URL, {
+      const response = await fetch(ENDPOINTS.BACKEND_PROXY, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON,
         },
         body: JSON.stringify({ prompt }),
       });
@@ -184,9 +169,8 @@ const GeminiChatbot = () => {
       }
 
       const data = await response.json();
-      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
+      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || CONFIG.MESSAGES.NO_RESPONSE;
 
-      // Remove temp message and add real response with typing effect
       setMessages(newMessages);
       const finalMessage = { role: 'assistant', content: '', timestamp: new Date() };
       setMessages([...newMessages, finalMessage]);
@@ -199,13 +183,13 @@ const GeminiChatbot = () => {
       
     } catch (error) {
       console.error('Send message error:', error);
-      let errorMessage = 'Sorry, I encountered an error. ';
+      let errorMessage = CONFIG.MESSAGES.DEFAULT_ERROR;
       
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        errorMessage += 'Cannot connect to the backend server.';
+        errorMessage += CONFIG.MESSAGES.CONNECTION_ERROR;
         setConnectionStatus('disconnected');
       } else {
-        errorMessage += 'Please try again.';
+        errorMessage += CONFIG.MESSAGES.RETRY_MESSAGE;
       }
       
       setMessages([...newMessages, { 
@@ -244,7 +228,7 @@ const GeminiChatbot = () => {
   };
 
   const copyMessage = (content) => {
-    navigator.clipboard.writeText(content);
+    UTILS.copyToClipboard(content).catch(console.error);
   };
 
   const restoreLastChat = () => {
@@ -255,84 +239,11 @@ const GeminiChatbot = () => {
     }
   };
 
-  const ConnectionStatus = () => {
-    if (connectionStatus === 'connected') {
-      return (
-        <div className="flex items-center text-green-400 text-xs">
-          <div className="w-2 h-2 bg-green-400 rounded-full mr-1 animate-pulse"></div>
-          Connected
-        </div>
-      );
-    } else if (connectionStatus === 'disconnected') {
-      return (
-        <div className="flex items-center text-red-400 text-xs">
-          <AlertCircle size={12} className="mr-1" />
-          Offline
-        </div>
-      );
-    }
-    return (
-      <div className="flex items-center text-gray-400 text-xs">
-        <div className="w-2 h-2 bg-gray-400 rounded-full mr-1"></div>
-        Unknown
-      </div>
-    );
-  };
-
-  const TrainingDataStatus = () => {
-    if (trainingDataStatus === 'fallback' && 'loaded') {
-      return (
-        <div className="flex items-center text-yellow-400 text-xs">
-          <div className="w-2 h-2 bg-yellow-400 rounded-full mr-1"></div>
-          Using Fallback Data
-        </div>
-      );
-    } else if (trainingDataStatus === 'loading') {
-      return (
-        <div className="flex items-center text-blue-400 text-xs">
-          <div className="w-2 h-2 bg-blue-400 rounded-full mr-1 animate-pulse"></div>
-          Loading Training Data...
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const formatTime = (timestamp) => {
-    return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
   return (
     <>
-      {/* Mobile styles */}
-      <style jsx>{`
-        @keyframes slide-up {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .animate-slide-up {
-          animation: slide-up 0.3s ease-out;
-        }
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out;
-        }
-        .scrollbar-thin::-webkit-scrollbar {
-          width: 4px;
-        }
-        .scrollbar-thumb-gray-600::-webkit-scrollbar-thumb {
-          background-color: #4b5563;
-          border-radius: 2px;
-        }
-        .scrollbar-track-gray-800::-webkit-scrollbar-track {
-          background-color: #000000;
-        }
-      `}</style>
+      <ChatStyles />
 
-      {/* Desktop positioning */}
+      {/* Desktop Layout */}
       <div className="hidden md:block fixed bottom-4 right-4 z-50">
         {/* Floating Action Button - Desktop */}
         {!isOpen && (
@@ -347,176 +258,64 @@ const GeminiChatbot = () => {
 
         {/* Chat Window - Desktop */}
         {isOpen && (
-          <div className={`bg-black border border-gray-800 rounded-xl shadow-2xl transition-all duration-300 ${
-            isMinimized ? 'w-80 h-14' : 'w-96 h-[500px]'
-          } flex flex-col overflow-hidden`}>
-            
-            {/* Header */}
-            <div className="bg-black text-white p-4 border-b border-gray-800 flex justify-between items-center">
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <Bot size={24} className="text-white" />
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-black"></div>
-                </div>
-                <div>
-                  <span className="font-bold text-lg">AI Assistant</span>
-                  <div className="flex items-center space-x-3">
-                    <ConnectionStatus />
-                    <TrainingDataStatus />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                {chatHistory.length > 0 && (
-                  <button
-                    onClick={restoreLastChat}
-                    className="text-gray-300 hover:text-white hover:bg-gray-800 p-2 rounded-lg transition-all duration-200"
-                    title="Restore last chat"
-                  >
-                    <RotateCcw size={16} />
-                  </button>
-                )}
-                <button
-                  onClick={clearChat}
-                  className="text-gray-300 hover:text-white hover:bg-gray-800 p-2 rounded-lg transition-all duration-200"
-                  title="Clear chat"
-                  disabled={messages.length === 0}
-                >
-                  <Trash2 size={16} />
-                </button>
-                <button
-                  onClick={toggleMinimize}
-                  className="text-gray-300 hover:text-white hover:bg-gray-800 p-2 rounded-lg transition-all duration-200"
-                >
-                  {isMinimized ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
-                </button>
-                <button
-                  onClick={toggleChat}
-                  className="text-gray-300 hover:text-white hover:bg-red-600 p-2 rounded-lg transition-all duration-200"
-                >
-                  <X size={16} />
-                </button>
-              </div>
+          <div className={`chat-window-desktop ${isMinimized ? 'minimized' : ''} bg-black border border-gray-800 rounded-xl shadow-2xl transition-all duration-300 flex flex-col overflow-hidden`}>
+            <div className="chat-header">
+              <ChatHeader 
+                isMobile={false}
+                connectionStatus={connectionStatus}
+                trainingDataStatus={trainingDataStatus}
+                chatHistory={chatHistory}
+                restoreLastChat={restoreLastChat}
+                clearChat={clearChat}
+                messages={messages}
+                toggleMinimize={toggleMinimize}
+                isMinimized={isMinimized}
+                toggleChat={toggleChat}
+              />
             </div>
 
-            {/* Messages and Input for Desktop */}
             {!isMinimized && (
               <>
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-                  {messages.length === 0 && (
-                    <div className="text-center py-12 animate-fade-in">
-                     <img
-                        src="img/logo.png"
-                        alt="Bot Icon"
-                        className="mx-auto h-24 w-32 text-gray-400"
+                <div className="messages-container bg-black scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+                  <div className="space-y-4">
+                    {messages.length === 0 && (
+                      <WelcomeMessage 
+                        trainingDataStatus={trainingDataStatus}
+                        setInputMessage={setInputMessage}
+                        isMobile={false}
                       />
-
-                      <h3 className="text-white font-semibold text-lg mb-2">Welcome to CR8 AI Assistant</h3>
-                      <p className="text-gray-400 text-sm mb-4">I'm here to help you with any questions.</p>
-                      <div className="flex flex-wrap gap-2 justify-center">
-                        <button 
-                          onClick={() => setInputMessage("What is CR8?")}
-                          className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded-full text-sm transition-all duration-200 border border-gray-600"
-                        >
-                          What is CR8?
-                        </button>
-                        <button 
-                          onClick={() => setInputMessage("What are the services CR8 can offer?")}
-                          className="bg-gray-800 hover:bg-gray-700 text-white px-3 py-1 rounded-full text-sm transition-all duration-200 border border-gray-600"
-                        >
-                          What are the services CR8 can offer? 
-                        </button>
+                    )}
+                    
+                    {messages.map((message, index) => (
+                      <div key={index} className="message-wrapper">
+                        <Message 
+                          message={message}
+                          index={index}
+                          copyMessage={copyMessage}
+                        />
                       </div>
-                    </div>
-                  )}
-                  
-                  {messages.map((message, index) => (
-                    <div
-                      key={index}
-                      className={`flex group ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-slide-up`}
-                    >
-                      <div
-                        className={`max-w-[80%] px-4 py-3 rounded-2xl shadow-lg transition-all duration-200 hover:shadow-xl ${
-                          message.role === 'user'
-                            ? 'bg-white text-black'
-                            : 'bg-gray-900 text-white border border-gray-800'
-                        }`}
-                      >
-                        <div className="flex items-start space-x-2">
-                          {message.role === 'assistant' && (
-                            <Bot size={16} className="mt-1 flex-shrink-0 text-gray-400" />
-                          )}
-                          {message.role === 'user' && (
-                            <User size={16} className="mt-1 flex-shrink-0 text-gray-600" />
-                          )}
-                          <div className="flex-1">
-                            <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                              {message.content}
-                              {message.isTyping && <span className="animate-pulse">|</span>}
-                            </p>
-                            <div className="flex items-center justify-between mt-2">
-                              <span className="text-xs opacity-60">
-                                {formatTime(message.timestamp)}
-                              </span>
-                              <button
-                                onClick={() => copyMessage(message.content)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-600 p-1 rounded"
-                                title="Copy message"
-                              >
-                                <Copy size={12} />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
+                    ))}
+                    
+                    {(isLoading || isTyping) && (
+                      <div className="typing-indicator">
+                        <TypingIndicator />
                       </div>
-                    </div>
-                  ))}
-                  
-                  {(isLoading || isTyping) && (
-                    <div className="flex justify-start animate-slide-up">
-                      <div className="bg-gray-900 text-white px-4 py-3 rounded-2xl border border-gray-800">
-                        <div className="flex items-center space-x-2">
-                          <Bot size={16} className="text-gray-400" />
-                          <div className="flex space-x-1">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Input Area - Desktop */}
-                <div className="border-t border-gray-800 p-4 bg-black">
-                  <div className="flex space-x-3">
-                    <div className="flex-1 relative">
-                      <input
-                        ref={inputRef}
-                        type="text"
-                        value={inputMessage}
-                        onChange={(e) => setInputMessage(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder="Type your message..."
-                        className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white focus:ring-2 focus:ring-white focus:ring-opacity-20 transition-all duration-200 placeholder-gray-400"
-                        disabled={isLoading || connectionStatus === 'disconnected'}
-                      />
-                
-                    </div>
-                    <button
-                      onClick={sendMessage}
-                      disabled={isLoading || !inputMessage.trim() || connectionStatus === 'disconnected'}
-                      className="bg-white hover:bg-gray-200 disabled:bg-gray-600 disabled:cursor-not-allowed text-black px-6 py-3 rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl group"
-                    >
-                      <Send size={16} className="group-hover:translate-x-1 transition-transform duration-200" />
-                    </button>
-                  </div>
-                  <div className="mt-2 text-xs text-gray-500 text-center">
-                    Press Enter to send
-                  </div>
+                <div className="input-area">
+                  <ChatInputArea 
+                    isMobile={false}
+                    inputRef={inputRef}
+                    inputMessage={inputMessage}
+                    setInputMessage={setInputMessage}
+                    handleKeyPress={handleKeyPress}
+                    isLoading={isLoading}
+                    connectionStatus={connectionStatus}
+                    sendMessage={sendMessage}
+                  />
                 </div>
               </>
             )}
@@ -540,161 +339,51 @@ const GeminiChatbot = () => {
         {/* Full Screen Chat - Mobile */}
         {isOpen && (
           <div className="fixed inset-0 z-50 bg-black flex flex-col">
-            {/* Header - Mobile */}
-            <div className="bg-black text-white p-4 border-b border-gray-800 flex justify-between items-center safe-area-top">
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <Bot size={24} className="text-white" />
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-black"></div>
-                </div>
-                <div>
-                  <span className="font-bold text-lg">AI Assistant</span>
-                  <div className="flex items-center space-x-3">
-                    <ConnectionStatus />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                {chatHistory.length > 0 && (
-                  <button
-                    onClick={restoreLastChat}
-                    className="text-gray-300 hover:text-white hover:bg-gray-800 p-2 rounded-lg transition-all duration-200"
-                    title="Restore last chat"
-                  >
-                    <RotateCcw size={16} />
-                  </button>
-                )}
-                <button
-                  onClick={clearChat}
-                  className="text-gray-300 hover:text-white hover:bg-gray-800 p-2 rounded-lg transition-all duration-200"
-                  title="Clear chat"
-                  disabled={messages.length === 0}
-                >
-                  <Trash2 size={16} />
-                </button>
-                <button
-                  onClick={toggleChat}
-                  className="text-gray-300 hover:text-white hover:bg-red-600 p-2 rounded-lg transition-all duration-200"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            </div>
+            <ChatHeader 
+              isMobile={true}
+              connectionStatus={connectionStatus}
+              trainingDataStatus={trainingDataStatus}
+              chatHistory={chatHistory}
+              restoreLastChat={restoreLastChat}
+              clearChat={clearChat}
+              messages={messages}
+              toggleMinimize={toggleMinimize}
+              isMinimized={isMinimized}
+              toggleChat={toggleChat}
+            />
 
-            {/* Messages Area - Mobile */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
               {messages.length === 0 && (
-                <div className="text-center py-12 animate-fade-in">
-                    <img
-                        src="img/logo.png"
-                        alt="Bot Icon"
-                        className="mx-auto h-24 w-32 text-gray-400"
-                      />
-                  <h3 className="text-white font-semibold text-lg mb-2">Welcome to CR8 AI Assistant</h3>
-                  <p className="text-gray-400 text-sm mb-4">I'm here to help you with any questions.</p>
-                  <div className="flex flex-col space-y-2 max-w-xs mx-auto">
-                    <button 
-                      onClick={() => setInputMessage("What is CR8?")}
-                      className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-full text-sm transition-all duration-200 border border-gray-600"
-                    >
-                      What is CR8?
-                    </button>
-                    <button 
-                      onClick={() => setInputMessage("What are the services CR8 can offer?")}
-                      className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-full text-sm transition-all duration-200 border border-gray-600"
-                    >
-                      What are the services CR8 can offer? 
-                    </button>
-                  </div>
-                </div>
+                <WelcomeMessage 
+                  trainingDataStatus={trainingDataStatus}
+                  setInputMessage={setInputMessage}
+                  isMobile={true}
+                />
               )}
               
               {messages.map((message, index) => (
-                <div
+                <Message 
                   key={index}
-                  className={`flex group ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-slide-up`}
-                >
-                  <div
-                    className={`max-w-[85%] px-4 py-3 rounded-2xl shadow-lg transition-all duration-200 hover:shadow-xl ${
-                      message.role === 'user'
-                        ? 'bg-white text-black'
-                        : 'bg-gray-900 text-white border border-gray-800'
-                    }`}
-                  >
-                    <div className="flex items-start space-x-2">
-                      {message.role === 'assistant' && (
-                        <Bot size={16} className="mt-1 flex-shrink-0 text-gray-400" />
-                      )}
-                      {message.role === 'user' && (
-                        <User size={16} className="mt-1 flex-shrink-0 text-gray-600" />
-                      )}
-                      <div className="flex-1">
-                        <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                          {message.content}
-                          {message.isTyping && <span className="animate-pulse">|</span>}
-                        </p>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs opacity-60">
-                            {formatTime(message.timestamp)}
-                          </span>
-                          <button
-                            onClick={() => copyMessage(message.content)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-600 p-1 rounded"
-                            title="Copy message"
-                          >
-                            <Copy size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  message={message}
+                  index={index}
+                  copyMessage={copyMessage}
+                />
               ))}
               
-              {(isLoading || isTyping) && (
-                <div className="flex justify-start animate-slide-up">
-                  <div className="bg-gray-900 text-white px-4 py-3 rounded-2xl border border-gray-800">
-                    <div className="flex items-center space-x-2">
-                      <Bot size={16} className="text-gray-400" />
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {(isLoading || isTyping) && <TypingIndicator />}
               <div ref={messagesEndRef} />
             </div>
-            {/* Input Area - Mobile */}
-            <div className="border-t border-gray-800 p-4 bg-black safe-area-bottom">
-              <div className="flex space-x-3">
-                <div className="flex-1 relative">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Type your message..."
-                    className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-white focus:ring-2 focus:ring-white focus:ring-opacity-20 transition-all duration-200 placeholder-gray-400"
-                    disabled={isLoading || connectionStatus === 'disconnected'}
-                  />
-                </div>
-                <button
-                  onClick={sendMessage}
-                  disabled={isLoading || !inputMessage.trim() || connectionStatus === 'disconnected'}
-                  className="bg-white hover:bg-gray-200 disabled:bg-gray-600 disabled:cursor-not-allowed text-black px-6 py-3 rounded-xl transition-all duration-200 font-medium shadow-lg hover:shadow-xl group flex-shrink-0"
-                >
-                  <Send size={16} className="group-hover:translate-x-1 transition-transform duration-200" />
-                </button>
-              </div>
-              <div className="mt-2 text-xs text-gray-500 text-center">
-                Press Enter to send • Shift + Enter for new line
-              </div>
-            </div>
+
+            <ChatInputArea 
+              isMobile={true}
+              inputRef={inputRef}
+              inputMessage={inputMessage}
+              setInputMessage={setInputMessage}
+              handleKeyPress={handleKeyPress}
+              isLoading={isLoading}
+              connectionStatus={connectionStatus}
+              sendMessage={sendMessage}
+            />
           </div>
         )}
       </div>

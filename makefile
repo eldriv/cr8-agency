@@ -9,8 +9,13 @@ PKG_MGR := $(shell \
 
 # ───────────────────────────────────────────────────────────────────────────────
 # BODY: Development commands
-.PHONY: dev
+.PHONY: run dev
+
+BACKEND_DIR := ~/gh/cr8/backend
+ROOT_DIR := ~/gh/cr8
+run:
+	cd $(BACKEND_DIR) && node local-server.js
 
 dev:
 	@echo "Using package manager: $(PKG_MGR)"
-	$(PKG_MGR) dev
+	cd $(ROOT_DIR) && $(PKG_MGR) dev
