@@ -43,12 +43,12 @@ const GeminiChatbot = () => {
 
   const loadTrainingData = async () => {
     setTrainingDataStatus('loading');
-    
+
     // Try each training data path
     for (const path of CONFIG.TRAINING_DATA_PATHS) {
       try {
         console.log(`Attempting to load training data from: ${path}`);
-        
+
         const response = await fetch(path, {
           method: 'GET',
           headers: {
@@ -56,10 +56,10 @@ const GeminiChatbot = () => {
             'Cache-Control': CONFIG.FETCH.HEADERS.CACHE_CONTROL
           },
         });
-        
+
         if (response.ok) {
           const data = await response.text();
-          if (data && data.trim().length > CONFIG.FETCH.MIN_CONTENT_LENGTH) { 
+          if (data && data.trim().length > CONFIG.FETCH.MIN_CONTENT_LENGTH) {
             console.log(`✅ Successfully loaded training data from: ${path}`);
             console.log(`Training data length: ${data.length} characters`);
             setTrainingData(data);
@@ -76,7 +76,7 @@ const GeminiChatbot = () => {
         continue;
       }
     }
-    
+
     // Try API endpoint as backup
     try {
       console.log('Trying API endpoint for training data...');
@@ -86,7 +86,7 @@ const GeminiChatbot = () => {
           'Accept': CONFIG.FETCH.HEADERS.ACCEPT_TEXT,
         },
       });
-      
+
       if (response.ok) {
         const data = await response.text();
         if (data && data.trim().length > CONFIG.FETCH.MIN_CONTENT_LENGTH) {
@@ -114,7 +114,7 @@ const GeminiChatbot = () => {
           'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON,
         },
       });
-      
+
       if (response.ok) {
         setConnectionStatus('connected');
       } else {
@@ -130,13 +130,13 @@ const GeminiChatbot = () => {
     setIsTyping(true);
     const words = message.split(' ');
     let currentMessage = '';
-    
+
     for (let i = 0; i < words.length; i++) {
       currentMessage += (i === 0 ? '' : ' ') + words[i];
       callback(currentMessage);
       await UTILS.sleep(CONFIG.UI.ANIMATIONS.TYPING_DELAY.BASE + Math.random() * CONFIG.UI.ANIMATIONS.TYPING_DELAY.RANDOM);
     }
-    
+
     setIsTyping(false);
   };
 
@@ -145,7 +145,7 @@ const GeminiChatbot = () => {
 
     const userMessage = inputMessage.trim();
     setInputMessage('');
-    
+
     const newMessages = [...messages, { role: 'user', content: userMessage, timestamp: new Date() }];
     setMessages(newMessages);
     setIsLoading(true);
@@ -180,20 +180,20 @@ const GeminiChatbot = () => {
       });
 
       setConnectionStatus('connected');
-      
+
     } catch (error) {
       console.error('Send message error:', error);
       let errorMessage = CONFIG.MESSAGES.DEFAULT_ERROR;
-      
+
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         errorMessage += CONFIG.MESSAGES.CONNECTION_ERROR;
         setConnectionStatus('disconnected');
       } else {
         errorMessage += CONFIG.MESSAGES.RETRY_MESSAGE;
       }
-      
-      setMessages([...newMessages, { 
-        role: 'assistant', 
+
+      setMessages([...newMessages, {
+        role: 'assistant',
         content: errorMessage,
         timestamp: new Date()
       }]);
@@ -260,7 +260,7 @@ const GeminiChatbot = () => {
         {isOpen && (
           <div className={`chat-window-desktop ${isMinimized ? 'minimized' : ''} bg-black border border-gray-800 rounded-xl shadow-2xl transition-all duration-300 flex flex-col overflow-hidden`}>
             <div className="chat-header">
-              <ChatHeader 
+              <ChatHeader
                 isMobile={false}
                 connectionStatus={connectionStatus}
                 trainingDataStatus={trainingDataStatus}
@@ -279,23 +279,23 @@ const GeminiChatbot = () => {
                 <div className="messages-container bg-black scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
                   <div className="space-y-4">
                     {messages.length === 0 && (
-                      <WelcomeMessage 
+                      <WelcomeMessage
                         trainingDataStatus={trainingDataStatus}
                         setInputMessage={setInputMessage}
                         isMobile={false}
                       />
                     )}
-                    
+
                     {messages.map((message, index) => (
                       <div key={index} className="message-wrapper">
-                        <Message 
+                        <Message
                           message={message}
                           index={index}
                           copyMessage={copyMessage}
                         />
                       </div>
                     ))}
-                    
+
                     {(isLoading || isTyping) && (
                       <div className="typing-indicator">
                         <TypingIndicator />
@@ -306,7 +306,7 @@ const GeminiChatbot = () => {
                 </div>
 
                 <div className="input-area">
-                  <ChatInputArea 
+                  <ChatInputArea
                     isMobile={false}
                     inputRef={inputRef}
                     inputMessage={inputMessage}
@@ -339,7 +339,7 @@ const GeminiChatbot = () => {
         {/* Full Screen Chat - Mobile */}
         {isOpen && (
           <div className="fixed inset-0 z-50 bg-black flex flex-col">
-            <ChatHeader 
+            <ChatHeader
               isMobile={true}
               connectionStatus={connectionStatus}
               trainingDataStatus={trainingDataStatus}
@@ -354,27 +354,27 @@ const GeminiChatbot = () => {
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
               {messages.length === 0 && (
-                <WelcomeMessage 
+                <WelcomeMessage
                   trainingDataStatus={trainingDataStatus}
                   setInputMessage={setInputMessage}
                   isMobile={true}
                 />
               )}
-              
+
               {messages.map((message, index) => (
-                <Message 
+                <Message
                   key={index}
                   message={message}
                   index={index}
                   copyMessage={copyMessage}
                 />
               ))}
-              
+
               {(isLoading || isTyping) && <TypingIndicator />}
               <div ref={messagesEndRef} />
             </div>
 
-            <ChatInputArea 
+            <ChatInputArea
               isMobile={true}
               inputRef={inputRef}
               inputMessage={inputMessage}
