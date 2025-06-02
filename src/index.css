@@ -3,8 +3,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-body {
+html, body {
   width: 100dvw;
   overflow-x: hidden;
   background-color: black;
@@ -277,3 +276,5 @@ select:-webkit-autofill {
   -webkit-text-fill-color: #ffffff !important;
   transition: background-color 9999s ease-in-out 0s !important;
 }
+
+
