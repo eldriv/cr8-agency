@@ -153,7 +153,7 @@ const VerticalTextSlider = () => {
           video1.load();
           video1.loop = true;
           video1.muted = true;
-          video1.preload = "auto";
+          video1.preload = "metadata";
           video1.playsInline = true;
 
           const updateHero2State = () => {
@@ -220,7 +220,7 @@ const VerticalTextSlider = () => {
           video2.load();
           video2.loop = true;
           video2.muted = true;
-          video2.preload = "auto";
+          video2.preload = "metadata";
           video2.playsInline = true;
 
           const updateHero3State = () => {
@@ -315,7 +315,7 @@ const VerticalTextSlider = () => {
         setVideoReady(true);
         setVideo2Ready(true);
       }
-    }, 30000);
+    }, 2000);
 
     return () => clearTimeout(fallbackTimer);
   }, [loading]);
@@ -528,7 +528,7 @@ const VerticalTextSlider = () => {
         </div>
 
         <div ref={slide4Ref} className="slide-4 absolute inset-0 h-full w-full opacity-0 overflow-hidden" style={{ willChange: 'transform, opacity' }}>
-          <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" style={{ willChange: 'transform' }} src="videos/hero-2.mp4" loop playsInline preload="auto" onLoadedData={() => console.log('Video loaded successfully')} onCanPlay={() => console.log('Video can start playing')} onError={(e) => console.error('Video loading error:', e)} onLoadStart={() => console.log('Video loading started')} />
+          <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" style={{ willChange: 'transform' }} src="videos/hero-2.mp4" loop playsInline preload="metadata" onLoadedData={() => console.log('Video loaded successfully')} onCanPlay={() => console.log('Video can start playing')} onError={(e) => console.error('Video loading error:', e)} onLoadStart={() => console.log('Video loading started')} />
           <div className="absolute bottom-16 left-8 z-10">
             <h2 className="text-white text-2xl md:text-4xl font-display font-bold mb-2">
               Experience the Creativity.
@@ -563,7 +563,7 @@ const VerticalTextSlider = () => {
     <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat" style={{backgroundImage: `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url('img/thumbnail.png')`}}>
     </div>
   )}
-          <video ref={video2Ref} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${video2Started ? 'opacity-100' : 'opacity-0'}`} style={{ willChange: 'transform' }} src="videos/hero-3.mp4" loop playsInline preload="auto" onLoadedData={() => console.log('Video 2 loaded successfully')} onCanPlay={() => console.log('Video 2 can start playing')} onError={(e) => console.error('Video 2 loading error:', e)} onLoadStart={() => console.log('Video 2 loading started')} />
+          <video ref={video2Ref} className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${video2Started ? 'opacity-100' : 'opacity-0'}`} style={{ willChange: 'transform' }} src="videos/hero-3.mp4" loop playsInline preload="metadata" onLoadedData={() => console.log('Video 2 loaded successfully')} onCanPlay={() => console.log('Video 2 can start playing')} onError={(e) => console.error('Video 2 loading error:', e)} onLoadStart={() => console.log('Video 2 loading started')} />
           
           <div className="absolute bottom-16 right-8 z-10 text-right">
             <h2 className="text-white text-2xl md:text-4xl font-display font-bold mb-2">
