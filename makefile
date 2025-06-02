@@ -19,3 +19,6 @@ run:
 dev:
 	@echo "Using package manager: $(PKG_MGR)"
 	cd $(ROOT_DIR) && $(PKG_MGR) dev
+
+install:
+	npm install
