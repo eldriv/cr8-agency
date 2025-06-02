@@ -1,3 +1,5 @@
+# Colophons
+
 <div>
     <img src="https://img.shields.io/badge/-React_JS-black?style=for-the-badge&logoColor=white&logo=react&color=61DAFB" alt="react.js" />
     <img src="https://img.shields.io/badge/-GSAP-black?style=for-the-badge&logoColor=white&logo=greensock&color=88CE02" alt="greensock" />
@@ -15,13 +17,6 @@ The site was designed and developed with performance, clarity, and scalability i
 # AI Chat Integration
 
 An AI assistant is embedded directly into the site as a chat widget. It’s designed to engage users, answer questions about CR8 and in general. This makes the site not just a static presentation, but a dynamic touchpoint between CR8 and its audience.
-
-# Colophons
-- Frontend: JavaScript, GSAP, Tailwind CSS
-- Build Tool: Vite
-- Backend: Node.js with Express
-- Deployment: Vercel
-- AI: Custom chatbot integration using Gemini.
 
 # Live Site
 
