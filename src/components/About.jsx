@@ -23,6 +23,12 @@ const VerticalTextSlider = () => {
   const [videoStarted, setVideoStarted] = useState(false);
   const [video2Started, setVideo2Started] = useState(false);
 
+  // Track video loading states
+  const [videoLoadStates, setVideoLoadStates] = useState({
+    hero2: { loaded: false, canPlay: false, readyState: 0 },
+    hero3: { loaded: false, canPlay: false, readyState: 0 }
+  });
+
   // Set initial positions immediately on mount
   useEffect(() => {
     if (slide2Ref.current && slide3Ref.current && slide4Ref.current && slide5Ref.current) {
@@ -39,10 +45,40 @@ const VerticalTextSlider = () => {
     }
   }, []);
 
+  // Enhanced video loading detection
+  const updateVideoLoadState = (videoKey, updates) => {
+    setVideoLoadStates(prev => ({
+      ...prev,
+      [videoKey]: { ...prev[videoKey], ...updates }
+    }));
+  };
+
+  // Check if both videos are fully ready
+  const areVideosReady = () => {
+    const hero2Ready = videoLoadStates.hero2.loaded && 
+                      videoLoadStates.hero2.canPlay && 
+                      videoLoadStates.hero2.readyState >= 3; // HAVE_FUTURE_DATA or higher
+    
+    const hero3Ready = videoLoadStates.hero3.loaded && 
+                      videoLoadStates.hero3.canPlay && 
+                      videoLoadStates.hero3.readyState >= 3;
+    
+    return hero2Ready && hero3Ready;
+  };
+
+  // Hide loading when both videos are ready
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, []);
+    if (areVideosReady()) {
+      console.log('Both hero videos are fully loaded and ready');
+      // Add a small delay to ensure smooth transition
+      const timer = setTimeout(() => {
+        setLoading(false);
+        setVideoReady(true);
+        setVideo2Ready(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [videoLoadStates]);
 
   const startVideoPlayback = async () => {
     if (videoRef.current && videoReady) {
@@ -106,12 +142,182 @@ const VerticalTextSlider = () => {
     }
   };
 
+  // Enhanced video initialization with detailed loading tracking
   useEffect(() => {
-    const initializeVideos=()=>{if(!loading){if(videoRef.current){try{videoRef.current.load();videoRef.current.loop=true;videoRef.current.muted=true;videoRef.current.preload="auto";const onCanPlayThrough=()=>{setVideoReady(true);console.log('Video initialized and ready to play');videoRef.current.removeEventListener('canplaythrough',onCanPlayThrough);};videoRef.current.addEventListener('canplaythrough',onCanPlayThrough);videoRef.current.addEventListener('error',(e)=>{console.error('Video loading error:',e);setVideoReady(true);},{once:true});}catch(error){console.log('Video initialization error:',error);setVideoReady(true);}}if(video2Ref.current){try{video2Ref.current.load();video2Ref.current.loop=true;video2Ref.current.muted=true;video2Ref.current.preload="auto";const onCanPlayThrough2=()=>{setVideo2Ready(true);console.log('Video 2 initialized and ready to play');video2Ref.current.removeEventListener('canplaythrough',onCanPlayThrough2);};video2Ref.current.addEventListener('canplaythrough',onCanPlayThrough2);video2Ref.current.addEventListener('error',(e)=>{console.error('Video 2 loading error:',e);setVideo2Ready(true);},{once:true});}catch(error){console.log('Video 2 initialization error:',error);setVideo2Ready(true);}}}};
+    const initializeVideos = () => {
+      // Initialize hero-2 video
+      if (videoRef.current) {
+        const video1 = videoRef.current;
+        
+        try {
+          video1.load();
+          video1.loop = true;
+          video1.muted = true;
+          video1.preload = "auto";
+          video1.playsInline = true;
 
-    if (!loading) initializeVideos();
+          const updateHero2State = () => {
+            updateVideoLoadState('hero2', {
+              loaded: video1.readyState >= 2,
+              canPlay: video1.readyState >= 3,
+              readyState: video1.readyState
+            });
+          };
 
-    return()=>{if(videoRef.current){videoRef.current.removeEventListener('canplaythrough',()=>{});videoRef.current.removeEventListener('error',()=>{});}if(video2Ref.current){video2Ref.current.removeEventListener('canplaythrough',()=>{});video2Ref.current.removeEventListener('error',()=>{});}};
+          // Multiple event listeners for comprehensive loading detection
+          video1.addEventListener('loadeddata', () => {
+            console.log('Hero-2: Data loaded');
+            updateHero2State();
+          });
+
+          video1.addEventListener('canplay', () => {
+            console.log('Hero-2: Can play');
+            updateHero2State();
+          });
+
+          video1.addEventListener('canplaythrough', () => {
+            console.log('Hero-2: Can play through');
+            updateHero2State();
+          });
+
+          video1.addEventListener('loadedmetadata', () => {
+            console.log('Hero-2: Metadata loaded');
+            updateHero2State();
+          });
+
+          video1.addEventListener('progress', () => {
+            updateHero2State();
+          });
+
+          video1.addEventListener('error', (e) => {
+            console.error('Hero-2 loading error:', e);
+            // Mark as ready even on error to prevent infinite loading
+            updateVideoLoadState('hero2', {
+              loaded: true,
+              canPlay: true,
+              readyState: 4
+            });
+          });
+
+          // Initial state check
+          updateHero2State();
+
+        } catch (error) {
+          console.log('Hero-2 initialization error:', error);
+          updateVideoLoadState('hero2', {
+            loaded: true,
+            canPlay: true,
+            readyState: 4
+          });
+        }
+      }
+
+      // Initialize hero-3 video
+      if (video2Ref.current) {
+        const video2 = video2Ref.current;
+        
+        try {
+          video2.load();
+          video2.loop = true;
+          video2.muted = true;
+          video2.preload = "auto";
+          video2.playsInline = true;
+
+          const updateHero3State = () => {
+            updateVideoLoadState('hero3', {
+              loaded: video2.readyState >= 2,
+              canPlay: video2.readyState >= 3,
+              readyState: video2.readyState
+            });
+          };
+
+          // Multiple event listeners for comprehensive loading detection
+          video2.addEventListener('loadeddata', () => {
+            console.log('Hero-3: Data loaded');
+            updateHero3State();
+          });
+
+          video2.addEventListener('canplay', () => {
+            console.log('Hero-3: Can play');
+            updateHero3State();
+          });
+
+          video2.addEventListener('canplaythrough', () => {
+            console.log('Hero-3: Can play through');
+            updateHero3State();
+          });
+
+          video2.addEventListener('loadedmetadata', () => {
+            console.log('Hero-3: Metadata loaded');
+            updateHero3State();
+          });
+
+          video2.addEventListener('progress', () => {
+            updateHero3State();
+          });
+
+          video2.addEventListener('error', (e) => {
+            console.error('Hero-3 loading error:', e);
+            // Mark as ready even on error to prevent infinite loading
+            updateVideoLoadState('hero3', {
+              loaded: true,
+              canPlay: true,
+              readyState: 4
+            });
+          });
+
+          // Initial state check
+          updateHero3State();
+
+        } catch (error) {
+          console.log('Hero-3 initialization error:', error);
+          updateVideoLoadState('hero3', {
+            loaded: true,
+            canPlay: true,
+            readyState: 4
+          });
+        }
+      }
+    };
+
+    // Initialize videos immediately
+    initializeVideos();
+
+    // Cleanup function
+    return () => {
+      if (videoRef.current) {
+        const video1 = videoRef.current;
+        video1.removeEventListener('loadeddata', () => {});
+        video1.removeEventListener('canplay', () => {});
+        video1.removeEventListener('canplaythrough', () => {});
+        video1.removeEventListener('loadedmetadata', () => {});
+        video1.removeEventListener('progress', () => {});
+        video1.removeEventListener('error', () => {});
+      }
+      if (video2Ref.current) {
+        const video2 = video2Ref.current;
+        video2.removeEventListener('loadeddata', () => {});
+        video2.removeEventListener('canplay', () => {});
+        video2.removeEventListener('canplaythrough', () => {});
+        video2.removeEventListener('loadedmetadata', () => {});
+        video2.removeEventListener('progress', () => {});
+        video2.removeEventListener('error', () => {});
+      }
+    };
+  }, []);
+
+  // Fallback timer to prevent infinite loading (30 seconds max)
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      if (loading) {
+        console.log('Fallback: Force ending loading after 30 seconds timeout');
+        setLoading(false);
+        setVideoReady(true);
+        setVideo2Ready(true);
+      }
+    }, 30000);
+
+    return () => clearTimeout(fallbackTimer);
   }, [loading]);
 
   useEffect(() => {
@@ -175,9 +381,9 @@ const VerticalTextSlider = () => {
     <div className="relative h-[700vh]">
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
-          <div className="relative flex items-center">
+          <div className="relative flex flex-col items-center">
             <video
-              className="w-300 h-300 object-cover rounded-full"
+              className="w-64 h-64 object-cover rounded-full"
               autoPlay
               loop
               muted
@@ -187,6 +393,23 @@ const VerticalTextSlider = () => {
               {/* Fallback spinner if video fails to load */}
               <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
             </video>
+            
+            {/* Loading progress indicator */}
+            <div className="mt-8 text-white text-center">
+              <div className="text-sm opacity-75 mb-2">Thank you for waiting!</div>
+              <div className="flex gap-4 text-xs">
+                <div className={`transition-colors duration-300 ${
+                  videoLoadStates.hero2.loaded && videoLoadStates.hero2.canPlay ? 'text-green-400' : 'text-white/50'
+                }`}>
+                  Resources: {videoLoadStates.hero2.readyState}/4
+                </div>
+                <div className={`transition-colors duration-300 ${
+                  videoLoadStates.hero3.loaded && videoLoadStates.hero3.canPlay ? 'text-green-400' : 'text-white/50'
+                }`}>
+                  Assets: {videoLoadStates.hero3.readyState}/4
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -215,6 +438,7 @@ const VerticalTextSlider = () => {
             SERVICES OFFERED
           </span>
         </h1>
+        
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 w-full max-w-6xl">
           <div className="group relative overflow-hidden p-6 sm:p-7 md:p-8 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-2xl border border-white/20 rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/20 hover:border-white/40 hover:bg-gradient-to-br hover:from-white/30 hover:via-white/20 hover:to-white/15 cursor-pointer">
