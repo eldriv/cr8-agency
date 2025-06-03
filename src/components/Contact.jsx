@@ -218,10 +218,8 @@ function LuxuryContactSection() {
   const [isLoading, setIsLoading] = useState(false);
   const [sectionProgress, setSectionProgress] = useState(0);
   const [showForm, setShowForm] = useState(false);
-
-  // For demo purposes - replace with your actual Formspree endpoint
-  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xovdzpnj"; // Your endpoint from env
-
+  
+  
   // Animation Refs
   const sectionRef = useRef(null);
   const circleRef = useRef(null);
