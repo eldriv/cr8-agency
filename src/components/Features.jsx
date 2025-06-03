@@ -78,7 +78,122 @@ return (
 );
 };
 
-const styles = `@keyframes slideHorizontalLoop { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } } @keyframes pulse-subtle { 0% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); }100% { opacity: 0.8; transform: scale(1); } } @keyframes ping-slow { 0% { transform: scale(0.8); opacity: 0.3; } 100% { transform: scale(1.8); opacity: 0; } } @keyframes ping-slower { 0% { transform: scale(0.7); opacity: 0.3; } 100% { transform: scale(1.7); opacity: 0; } } @keyframes ping-slowest { 0% { transform: scale(0.6); opacity: 0.3; } 100% { transform: scale(1.6); opacity: 0; } } @keyframes float-icon { 0%, 100% { transform: translateY(0) rotate(0deg); } 25% { transform: translateY(-5px) rotate(2deg); } 50% { transform: translateY(-10px) rotate(0deg); } 75% { transform: translateY(-5px) rotate(-2deg); } } @keyframes glow-pulse { 0%, 100% { box-shadow: 0 0 20px rgba(138, 43, 226, 0.3); } 50% { box-shadow: 0 0 40px rgba(138, 43, 226, 0.6); } } .slider-container { animation: slideHorizontalLoop 30s linear infinite; } .slider-container.paused { animation-play-state: paused; } .slider-container.static { animation: none; } .animate-pulse-subtle { animation: pulse-subtle 3s infinite ease-in-out; } .animate-ping-slow { animation: ping-slow 3s infinite cubic-bezier(0, 0, 0.2, 1); } .animate-ping-slower { animation: ping-slower 4s infinite cubic-bezier(0, 0, 0.2, 1); } .animate-ping-slowest { animation: ping-slowest 5s infinite cubic-bezier(0, 0, 0.2, 1); } .animate-float-icon { animation: float-icon 4s ease-in-out infinite; } .animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; } .perspective-1000 { perspective: 1000px; } .transform-style-3d { transform-style: preserve-3d; } .rotate-x-180 { transform: rotateX(180deg); } .scale-y-flip { transform: scaleY(-1); } .lightbox-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.95); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); } .lightbox-content { position: relative; width: 90vw; max-width: 400px; height: 85vh; border-radius: 12px; overflow: hidden; box-shadow: 0 0 30px rgba(138, 43, 226, 0.3); } @media (max-width: 768px) { .lightbox-content { width: 95vw; max-width: 100vw; height: 90vh; border-radius: 8px; } } .lightbox-video { width: 100%; height: 100%; object-fit: cover; } .lightbox-close { position: absolute; top: 15px; right: 15px; background: rgba(0, 0, 0, 0.6); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.2); transition: background 0.3s ease; z-index: 10000; } @media (max-width: 768px) { .lightbox-close { top: 10px; right: 10px; width: 30px; height: 30px; } } .lightbox-close:hover { background: rgba(255, 255, 255, 0.2); } .nav-arrow { background: rgba(0, 0, 0, 0.6); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; } @media (max-width: 768px) { .nav-arrow { width: 35px; height: 35px; } } .nav-arrow:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.1); } .nav-arrow.prev, .nav-arrow.next { position: static; } .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; } .video-card-fade { opacity: 0.3; transition: opacity 0.5s ease; } .video-card-show { opacity: 1; transition: opacity 0.5s ease; }`;
+const styles = `
+@keyframes infiniteScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes pulse-subtle { 
+  0% { opacity: 0.8; transform: scale(1); } 
+  50% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0.8; transform: scale(1); } 
+} 
+
+@keyframes ping-slow { 
+  0% { transform: scale(0.8); opacity: 0.3; } 
+  100% { transform: scale(1.8); opacity: 0; } 
+} 
+
+@keyframes ping-slower { 
+  0% { transform: scale(0.7); opacity: 0.3; } 
+  100% { transform: scale(1.7); opacity: 0; } 
+} 
+
+@keyframes ping-slowest { 
+  0% { transform: scale(0.6); opacity: 0.3; } 
+  100% { transform: scale(1.6); opacity: 0; } 
+} 
+
+@keyframes float-icon { 
+  0%, 100% { transform: translateY(0) rotate(0deg); } 
+  25% { transform: translateY(-5px) rotate(2deg); } 
+  50% { transform: translateY(-10px) rotate(0deg); } 
+  75% { transform: translateY(-5px) rotate(-2deg); } 
+} 
+
+@keyframes glow-pulse { 
+  0%, 100% { box-shadow: 0 0 20px rgba(138, 43, 226, 0.3); } 
+  50% { box-shadow: 0 0 40px rgba(138, 43, 226, 0.6); } 
+} 
+
+.infinite-scroll {
+  animation: infiniteScroll 25s linear infinite;
+}
+
+.infinite-scroll.paused {
+  animation-play-state: paused;
+}
+
+.animate-pulse-subtle { animation: pulse-subtle 3s infinite ease-in-out; } 
+.animate-ping-slow { animation: ping-slow 3s infinite cubic-bezier(0, 0, 0.2, 1); } 
+.animate-ping-slower { animation: ping-slower 4s infinite cubic-bezier(0, 0, 0.2, 1); } 
+.animate-ping-slowest { animation: ping-slowest 5s infinite cubic-bezier(0, 0, 0.2, 1); } 
+.animate-float-icon { animation: float-icon 4s ease-in-out infinite; } 
+.animate-glow-pulse { animation: glow-pulse 3s ease-in-out infinite; } 
+.perspective-1000 { perspective: 1000px; } 
+.transform-style-3d { transform-style: preserve-3d; } 
+.rotate-x-180 { transform: rotateX(180deg); } 
+.scale-y-flip { transform: scaleY(-1); } 
+
+.lightbox-overlay { 
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+  background-color: rgba(0, 0, 0, 0.95); z-index: 9999; 
+  display: flex; align-items: center; justify-content: center; 
+  backdrop-filter: blur(10px); 
+} 
+
+.lightbox-content { 
+  position: relative; width: 90vw; max-width: 400px; height: 85vh; 
+  border-radius: 12px; overflow: hidden; 
+  box-shadow: 0 0 30px rgba(138, 43, 226, 0.3); 
+} 
+
+@media (max-width: 768px) { 
+  .lightbox-content { width: 95vw; max-width: 100vw; height: 90vh; border-radius: 8px; } 
+} 
+
+.lightbox-video { width: 100%; height: 100%; object-fit: cover; } 
+
+.lightbox-close { 
+  position: absolute; top: 15px; right: 15px; 
+  background: rgba(0, 0, 0, 0.6); color: white; 
+  width: 35px; height: 35px; border-radius: 50%; 
+  display: flex; align-items: center; justify-content: center; 
+  cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.2); 
+  transition: background 0.3s ease; z-index: 10000; 
+} 
+
+@media (max-width: 768px) { 
+  .lightbox-close { top: 10px; right: 10px; width: 30px; height: 30px; } 
+} 
+
+.lightbox-close:hover { background: rgba(255, 255, 255, 0.2); } 
+
+.nav-arrow { 
+  background: rgba(0, 0, 0, 0.6); color: white; 
+  width: 40px; height: 40px; border-radius: 50%; 
+  display: flex; align-items: center; justify-content: center; 
+  cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.2); 
+  transition: all 0.3s ease; 
+} 
+
+@media (max-width: 768px) { 
+  .nav-arrow { width: 35px; height: 35px; } 
+} 
+
+.nav-arrow:hover { 
+  background: rgba(255, 255, 255, 0.2); 
+  transform: scale(1.1); 
+} 
+
+.scrollbar-hide::-webkit-scrollbar { display: none; } 
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+`;
 
 const VideoLightbox = ({ video, onClose }) => {
 const videoRef = useRef(null);
@@ -216,7 +331,7 @@ clearTimeout(hoverTimeoutRef.current);
 
 return (
 <div 
-className="w-[280px] sm:w-[320px] lg:w-[380px] h-[400px] sm:h-[480px] lg:h-[540px] mx-2 sm:mx-4 flex-shrink-0 perspective-1000 cursor-pointer transform rotate-y-10 transition-all duration-500 hover:scale-105" 
+className="w-[280px] sm:w-[320px] lg:w-[380px] h-[400px] sm:h-[480px] lg:h-[540px] mx-2 sm:mx-4 flex-shrink-0 perspective-1000 cursor-pointer transform transition-all duration-500 hover:scale-105" 
 style={{ transform: "perspective(1000px) rotateY(-15deg)" }} 
 onMouseEnter={handleMouseEnter} 
 onMouseLeave={handleMouseLeave} 
@@ -278,8 +393,6 @@ const HorizontalVideoShowcase = () => {
 const [selectedVideo, setSelectedVideo] = useState(null);
 const [isPaused, setIsPaused] = useState(false);
 const [isMobile, setIsMobile] = useState(false);
-const sliderRef = useRef(null);
-const [isNavigating, setIsNavigating] = useState(false);
 const showcaseRef = useRef(null);
 
 useEffect(() => {
@@ -299,7 +412,8 @@ const videos = [
 { id: 5, thumbnail: "", video: "videos/hero-8.mp4", },
 ];
 
-const duplicatedVideos = [...videos, ...videos];
+// Create multiple copies for seamless looping
+const infiniteVideos = [...videos, ...videos, ...videos];
 
 const handleVideoClick = (video) => {
 setSelectedVideo(video);
@@ -311,21 +425,14 @@ setSelectedVideo(null);
 setIsPaused(false);
 };
 
-const scroll = (direction) => {
-if (!sliderRef.current || isNavigating) return;
-setIsNavigating(true);
+const pauseAnimation = () => {
 setIsPaused(true);
-const scrollAmount = isMobile ? 288 : 368;
-const container = sliderRef.current;
-const currentScroll = container.scrollLeft;
-const newScrollPosition = direction === "left" ? Math.max(currentScroll - scrollAmount, 0) : currentScroll + scrollAmount;
-container.scrollTo({ left: newScrollPosition, behavior: "smooth", });
-setTimeout(() => {
-setIsNavigating(false);
+};
+
+const resumeAnimation = () => {
 if (!selectedVideo) {
 setIsPaused(false);
 }
-}, 500);
 };
 
 return (
@@ -333,27 +440,37 @@ return (
 <div className="flex justify-start items-center mb-4 sm:mb-6">
 <h2 className="text-2xl sm:text-3xl font-bold text-white font-display">OUR WORKS</h2>
 </div>
+
 <div className="relative h-[500px] sm:h-[580px] lg:h-[650px] perspective-1000">
-<div ref={sliderRef} className="overflow-x-hidden scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none", position: "relative", zIndex: 10, }}>
-<div className={`flex items-center py-4 slider-container ${isPaused ? "paused" : ""}`} style={{ width: `${duplicatedVideos.length * (isMobile ? 288 : 368)}px`, paddingLeft: isMobile ? "8px" : "12px", paddingRight: isMobile ? "8px" : "12px", }}>
-{duplicatedVideos.map((video, index) => (
+<div className="overflow-hidden" style={{ width: '100%' }}>
+<div 
+className={`flex items-center py-4 infinite-scroll ${isPaused ? 'paused' : ''}`}
+onMouseEnter={pauseAnimation}
+onMouseLeave={resumeAnimation}
+style={{ 
+width: `${infiniteVideos.length * (isMobile ? 304 : 384)}px`,
+paddingLeft: isMobile ? "8px" : "12px",
+paddingRight: isMobile ? "8px" : "12px",
+}}
+>
+{infiniteVideos.map((video, index) => (
 <VideoCard
-key={`${video.id}-${index}`}
+key={`${video.id}-${Math.floor(index / videos.length)}-${index % videos.length}`}
 video={video}
 onClick={handleVideoClick}
 />
 ))}
 </div>
 </div>
-<div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 flex gap-2 sm:gap-4" style={{ zIndex: 25 }}>
-<button className="nav-arrow prev" onClick={() => scroll("left")} aria-label="Previous slide">
-<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-</button>
-<button className="nav-arrow next" onClick={() => scroll("right")} aria-label="Next slide">
-<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-</button>
+
+{/* Control overlay */}
+<div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div className="bg-black/20 backdrop-blur-sm rounded-full px-4 py-2 text-white text-sm font-medium opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-auto">
+Hover to pause • Click to view
 </div>
 </div>
+</div>
+
 {selectedVideo && (
 <VideoLightbox video={selectedVideo} onClose={closeLightbox} />
 )}
