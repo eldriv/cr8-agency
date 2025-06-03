@@ -516,7 +516,7 @@ const VerticalTextSlider = () => {
           <div className="slide-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black pointer-events-none" />
           <div className="slide-content absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-8">
             <h1 className="text-4xl md:text-7xl font-display font-bold mb-8 tracking-tight leading-tight">
-              <span className="bg-gradient-to-r from-white via-white to-white-800 bg-clip-text">
+              <span className="bg-gradient-to-r from-white via-white to-white bg-clip-text">
               See Our Creative Impact
               </span>
             </h1>
