@@ -218,9 +218,9 @@ function LuxuryContactSection() {
   const [isLoading, setIsLoading] = useState(false);
   const [sectionProgress, setSectionProgress] = useState(0);
   const [showForm, setShowForm] = useState(false);
-  
-  const FORMSPREE_ENDPOINT = `https://formspree.io/f/=${process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT}`; 
 
+  const FORMSPREE_ENDPOINT = `https://formspree.io/f/${process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT}`;
+  
   // Animation Refs
   const sectionRef = useRef(null);
   const circleRef = useRef(null);
