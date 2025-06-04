@@ -5,7 +5,7 @@ import { TiLocationArrow } from "react-icons/ti";
 import { Palette, Film, Zap, Layers, RotateCcw, Code } from 'lucide-react';
 import { useEffect, useState, useRef } from "react";
 
-// ModernButton component (imported from your Features.jsx)
+// ModernButton component
 const ModernButton = ({ icon, label, className = "", onClick, href }) => {
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [hoverOpacity, setHoverOpacity] = useState(0);
@@ -78,20 +78,19 @@ const ModernButton = ({ icon, label, className = "", onClick, href }) => {
   );
 };
 
-// ServiceCard component with completely solid background
+// ServiceCard component
 const ServiceCard = ({ icon: Icon, title, desc, className = "" }) => (
   <div 
-    className={`service-card group relative overflow-hidden p-4 sm:p-6 md:p-8 border border-gray-700 rounded-xl sm:rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/10 hover:border-gray-600 cursor-pointer ${className}`}
-    style={{ backgroundColor: '#1f2937' }} // Solid gray-800
+    className={`service-card group relative overflow-hidden p-4 sm:p-6 md:p-8 border border-gray-700 rounded-xl sm:rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/10 hover:border-gray-600 cursor-pointer flex-shrink-0 ${className}`}
+    style={{ backgroundColor: '#1f2937', minWidth: '280px' }}
   >
-    {/* Solid background overlay */}
     <div className="absolute inset-0 opacity-100 z-0" style={{ backgroundColor: '#1f2937' }}></div>
     <div className="absolute inset-0 bg-gray-800 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-1"></div>
     
     <div className="relative z-10">
       <div 
         className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl mb-3 sm:mb-4 md:mb-5 mx-auto flex items-center justify-center border border-gray-600 shadow-lg group-hover:scale-110 transition-all duration-500 group-hover:shadow-white/20"
-        style={{ backgroundColor: '#374151' }} // Solid gray-700
+        style={{ backgroundColor: '#374151' }}
       >
         <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white drop-shadow-lg group-hover:drop-shadow-xl transition-all duration-300" />
       </div>
@@ -108,12 +107,12 @@ const Hero = () => {
   const heroRef = useRef(null);
   const videoRef = useRef(null);
   const containerRef = useRef(null);
+  const servicesScrollRef = useRef(null);
 
   const handleVideoLoad = () => {
     setLoading(false);
   };
 
-  // Services data from your vertical slider
   const services = [
     { icon: Palette, title: "Graphic Design", desc: "From logos to comprehensive brand visuals" },
     { icon: Film, title: "Video Editing", desc: "Crafting dynamic content that captures attention" },
@@ -123,7 +122,6 @@ const Hero = () => {
     { icon: Code, title: "Web Development", desc: "Build websites effectively and promote your brand" }
   ];
 
-  // Ensure video plays on mobile
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
@@ -131,7 +129,6 @@ const Hero = () => {
       video.playsInline = true;
       video.autoplay = true;
       
-      // Force play on mobile
       const playPromise = video.play();
       if (playPromise !== undefined) {
         playPromise.catch(error => {
@@ -141,12 +138,76 @@ const Hero = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const scrollContainer = servicesScrollRef.current;
+    if (!scrollContainer) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    const handleMouseDown = (e) => {
+      isDown = true;
+      scrollContainer.style.cursor = 'grabbing';
+      startX = e.pageX - scrollContainer.offsetLeft;
+      scrollLeft = scrollContainer.scrollLeft;
+    };
+
+    const handleMouseUp = () => {
+      isDown = false;
+      scrollContainer.style.cursor = 'grab';
+    };
+
+    const handleMouseMove = (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - scrollContainer.offsetLeft;
+      const walk = (x - startX) * 2;
+      scrollContainer.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleTouchStart = (e) => {
+      isDown = true;
+      startX = e.touches[0].pageX - scrollContainer.offsetLeft;
+      scrollLeft = scrollContainer.scrollLeft;
+    };
+
+    const handleTouchMove = (e) => {
+      if (!isDown) return;
+      const x = e.touches[0].pageX - scrollContainer.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      scrollContainer.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleTouchEnd = () => {
+      isDown = false;
+    };
+
+    scrollContainer.addEventListener('mousedown', handleMouseDown);
+    scrollContainer.addEventListener('mouseleave', handleMouseUp);
+    scrollContainer.addEventListener('mouseup', handleMouseUp);
+    scrollContainer.addEventListener('mousemove', handleMouseMove);
+    scrollContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+    scrollContainer.addEventListener('touchmove', handleTouchMove, { passive: true });
+    scrollContainer.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      scrollContainer.removeEventListener('mousedown', handleMouseDown);
+      scrollContainer.removeEventListener('mouseleave', handleMouseUp);
+      scrollContainer.removeEventListener('mouseup', handleMouseUp);
+      scrollContainer.removeEventListener('mousemove', handleMouseMove);
+      scrollContainer.removeEventListener('touchstart', handleTouchStart);
+      scrollContainer.removeEventListener('touchmove', handleTouchMove);
+      scrollContainer.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
+
   useGSAP(() => {
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: heroRef.current,
         start: "top top",
-        end: "+=800%", // Increased even more to give proper time for each phase
+        end: "+=800%",
         scrub: 1,
         pin: true,
         anticipatePin: 1,
@@ -162,7 +223,6 @@ const Hero = () => {
       x: "100%"
     });
 
-    // Services section starts from left (-100%) and slides right
     gsap.set("#services-section", {
       x: "-100%"
     });
@@ -177,18 +237,26 @@ const Hero = () => {
       opacity: 0
     });
 
-    // Set individual service cards to slide from left with more spacing
     gsap.set(".service-card", {
       x: -120,
       opacity: 0,
       scale: 0.8
     });
 
-    // Adjust animation values for better mobile performance
+    // Set initial state for services title and description
+    gsap.set(".services-title", {
+      y: 30,
+      opacity: 0
+    });
+
+    gsap.set(".services-description", {
+      y: 30,
+      opacity: 0
+    });
+
     const scaleValue = 0.95;
     const translateValue = "-25%";
 
-    // Phase 1: Appointment section slides in (0% to 25%)
     tl.to("#next-section", {
       x: "0%",
       ease: "power2.inOut",
@@ -225,19 +293,16 @@ const Hero = () => {
       ease: "power2.out",
       duration: 0.15,
     }, 0.18)
-    
-    // Phase 2: Services section slides in from LEFT (25% to 50%)
     .to("#services-section", {
       x: "0%",
       ease: "power2.inOut",
       duration: 0.15,
     }, 0.25)
     .to("#next-section", {
-      x: "100%", // Appointment section moves out to the right
+      x: "100%",
       ease: "power2.inOut",
       duration: 0.15,
     }, 0.25)
-    // Move video container out of the way and reduce opacity
     .to("#video-container", {
       x: "-100%",
       opacity: 0,
@@ -252,30 +317,29 @@ const Hero = () => {
       duration: 0.1,
     }, 0.3)
     .to(".services-title", {
-      x: 0,
+      y: 0,
       opacity: 1,
       ease: "power2.out",
       duration: 0.08,
     }, 0.32)
-    
-    // Phase 3: Individual service cards animate in (50% to 85%)
-    // This is where we give MUCH more time for each card
+    .to(".services-description", {
+      y: 0,
+      opacity: 1,
+      ease: "power2.out",
+      duration: 0.08,
+    }, 0.34)
     .to(".service-card", {
       x: 0,
       opacity: 1,
       scale: 1,
       ease: "power2.out",
-      duration: 0.35, // Longer duration for smoother animation
+      duration: 0.35,
       stagger: {
-        amount: 0.25, // Total stagger time across all cards
+        amount: 0.25,
         from: "start"
       }
     }, 0.4)
-    
-    // Add a pause/hold period after all cards are animated (85% to 95%)
-    .to({}, { duration: 0.1 }, 0.85) // Empty tween to create a hold/pause
-    
-    // Phase 4: Everything moves out - Services section moves DOWN (95% to 100%)
+    .to({}, { duration: 0.1 }, 0.85)
     .to("#video-container", {
       x: "-150%",
       y: -100,
@@ -290,7 +354,7 @@ const Hero = () => {
       duration: 0.05,
     }, 0.95)
     .to("#services-section", {
-      y: "100%", // Services section exits downward
+      y: "100%",
       ease: "power2.inOut",
       duration: 0.05,
     }, 0.95)
@@ -313,17 +377,14 @@ const Hero = () => {
   }, [], { scope: heroRef });
 
   return (
-    <div id="home" className="relative h-[800vh]"> {/* Increased height significantly */}
+    <div id="home" className="relative h-[800vh]">
       <div ref={heroRef} className="sticky top-0 h-screen w-screen overflow-hidden bg-black">
-        
-        {/* Loading state */}
         {loading && (
           <div className="absolute inset-0 z-30 flex items-center justify-center bg-black">
             <div className="text-white text-lg">Loading...</div>
           </div>
         )}
 
-        {/* Main video container - FIXED: Lower z-index, will be moved out during services */}
         <div
           id="video-container"
           ref={containerRef}
@@ -347,7 +408,6 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* Appointment section - Improved mobile layout */}
         <div 
           id="next-section"
           className="absolute inset-0 z-15 flex items-center justify-center bg-black h-full w-full"
@@ -370,33 +430,57 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* Services section - FIXED: Higher z-index to ensure it's above video */}
         <div 
           id="services-section"
           className="absolute inset-0 z-30 h-full w-full"
           style={{ backgroundColor: '#000000' }}
         >
-          {/* Multiple black overlays to ensure complete opacity */}
           <div className="absolute inset-0 bg-black opacity-100 z-0"></div>
           <div className="absolute inset-0" style={{ backgroundColor: '#000000' }}></div>
           
           <div className="services-content relative flex flex-col justify-center items-center text-center text-white z-10 px-3 sm:px-6 md:px-8 py-8 sm:py-12 md:py-20 max-w-7xl mx-auto min-h-screen" style={{ backgroundColor: '#000000' }}>
-            <h1 className="services-title text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-display font-bold mb-6 sm:mb-8 md:mb-10 lg:mb-12 tracking-tight">
+            <h1 className="services-title text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-display font-bold mb-4 sm:mb-6 md:mb-8 tracking-tight">
               <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
                 SERVICES OFFERED
               </span>
             </h1>
+            <p className="services-description font-body text-gray-300 text-base sm:text-lg md:text-xl max-w-3xl mx-auto mb-6 sm:mb-8 md:mb-10 leading-relaxed">
+              Explore our comprehensive range of creative services designed to elevate your brand and captivate your audience.
+            </p>
             
-            <div className="services-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8 w-full max-w-xs sm:max-w-4xl lg:max-w-6xl">
-              {services.map((service, index) => (
-                <ServiceCard 
-                  key={service.title}
-                  icon={service.icon}
-                  title={service.title}
-                  desc={service.desc}
-                  className={index === 2 || index === 5 ? "sm:col-span-2 lg:col-span-1" : ""}
-                />
-              ))}
+            <div className="services-container w-full max-w-xs sm:max-w-4xl lg:max-w-6xl">
+              <div 
+                ref={servicesScrollRef}
+                className="services-scroll-container md:hidden overflow-x-auto scrollbar-hide"
+                style={{
+                  scrollBehavior: 'smooth',
+                  WebkitOverflowScrolling: 'touch',
+                  cursor: 'grab'
+                }}
+              >
+                <div className="services-row flex gap-4 pb-4" style={{ width: 'max-content' }}>
+                  {services.map((service, index) => (
+                    <ServiceCard 
+                      key={service.title}
+                      icon={service.icon}
+                      title={service.title}
+                      desc={service.desc}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              <div className="services-grid hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 w-full">
+                {services.map((service, index) => (
+                  <ServiceCard 
+                    key={service.title}
+                    icon={service.icon}
+                    title={service.title}
+                    desc={service.desc}
+                    className={index === 2 || index === 5 ? "lg:col-span-1" : ""}
+                  />
+                ))}
+              </div>
             </div>
             
             <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 w-16 sm:w-24 md:w-32 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
@@ -414,7 +498,29 @@ const Hero = () => {
           scroll-behavior: auto;
         }
         
-        /* Mobile optimizations */
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        
+        .services-scroll-container {
+          scroll-snap-type: x mandatory;
+          -webkit-overflow-scrolling: touch;
+        }
+        
+        .service-card {
+          scroll-snap-align: start;
+          scroll-snap-stop: normal;
+        }
+        
+        .services-scroll-container:active {
+          cursor: grabbing !important;
+        }
+        
         @media (max-width: 768px) {
           .services-content {
             padding-top: env(safe-area-inset-top, 20px);
@@ -430,25 +536,41 @@ const Hero = () => {
             padding: 1rem;
           }
           
+          .services-scroll-container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+            margin-left: -1rem;
+            margin-right: -1rem;
+          }
+          
           @media (max-width: 375px) {
             .services-content {
               padding: 0.75rem;
             }
             
-            .services-grid {
-              gap: 0.75rem;
+            .services-scroll-container {
+              padding-left: 0.75rem;
+              padding-right: 0.75rem;
+              margin-left: -0.75rem;
+              margin-right: -0.75rem;
+            }
+            
+            .service-card {
+              min-width: 260px;
             }
           }
         }
 
-        /* Smooth scrolling improvements */
         @media (prefers-reduced-motion: no-preference) {
           #services-section, #next-section, #video-container {
             will-change: transform;
           }
+          
+          .services-scroll-container {
+            will-change: scroll-position;
+          }
         }
         
-        /* Prevent horizontal overflow on mobile */
         @media (max-width: 768px) {
           body {
             overflow-x: hidden;
@@ -456,6 +578,16 @@ const Hero = () => {
           
           .services-content, .appointment-content {
             max-width: 100vw;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .service-card {
+            touch-action: manipulation;
+          }
+          
+          .services-scroll-container {
+            touch-action: pan-x;
           }
         }
       `}</style>
