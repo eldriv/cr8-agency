@@ -89,6 +89,24 @@ const Hero = () => {
     setLoading(false);
   };
 
+  // Ensure video plays on mobile
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      video.muted = true;
+      video.playsInline = true;
+      video.autoplay = true;
+      
+      // Force play on mobile
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.log("Video autoplay prevented:", error);
+        });
+      }
+    }
+  }, []);
+
   useGSAP(() => {
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -117,6 +135,10 @@ const Hero = () => {
       scale: 0.9
     });
 
+    // Adjust animation values for better mobile performance
+    const scaleValue = 0.95;
+    const translateValue = "-25%";
+
     tl.to("#next-section", {
       x: "0%",
       opacity: 1,
@@ -124,13 +146,13 @@ const Hero = () => {
       duration: 0.33,
     })
     .to("#video-container", {
-      scale: 0.95,
+      scale: scaleValue,
       opacity: 0.8,
       ease: "power2.inOut",
       duration: 0.33,
     }, 0)
     .to(".hero-content", {
-      x: "-25%",
+      x: translateValue,
       opacity: 0.2,
       ease: "power2.inOut",
       duration: 0.33,
@@ -206,13 +228,19 @@ const Hero = () => {
   return (
     <div id="home" className="relative h-[300vh]">
       <div ref={heroRef} className="sticky top-0 h-screen w-screen overflow-hidden bg-black">
+        
+        {/* Loading state */}
+        {loading && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-black">
+            <div className="text-white text-lg">Loading...</div>
+          </div>
+        )}
 
-
-        {/* Main video container */}
+        {/* Main video container - Fixed mobile positioning */}
         <div
           id="video-container"
           ref={containerRef}
-          className="absolute inset-0 z-10 h-full w-full"
+          className="absolute inset-0 z-10 h-full w-full bg-black"
         >
           <div
             id="video-frame"
@@ -224,31 +252,32 @@ const Hero = () => {
               autoPlay
               loop
               muted
-              className="absolute left-0 top-0 size-full object-cover object-center"
-              onLoadedData={handleVideoLoad}
               playsInline
+              preload="metadata"
+              className="absolute inset-0 w-full h-full object-cover"
+              onLoadedData={handleVideoLoad}
             />
           </div>
         </div>
 
-        {/* Next section */}
+        {/* Next section - Improved mobile layout */}
         <div 
           id="next-section"
           className="absolute inset-0 z-20 flex items-center justify-center bg-black h-full w-full"
         >
           <div className="appointment-content text-center text-white px-4 sm:px-6 md:px-8 lg:px-10 max-w-4xl">
-            <h2 className="appointment-title font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight opacity-0 translate-y-8 leading-tight">
+            <h2 className="appointment-title font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 tracking-tight opacity-0 translate-y-8 leading-tight px-2">
               Book an Appointment
             </h2>
-            <p className="appointment-description font-body font-light tracking-wide opacity-90 text-lg sm:text-xl md:text-2xl mb-8 max-w-2xl mx-auto leading-relaxed translate-y-6">
+            <p className="appointment-description font-body font-light tracking-wide opacity-90 text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed translate-y-6 px-4">
               Ready to bring your creative vision to life? Let's discuss your project and create something extraordinary together.
             </p>
-            <div className="appointment-buttons flex flex-col sm:flex-row gap-4 justify-center items-center opacity-0 translate-y-4">
+            <div className="appointment-buttons flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center opacity-0 translate-y-4">
               <ModernButton
-                icon={<TiLocationArrow className="h-5 w-5" />}
+                icon={<TiLocationArrow className="h-4 w-4 sm:h-5 sm:w-5" />}
                 label="Schedule a Call"
                 href="#contact"
-                className="text-base px-8 py-4"
+                className="text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto max-w-xs"
               />
             </div>
           </div>
