@@ -132,12 +132,10 @@ const VerticalTextSlider = () => {
     }
   };
 
-  // Set initial positions on mount
   useEffect(() => {
     if (slideRefs.every(ref => ref.current)) setInitialPositions();
   }, []);
 
-  // Hide loading when videos ready
   useEffect(() => {
     if (areVideosReady()) {
       console.log('Both hero videos are fully loaded and ready');
@@ -148,13 +146,11 @@ const VerticalTextSlider = () => {
     }
   }, [state.videoLoadStates]);
 
-  // Initialize videos
   useEffect(() => {
     initializeVideo(videoRef.current, 'hero2');
     initializeVideo(video2Ref.current, 'hero3');
   }, []);
 
-  // Fallback timer
   useEffect(() => {
     const fallbackTimer = setTimeout(() => {
       if (state.loading) {
@@ -165,7 +161,6 @@ const VerticalTextSlider = () => {
     return () => clearTimeout(fallbackTimer);
   }, [state.loading]);
 
-  // Main animation setup
   useEffect(() => {
     if (state.loading || !state.videoReady || !state.video2Ready) return;
 
@@ -234,29 +229,29 @@ const VerticalTextSlider = () => {
   ];
 
   const ServiceCard = ({ icon: Icon, title, desc, className = "" }) => (
-    <div className={`group relative overflow-hidden p-6 sm:p-7 md:p-8 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-2xl border border-white/20 rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/20 hover:border-white/40 hover:bg-gradient-to-br hover:from-white/30 hover:via-white/20 hover:to-white/15 cursor-pointer ${className}`}>
+    <div className={`group relative overflow-hidden p-4 sm:p-6 md:p-8 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-2xl border border-white/20 rounded-xl sm:rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/20 hover:border-white/40 hover:bg-gradient-to-br hover:from-white/30 hover:via-white/20 hover:to-white/15 cursor-pointer ${className}`}>
       <div className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
       <div className="relative z-10">
-        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-white/25 via-white/15 to-white/5 backdrop-blur-sm rounded-xl mb-4 sm:mb-5 mx-auto flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-white/40 group-hover:via-white/25 group-hover:to-white/10 transition-all duration-500 group-hover:shadow-white/30">
-          <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-white drop-shadow-lg group-hover:drop-shadow-xl transition-all duration-300" />
+        <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-gradient-to-br from-white/25 via-white/15 to-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl mb-3 sm:mb-4 md:mb-5 mx-auto flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-white/40 group-hover:via-white/25 group-hover:to-white/10 transition-all duration-500 group-hover:shadow-white/30">
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white drop-shadow-lg group-hover:drop-shadow-xl transition-all duration-300" />
         </div>
-        <h3 className="text-lg sm:text-xl font-display font-bold mb-3 sm:mb-4 text-white drop-shadow-sm group-hover:text-white group-hover:drop-shadow-lg transition-all duration-300">{title}</h3>
-        <p className="text-white/85 font-body leading-relaxed text-sm sm:text-base drop-shadow-sm group-hover:text-white/95 transition-all duration-300">{desc}</p>
+        <h3 className="text-base sm:text-lg md:text-xl font-display font-bold mb-2 sm:mb-3 md:mb-4 text-white drop-shadow-sm group-hover:text-white group-hover:drop-shadow-lg transition-all duration-300 text-center">{title}</h3>
+        <p className="text-white/85 font-body leading-relaxed text-xs sm:text-sm md:text-base drop-shadow-sm group-hover:text-white/95 transition-all duration-300 text-center">{desc}</p>
       </div>
     </div>
   );
 
   const VideoControls = ({ videoRef, isStarted, isMuted, onToggle, position = "left" }) => (
-    <div className={`absolute bottom-16 ${position === "left" ? "left-8" : "right-8 text-right"} z-10`}>
-      <h2 className="text-white text-2xl md:text-4xl font-display font-bold mb-2">
+    <div className={`absolute bottom-8 sm:bottom-16 ${position === "left" ? "left-4 sm:left-8" : "right-4 sm:right-8 text-right"} z-10`}>
+      <h2 className="text-white text-xl sm:text-2xl md:text-4xl font-display font-bold mb-2">
         {position === "left" ? "Experience the Creativity." : "Helping clients succeed"}
       </h2>
-      <p className="text-white/80 text-lg font-body max-w-md mb-4">
+      <p className="text-white/80 text-sm sm:text-lg font-body max-w-xs sm:max-w-md mb-4">
         {position === "left" ? "Watch the client's vision turned into life." : "Discover how we push creative boundaries and deliver exceptional results."}
       </p>
       
       <div className={`flex flex-col gap-2 ${position === "right" ? "items-end" : ""}`}>
-        <button onClick={onToggle} className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30 font-medium w-fit flex items-center gap-2">
+        <button onClick={onToggle} className="px-3 py-2 sm:px-4 sm:py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30 font-medium w-fit flex items-center gap-2 text-sm">
           {!isStarted ? 'Start Video' : (
             <>
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
@@ -278,15 +273,15 @@ const VerticalTextSlider = () => {
     <div className="relative h-[700vh]">
       {state.loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
-          <div className="relative flex flex-col items-center">
-            <video className="w-64 h-64 object-cover rounded-full" autoPlay loop muted playsInline>
+          <div className="relative flex flex-col items-center px-4">
+            <video className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 object-cover rounded-full" autoPlay loop muted playsInline>
               <source src="/videos/loading.mp4" type="video/mp4" />
-              <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+              Your browser does not support the video tag.
             </video>
             
-            <div className="mt-8 text-white text-center">
+            <div className="mt-6 sm:mt-8 text-white text-center">
               <div className="text-sm opacity-75 mb-2">Thank you for waiting!</div>
-              <div className="flex gap-4 text-xs">
+              <div className="flex gap-4 text-xs justify-center">
                 <div className={`transition-colors duration-300 ${state.videoLoadStates.hero2.loaded && state.videoLoadStates.hero2.canPlay ? 'text-green-400' : 'text-white/50'}`}>
                   Resources: {state.videoLoadStates.hero2.readyState}/4
                 </div>
@@ -303,31 +298,31 @@ const VerticalTextSlider = () => {
         {/* Slide 1 */}
         <div ref={slide1Ref} className="slide-1 absolute inset-0 h-full w-full" style={{ willChange: 'transform' }}>
           <div className="slide-overlay absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black pointer-events-none" />
-          <div className="slide-content absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-8">
-            <h1 className="text-3xl md:text-6xl font-display font-bold mb-6 tracking-tight">
+          <div className="slide-content absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-4 sm:px-8">
+            <h1 className="text-2xl sm:text-3xl md:text-6xl font-display font-bold mb-4 sm:mb-6 tracking-tight">
               <span className="bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
                 Let's Create Your Creative Vision
               </span>
             </h1>
-            <p className="text-lg md:text-xl font-body font-light tracking-wide opacity-90 max-w-2xl leading-relaxed">
+            <p className="appointment-description font-body font-light tracking-wide opacity-90 text-base sm:text-lg md:text-xl lg:text-2xl mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed translate-y-6 px-4">
               We craft unique visual stories that amplify your brand and captivate your audience.
               From design to production, we partner with you every step of the way to bring your ideas to life.
             </p>
-            <div className="mt-8 w-24 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
+            <div className="mt-6 sm:mt-8 w-16 sm:w-24 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
           </div>
         </div>
 
         {/* Slide 2 - Services */}
         <div ref={slide2Ref} className="slide-2 relative min-h-screen w-full bg-black" style={{ willChange: 'transform' }}>
           <div className="slide-overlay absolute inset-0 bg-gradient-to-br from-black/90 via-black/80 to-black/90 pointer-events-none" />
-          <div className="slide-content relative flex flex-col justify-center items-center text-center text-white z-10 px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20 max-w-7xl mx-auto min-h-screen">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold mb-8 sm:mb-10 md:mb-12 tracking-tight">
+          <div className="slide-content relative flex flex-col justify-center items-center text-center text-white z-10 px-3 sm:px-6 md:px-8 py-8 sm:py-12 md:py-20 max-w-7xl mx-auto min-h-screen">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-display font-bold mb-6 sm:mb-8 md:mb-10 lg:mb-12 tracking-tight">
               <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
                 SERVICES OFFERED
               </span>
             </h1>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 w-full max-w-6xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8 w-full max-w-xs sm:max-w-4xl lg:max-w-6xl">
               {services.map((service, index) => (
                 <ServiceCard 
                   key={service.title}
@@ -339,23 +334,23 @@ const VerticalTextSlider = () => {
               ))}
             </div>
             
-            <div className="mt-8 sm:mt-10 md:mt-12 w-24 sm:w-32 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
+            <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 w-16 sm:w-24 md:w-32 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
           </div>
         </div>
 
         {/* Slide 3 */}
         <div ref={slide3Ref} className="slide-3 absolute inset-0 h-full w-full" style={{ willChange: 'transform' }}>
           <div className="slide-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black pointer-events-none" />
-          <div className="slide-content absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-8">
-            <h1 className="text-4xl md:text-7xl font-display font-bold mb-8 tracking-tight leading-tight">
+          <div className="slide-content absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-4 sm:px-8">
+            <h1 className="text-2xl sm:text-4xl md:text-7xl font-display font-bold mb-6 sm:mb-8 tracking-tight leading-tight">
               <span className="bg-gradient-to-r from-white via-white to-white bg-clip-text">
                 See Our Creative Impact
               </span>
             </h1>
-            <p className="text-xl md:text-2xl font-body font-light tracking-wide opacity-90 max-w-6xl leading-relaxed">
+            <p className="text-sm sm:text-xl md:text-2xl font-body font-light tracking-wide opacity-90 max-w-2xl sm:max-w-4xl md:max-w-6xl leading-relaxed">
               Explore our portfolio to see the creativity, precision, and innovation that CR8 brings to every project. We've collaborated with a wide range of brands across industries, delivering standout results that captivate audiences.
             </p>
-            <div className="mt-8 w-32 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
+            <div className="mt-6 sm:mt-8 w-20 sm:w-32 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
           </div>
         </div>
 
@@ -398,18 +393,18 @@ const VerticalTextSlider = () => {
             videoRef={video2Ref}
             isStarted={state.video2Started}
             isMuted={state.isMuted2}
-            onToggle={() => toggleVideoSound(video2Ref, 'video2')}
+            onToggle={() => toggleVideoSound(videoRef2, 'video2')}
             position="right"
           />
         </div>
 
         {/* Scroll Indicator */}
         {!state.isVideoSlideActive && (
-          <div className="absolute bottom-8 left-40 md:right-auto md:left-1/2 md:transform md:-translate-x-1/2 z-20">
-            <div className="w-6 ml-4 h-10 border-2 border-white/50 rounded-full flex justify-center">
+          <div className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 md:left-1/2 md:transform md:-translate-x-1/2 z-20">
+            <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center mx-auto">
               <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-bounce"></div>
             </div>
-            <p className="text-white/60 text-sm mt-2 text-right tracking-wider font-body">SCROLL</p>
+            <p className="text-white/60 text-xs sm:text-sm mt-2 text-center tracking-wider font-body">SCROLL</p>
           </div>
         )}
       </div>
@@ -443,10 +438,63 @@ const VerticalTextSlider = () => {
           animation: fadeInDown 1s ease-out;
         }
 
-        .slide-1, .slide-2, .slide-3, .slide-4 {
+        .slide-1, .slide-2, .slide-3, .slide-4, .slide-5 {
           backface-visibility: hidden;
           perspective: 1000px;
           transform-style: preserve-3d;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+          .slide-content {
+            padding-top: env(safe-area-inset-top, 20px);
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+          }
+          
+          * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+          }
+          
+          .slide-2 .slide-content {
+            padding: 1rem;
+          }
+          
+          @media (max-width: 375px) {
+            .slide-2 .slide-content {
+              padding: 0.75rem;
+            }
+            
+            .grid {
+              gap: 0.75rem;
+            }
+          }
+        }
+
+        /* Smooth scrolling improvements */
+        @media (prefers-reduced-motion: no-preference) {
+          .slide-1, .slide-2, .slide-3, .slide-4, .slide-5 {
+            will-change: transform;
+          }
+        }
+        
+        /* Prevent horizontal overflow on mobile */
+        @media (max-width: 768px) {
+          body {
+            overflow-x: hidden;
+          }
+          
+          .slide-content {
+            max-width: 100vw;
+          }
+        }
+
+        /* Ensure scroll indicator is centered on desktop, unchanged on mobile */
+        @media (min-width: 769px) {
+          .scroll-indicator {
+            left: 50%;
+            transform: translateX(-50%);
+          }
         }
       `}</style>
     </div>
