@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Palette, Film, Zap, Layers, RotateCcw, Code, VolumeX, Volume2 } from 'lucide-react';
+import { VolumeX, Volume2 } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -7,8 +7,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 const VerticalTextSlider = () => {
   const containerRef = useRef(null);
-  const slideRefs = [useRef(null), useRef(null), useRef(null), useRef(null), useRef(null)];
-  const [slide1Ref, slide2Ref, slide3Ref, slide4Ref, slide5Ref] = slideRefs;
+  const slideRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
+  const [slide1Ref, slide2Ref, slide3Ref, slide4Ref] = slideRefs;
   const videoRef = useRef(null);
   const video2Ref = useRef(null);
   
@@ -46,13 +46,12 @@ const VerticalTextSlider = () => {
 
   const setInitialPositions = () => {
     gsap.set(slide2Ref.current, { y: "100vh", force3D: true });
-    gsap.set(slide3Ref.current, { y: "100vh", force3D: true });
-    gsap.set(slide4Ref.current, { x: "100vw", force3D: true });
-    gsap.set(slide5Ref.current, { x: "-100vw", force3D: true });
+    gsap.set(slide3Ref.current, { x: "100vw", force3D: true });
+    gsap.set(slide4Ref.current, { x: "-100vw", force3D: true });
     gsap.set(".slide-overlay", { opacity: 0, force3D: true });
     gsap.set(".slide-content", { y: -60, opacity: 0, force3D: true });
-    gsap.set([".slide-4", ".slide-5"], { opacity: 0, force3D: true });
-    gsap.set([".slide-4 video", ".slide-5 video"], { scale: 1, force3D: true });
+    gsap.set([".slide-3", ".slide-4"], { opacity: 0, force3D: true });
+    gsap.set([".slide-3 video", ".slide-4 video"], { scale: 1, force3D: true });
   };
 
   const startVideoPlayback = async (videoRef, videoKey) => {
@@ -171,38 +170,33 @@ const VerticalTextSlider = () => {
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          end: "+=600%",
+          end: "+=400%",
           scrub: 0.5,
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           refreshPriority: -1,
-          onUpdate: (self) => updateState({ isVideoSlideActive: self.progress > 0.8 })
+          onUpdate: (self) => updateState({ isVideoSlideActive: self.progress > 0.7 })
         }
       });
 
-      tl.to(".slide-1 .slide-content",{y:0,opacity:1,duration:0.16,ease:"power3.out",force3D:true})
-        .to(".slide-1 .slide-overlay",{opacity:0.4,duration:0.12,ease:"power2.out"},"<")
-        .to([slide2Ref.current,slide1Ref.current],{y:(i)=>i===0?"0vh":"-100vh",duration:0.16,ease:"power2.out",force3D:true,stagger:0},0.16)
-        .to(".slide-1 .slide-content",{y:-40,opacity:0,duration:0.12,ease:"power2.in",force3D:true},0.16)
-        .to(".slide-1 .slide-overlay",{opacity:0.8,duration:0.12,ease:"power2.in"},0.16)
-        .to(".slide-2 .slide-content",{y:0,opacity:1,duration:0.2,ease:"power3.out",force3D:true},0.24)
-        .to(".slide-2 .slide-overlay",{opacity:0.3,duration:0.16,ease:"power2.out"},0.24)
-        .to(".slide-2 .slide-content",{y:-40,opacity:0,duration:0.16,ease:"power2.in",force3D:true},0.32)
-        .to(".slide-2 .slide-overlay",{opacity:0.8,duration:0.16,ease:"power2.in"},0.32)
-        .to([slide3Ref.current,slide2Ref.current],{y:(i)=>i===0?"0vh":"-100vh",duration:0.16,ease:"power2.out",force3D:true,stagger:0},0.36)
-        .to(".slide-3 .slide-content",{y:0,opacity:1,duration:0.2,ease:"power3.out",force3D:true},0.44)
-        .to(".slide-3 .slide-overlay",{opacity:0.3,duration:0.16,ease:"power2.out"},0.44)
-        .to(".slide-3 .slide-content",{y:-40,opacity:0,duration:0.16,ease:"power2.inOut",force3D:true},0.48)
-        .to(".slide-3 .slide-overlay",{opacity:0.8,duration:0.16,ease:"power2.inOut"},0.48)
-        .to(slide4Ref.current,{x:"0vw",duration:0.16,ease:"power2.inOut",force3D:true},0.52)
-        .to(".slide-4",{opacity:1,duration:0.12,ease:"power2.inOut",force3D:true},0.56)
-        .to(".slide-4 video",{scale:1.02,duration:0.12,ease:"power2.inOut",force3D:true},0.6)
-        .to(".slide-4 video",{scale:1.04,duration:0.16,ease:"power2.inOut",force3D:true},0.68)
-        .to(slide5Ref.current,{x:"0vw",duration:0.16,ease:"power2.inOut",force3D:true},0.8)
-        .to(".slide-5",{opacity:1,duration:0.12,ease:"power2.inOut",force3D:true},0.84)
-        .to(".slide-5 video",{scale:1.02,duration:0.12,ease:"power2.inOut",force3D:true},0.86)
-        .to(".slide-5 video",{scale:1.05,duration:0.1,ease:"power2.inOut",force3D:true},0.9);
+      tl.to(".slide-1 .slide-content",{y:0,opacity:1,duration:0.2,ease:"power3.out",force3D:true})
+        .to(".slide-1 .slide-overlay",{opacity:0.4,duration:0.15,ease:"power2.out"},"<")
+        .to([slide2Ref.current,slide1Ref.current],{y:(i)=>i===0?"0vh":"-100vh",duration:0.2,ease:"power2.out",force3D:true,stagger:0},0.2)
+        .to(".slide-1 .slide-content",{y:-40,opacity:0,duration:0.15,ease:"power2.in",force3D:true},0.2)
+        .to(".slide-1 .slide-overlay",{opacity:0.8,duration:0.15,ease:"power2.in"},0.2)
+        .to(".slide-2 .slide-content",{y:0,opacity:1,duration:0.25,ease:"power3.out",force3D:true},0.3)
+        .to(".slide-2 .slide-overlay",{opacity:0.3,duration:0.2,ease:"power2.out"},0.3)
+        .to(".slide-2 .slide-content",{y:-40,opacity:0,duration:0.2,ease:"power2.inOut",force3D:true},0.4)
+        .to(".slide-2 .slide-overlay",{opacity:0.8,duration:0.2,ease:"power2.inOut"},0.4)
+        .to(slide3Ref.current,{x:"0vw",duration:0.2,ease:"power2.inOut",force3D:true},0.5)
+        .to(".slide-3",{opacity:1,duration:0.15,ease:"power2.inOut",force3D:true},0.55)
+        .to(".slide-3 video",{scale:1.02,duration:0.15,ease:"power2.inOut",force3D:true},0.6)
+        .to(".slide-3 video",{scale:1.04,duration:0.2,ease:"power2.inOut",force3D:true},0.7)
+        .to(slide4Ref.current,{x:"0vw",duration:0.2,ease:"power2.inOut",force3D:true},0.8)
+        .to(".slide-4",{opacity:1,duration:0.15,ease:"power2.inOut",force3D:true},0.85)
+        .to(".slide-4 video",{scale:1.02,duration:0.15,ease:"power2.inOut",force3D:true},0.87)
+        .to(".slide-4 video",{scale:1.05,duration:0.13,ease:"power2.inOut",force3D:true},0.92);
     };
 
     const timeoutId = setTimeout(initAnimation, 100);
@@ -218,28 +212,6 @@ const VerticalTextSlider = () => {
       });
     };
   }, [state.loading, state.videoReady, state.video2Ready]);
-
-  const services = [
-    { icon: Palette, title: "Graphic Design", desc: "From logos to comprehensive brand visuals" },
-    { icon: Film, title: "Video Editing", desc: "Crafting dynamic content that captures attention" },
-    { icon: Zap, title: "Motion Graphics", desc: "Elevating your visuals with movements" },
-    { icon: Layers, title: "2D/3D Animation", desc: "Bringing your ideas to life with dimension" },
-    { icon: RotateCcw, title: "Logo Animation", desc: "Giving your brand identity dynamic edge" },
-    { icon: Code, title: "Web Development", desc: "Build websites effectively and promote your brand" }
-  ];
-
-  const ServiceCard = ({ icon: Icon, title, desc, className = "" }) => (
-    <div className={`group relative overflow-hidden p-4 sm:p-6 md:p-8 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-2xl border border-white/20 rounded-xl sm:rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/20 hover:border-white/40 hover:bg-gradient-to-br hover:from-white/30 hover:via-white/20 hover:to-white/15 cursor-pointer ${className}`}>
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-      <div className="relative z-10">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-gradient-to-br from-white/25 via-white/15 to-white/5 backdrop-blur-sm rounded-lg sm:rounded-xl mb-3 sm:mb-4 md:mb-5 mx-auto flex items-center justify-center border border-white/30 shadow-lg group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-white/40 group-hover:via-white/25 group-hover:to-white/10 transition-all duration-500 group-hover:shadow-white/30">
-          <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white drop-shadow-lg group-hover:drop-shadow-xl transition-all duration-300" />
-        </div>
-        <h3 className="text-base sm:text-lg md:text-xl font-display font-bold mb-2 sm:mb-3 md:mb-4 text-white drop-shadow-sm group-hover:text-white group-hover:drop-shadow-lg transition-all duration-300 text-center">{title}</h3>
-        <p className="text-white/85 font-body leading-relaxed text-xs sm:text-sm md:text-base drop-shadow-sm group-hover:text-white/95 transition-all duration-300 text-center">{desc}</p>
-      </div>
-    </div>
-  );
 
   const VideoControls = ({ videoRef, isStarted, isMuted, onToggle, position = "left" }) => (
     <div className={`absolute bottom-8 sm:bottom-16 ${position === "left" ? "left-4 sm:left-8" : "right-4 sm:right-8 text-right"} z-10`}>
@@ -270,7 +242,7 @@ const VerticalTextSlider = () => {
   );
 
   return (
-    <div className="relative h-[700vh]">
+    <div className="relative h-[500vh]">
       {state.loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
           <div className="relative flex flex-col items-center px-4">
@@ -312,34 +284,8 @@ const VerticalTextSlider = () => {
           </div>
         </div>
 
-        {/* Slide 2 - Services */}
-        <div ref={slide2Ref} className="slide-2 relative min-h-screen w-full bg-black" style={{ willChange: 'transform' }}>
-          <div className="slide-overlay absolute inset-0 bg-gradient-to-br from-black/90 via-black/80 to-black/90 pointer-events-none" />
-          <div className="slide-content relative flex flex-col justify-center items-center text-center text-white z-10 px-3 sm:px-6 md:px-8 py-8 sm:py-12 md:py-20 max-w-7xl mx-auto min-h-screen">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-display font-bold mb-6 sm:mb-8 md:mb-10 lg:mb-12 tracking-tight">
-              <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-                SERVICES OFFERED
-              </span>
-            </h1>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8 w-full max-w-xs sm:max-w-4xl lg:max-w-6xl">
-              {services.map((service, index) => (
-                <ServiceCard 
-                  key={service.title}
-                  icon={service.icon}
-                  title={service.title}
-                  desc={service.desc}
-                  className={index === 2 || index === 5 ? "sm:col-span-2 lg:col-span-1" : ""}
-                />
-              ))}
-            </div>
-            
-            <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 w-16 sm:w-24 md:w-32 h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
-          </div>
-        </div>
-
-        {/* Slide 3 */}
-        <div ref={slide3Ref} className="slide-3 absolute inset-0 h-full w-full" style={{ willChange: 'transform' }}>
+        {/* Slide 2 */}
+        <div ref={slide2Ref} className="slide-2 absolute inset-0 h-full w-full" style={{ willChange: 'transform' }}>
           <div className="slide-overlay absolute inset-0 bg-gradient-to-t from-black/90 via-black/70 to-black pointer-events-none" />
           <div className="slide-content absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-4 sm:px-8">
             <h1 className="text-2xl sm:text-4xl md:text-7xl font-display font-bold mb-6 sm:mb-8 tracking-tight leading-tight">
@@ -354,8 +300,8 @@ const VerticalTextSlider = () => {
           </div>
         </div>
 
-        {/* Slide 4 - Video */}
-        <div ref={slide4Ref} className="slide-4 absolute inset-0 h-full w-full opacity-0 overflow-hidden" style={{ willChange: 'transform, opacity' }}>
+        {/* Slide 3 - Video */}
+        <div ref={slide3Ref} className="slide-3 absolute inset-0 h-full w-full opacity-0 overflow-hidden" style={{ willChange: 'transform, opacity' }}>
           <video 
             ref={videoRef} 
             className="absolute inset-0 w-full h-full object-cover" 
@@ -374,8 +320,8 @@ const VerticalTextSlider = () => {
           />
         </div>
 
-        {/* Slide 5 - Video */}
-        <div ref={slide5Ref} className="slide-5 absolute inset-0 h-full w-full opacity-0 overflow-hidden" style={{ willChange: 'transform, opacity' }}>
+        {/* Slide 4 - Video */}
+        <div ref={slide4Ref} className="slide-4 absolute inset-0 h-full w-full opacity-0 overflow-hidden" style={{ willChange: 'transform, opacity' }}>
           {!state.video2Started && (
             <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat" style={{backgroundImage: `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url('img/thumbnail.png')`}}>
             </div>
@@ -393,7 +339,7 @@ const VerticalTextSlider = () => {
             videoRef={video2Ref}
             isStarted={state.video2Started}
             isMuted={state.isMuted2}
-            onToggle={() => toggleVideoSound(videoRef2, 'video2')}
+            onToggle={() => toggleVideoSound(video2Ref, 'video2')}
             position="right"
           />
         </div>
@@ -438,7 +384,7 @@ const VerticalTextSlider = () => {
           animation: fadeInDown 1s ease-out;
         }
 
-        .slide-1, .slide-2, .slide-3, .slide-4, .slide-5 {
+        .slide-1, .slide-2, .slide-3, .slide-4 {
           backface-visibility: hidden;
           perspective: 1000px;
           transform-style: preserve-3d;
@@ -455,25 +401,11 @@ const VerticalTextSlider = () => {
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
           }
-          
-          .slide-2 .slide-content {
-            padding: 1rem;
-          }
-          
-          @media (max-width: 375px) {
-            .slide-2 .slide-content {
-              padding: 0.75rem;
-            }
-            
-            .grid {
-              gap: 0.75rem;
-            }
-          }
         }
 
         /* Smooth scrolling improvements */
         @media (prefers-reduced-motion: no-preference) {
-          .slide-1, .slide-2, .slide-3, .slide-4, .slide-5 {
+          .slide-1, .slide-2, .slide-3, .slide-4 {
             will-change: transform;
           }
         }
