@@ -145,53 +145,139 @@ const Hero = () => {
     let isDown = false;
     let startX;
     let scrollLeft;
+    let velocity = 0;
+    let rafId = null;
+    let lastTime = 0;
+    let lastX = 0;
+
+    // Enhanced momentum scrolling
+    const momentum = () => {
+      if (Math.abs(velocity) > 0.5) {
+        scrollContainer.scrollLeft += velocity;
+        velocity *= 0.95; // Friction
+        rafId = requestAnimationFrame(momentum);
+      } else {
+        velocity = 0;
+        cancelAnimationFrame(rafId);
+      }
+    };
 
     const handleMouseDown = (e) => {
       isDown = true;
       scrollContainer.style.cursor = 'grabbing';
+      scrollContainer.style.userSelect = 'none';
       startX = e.pageX - scrollContainer.offsetLeft;
       scrollLeft = scrollContainer.scrollLeft;
+      velocity = 0;
+      lastTime = Date.now();
+      lastX = e.pageX;
+      
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
     };
 
     const handleMouseUp = () => {
       isDown = false;
       scrollContainer.style.cursor = 'grab';
+      scrollContainer.style.userSelect = 'auto';
+      
+      // Start momentum scrolling
+      if (Math.abs(velocity) > 1) {
+        momentum();
+      }
     };
 
     const handleMouseMove = (e) => {
       if (!isDown) return;
       e.preventDefault();
+      
+      const currentTime = Date.now();
+      const currentX = e.pageX;
+      const deltaTime = currentTime - lastTime;
+      const deltaX = currentX - lastX;
+      
+      if (deltaTime > 0) {
+        velocity = (deltaX / deltaTime) * 16; // Convert to pixels per frame (60fps)
+      }
+      
       const x = e.pageX - scrollContainer.offsetLeft;
-      const walk = (x - startX) * 2;
+      const walk = (x - startX) * 1.5; // Reduced multiplier for smoother feel
       scrollContainer.scrollLeft = scrollLeft - walk;
+      
+      lastTime = currentTime;
+      lastX = currentX;
     };
 
     const handleTouchStart = (e) => {
       isDown = true;
-      startX = e.touches[0].pageX - scrollContainer.offsetLeft;
+      const touch = e.touches[0];
+      startX = touch.pageX - scrollContainer.offsetLeft;
       scrollLeft = scrollContainer.scrollLeft;
+      velocity = 0;
+      lastTime = Date.now();
+      lastX = touch.pageX;
+      
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
     };
 
     const handleTouchMove = (e) => {
       if (!isDown) return;
-      const x = e.touches[0].pageX - scrollContainer.offsetLeft;
-      const walk = (x - startX) * 1.5;
+      
+      const touch = e.touches[0];
+      const currentTime = Date.now();
+      const currentX = touch.pageX;
+      const deltaTime = currentTime - lastTime;
+      const deltaX = currentX - lastX;
+      
+      if (deltaTime > 0) {
+        velocity = (deltaX / deltaTime) * 8; // Reduced for touch
+      }
+      
+      const x = touch.pageX - scrollContainer.offsetLeft;
+      const walk = (x - startX) * 1.2; // Slightly reduced for touch
       scrollContainer.scrollLeft = scrollLeft - walk;
+      
+      lastTime = currentTime;
+      lastX = currentX;
     };
 
     const handleTouchEnd = () => {
       isDown = false;
+      
+      // Enhanced momentum for touch
+      if (Math.abs(velocity) > 0.5) {
+        momentum();
+      }
     };
 
+    // Wheel event for better desktop experience
+    const handleWheel = (e) => {
+      if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.preventDefault();
+        scrollContainer.scrollLeft += e.deltaX * 1.5;
+      }
+    };
+
+    // Add event listeners
     scrollContainer.addEventListener('mousedown', handleMouseDown);
     scrollContainer.addEventListener('mouseleave', handleMouseUp);
     scrollContainer.addEventListener('mouseup', handleMouseUp);
     scrollContainer.addEventListener('mousemove', handleMouseMove);
     scrollContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
-    scrollContainer.addEventListener('touchmove', handleTouchMove, { passive: true });
+    scrollContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
     scrollContainer.addEventListener('touchend', handleTouchEnd);
+    scrollContainer.addEventListener('wheel', handleWheel, { passive: false });
+
+    // Prevent context menu on mobile
+    scrollContainer.addEventListener('contextmenu', (e) => e.preventDefault());
 
     return () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
       scrollContainer.removeEventListener('mousedown', handleMouseDown);
       scrollContainer.removeEventListener('mouseleave', handleMouseUp);
       scrollContainer.removeEventListener('mouseup', handleMouseUp);
@@ -199,6 +285,8 @@ const Hero = () => {
       scrollContainer.removeEventListener('touchstart', handleTouchStart);
       scrollContainer.removeEventListener('touchmove', handleTouchMove);
       scrollContainer.removeEventListener('touchend', handleTouchEnd);
+      scrollContainer.removeEventListener('wheel', handleWheel);
+      scrollContainer.removeEventListener('contextmenu', (e) => e.preventDefault());
     };
   }, []);
 
@@ -453,7 +541,7 @@ const Hero = () => {
                 ref={servicesScrollRef}
                 className="services-scroll-container md:hidden overflow-x-auto scrollbar-hide"
                 style={{
-                  scrollBehavior: 'smooth',
+                  scrollBehavior: 'auto', // Changed from 'smooth' to allow custom momentum
                   WebkitOverflowScrolling: 'touch',
                   cursor: 'grab'
                 }}
@@ -508,17 +596,29 @@ const Hero = () => {
         }
         
         .services-scroll-container {
-          scroll-snap-type: x mandatory;
+          scroll-snap-type: x proximity; /* Changed from mandatory to proximity for smoother feel */
           -webkit-overflow-scrolling: touch;
+          transform: translateZ(0); /* Hardware acceleration */
+          will-change: scroll-position;
         }
         
         .service-card {
           scroll-snap-align: start;
           scroll-snap-stop: normal;
+          transform: translateZ(0); /* Hardware acceleration */
         }
         
         .services-scroll-container:active {
           cursor: grabbing !important;
+        }
+        
+        .services-scroll-container {
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          -webkit-touch-callout: none;
+          -webkit-tap-highlight-color: transparent;
         }
         
         @media (max-width: 768px) {
@@ -541,6 +641,10 @@ const Hero = () => {
             padding-right: 1rem;
             margin-left: -1rem;
             margin-right: -1rem;
+            /* Enhanced mobile scrolling */
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: auto;
+            overscroll-behavior-x: contain;
           }
           
           @media (max-width: 375px) {
@@ -588,6 +692,19 @@ const Hero = () => {
           
           .services-scroll-container {
             touch-action: pan-x;
+          }
+        }
+
+        /* Enhanced momentum scrolling styles */
+        @media (hover: none) and (pointer: coarse) {
+          .services-scroll-container {
+            scroll-snap-type: x proximity;
+            overscroll-behavior-x: contain;
+            scroll-padding: 1rem;
+          }
+          
+          .service-card {
+            scroll-snap-align: center;
           }
         }
       `}</style>
