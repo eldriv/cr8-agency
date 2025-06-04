@@ -104,6 +104,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const Hero = () => {
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const heroRef = useRef(null);
   const videoRef = useRef(null);
   const containerRef = useRef(null);
@@ -138,157 +139,59 @@ const Hero = () => {
     }
   }, []);
 
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Simplified scroll handling for desktop only
   useEffect(() => {
     const scrollContainer = servicesScrollRef.current;
-    if (!scrollContainer) return;
+    if (!scrollContainer || isMobile) return; // Skip custom scrolling on mobile
 
     let isDown = false;
     let startX;
     let scrollLeft;
-    let velocity = 0;
-    let rafId = null;
-    let lastTime = 0;
-    let lastX = 0;
-
-    // Enhanced momentum scrolling
-    const momentum = () => {
-      if (Math.abs(velocity) > 0.5) {
-        scrollContainer.scrollLeft += velocity;
-        velocity *= 0.95; // Friction
-        rafId = requestAnimationFrame(momentum);
-      } else {
-        velocity = 0;
-        cancelAnimationFrame(rafId);
-      }
-    };
 
     const handleMouseDown = (e) => {
       isDown = true;
       scrollContainer.style.cursor = 'grabbing';
-      scrollContainer.style.userSelect = 'none';
       startX = e.pageX - scrollContainer.offsetLeft;
       scrollLeft = scrollContainer.scrollLeft;
-      velocity = 0;
-      lastTime = Date.now();
-      lastX = e.pageX;
-      
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-      }
     };
 
     const handleMouseUp = () => {
       isDown = false;
       scrollContainer.style.cursor = 'grab';
-      scrollContainer.style.userSelect = 'auto';
-      
-      // Start momentum scrolling
-      if (Math.abs(velocity) > 1) {
-        momentum();
-      }
     };
 
     const handleMouseMove = (e) => {
       if (!isDown) return;
       e.preventDefault();
-      
-      const currentTime = Date.now();
-      const currentX = e.pageX;
-      const deltaTime = currentTime - lastTime;
-      const deltaX = currentX - lastX;
-      
-      if (deltaTime > 0) {
-        velocity = (deltaX / deltaTime) * 16; // Convert to pixels per frame (60fps)
-      }
-      
       const x = e.pageX - scrollContainer.offsetLeft;
-      const walk = (x - startX) * 1.5; // Reduced multiplier for smoother feel
+      const walk = (x - startX) * 2;
       scrollContainer.scrollLeft = scrollLeft - walk;
-      
-      lastTime = currentTime;
-      lastX = currentX;
     };
 
-    const handleTouchStart = (e) => {
-      isDown = true;
-      const touch = e.touches[0];
-      startX = touch.pageX - scrollContainer.offsetLeft;
-      scrollLeft = scrollContainer.scrollLeft;
-      velocity = 0;
-      lastTime = Date.now();
-      lastX = touch.pageX;
-      
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-      }
-    };
-
-    const handleTouchMove = (e) => {
-      if (!isDown) return;
-      
-      const touch = e.touches[0];
-      const currentTime = Date.now();
-      const currentX = touch.pageX;
-      const deltaTime = currentTime - lastTime;
-      const deltaX = currentX - lastX;
-      
-      if (deltaTime > 0) {
-        velocity = (deltaX / deltaTime) * 8; // Reduced for touch
-      }
-      
-      const x = touch.pageX - scrollContainer.offsetLeft;
-      const walk = (x - startX) * 1.2; // Slightly reduced for touch
-      scrollContainer.scrollLeft = scrollLeft - walk;
-      
-      lastTime = currentTime;
-      lastX = currentX;
-    };
-
-    const handleTouchEnd = () => {
-      isDown = false;
-      
-      // Enhanced momentum for touch
-      if (Math.abs(velocity) > 0.5) {
-        momentum();
-      }
-    };
-
-    // Wheel event for better desktop experience
-    const handleWheel = (e) => {
-      if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-        e.preventDefault();
-        scrollContainer.scrollLeft += e.deltaX * 1.5;
-      }
-    };
-
-    // Add event listeners
+    // Only add mouse events for desktop
     scrollContainer.addEventListener('mousedown', handleMouseDown);
     scrollContainer.addEventListener('mouseleave', handleMouseUp);
     scrollContainer.addEventListener('mouseup', handleMouseUp);
     scrollContainer.addEventListener('mousemove', handleMouseMove);
-    scrollContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
-    scrollContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
-    scrollContainer.addEventListener('touchend', handleTouchEnd);
-    scrollContainer.addEventListener('wheel', handleWheel, { passive: false });
-
-    // Prevent context menu on mobile
-    scrollContainer.addEventListener('contextmenu', (e) => e.preventDefault());
 
     return () => {
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-      }
       scrollContainer.removeEventListener('mousedown', handleMouseDown);
       scrollContainer.removeEventListener('mouseleave', handleMouseUp);
       scrollContainer.removeEventListener('mouseup', handleMouseUp);
       scrollContainer.removeEventListener('mousemove', handleMouseMove);
-      scrollContainer.removeEventListener('touchstart', handleTouchStart);
-      scrollContainer.removeEventListener('touchmove', handleTouchMove);
-      scrollContainer.removeEventListener('touchend', handleTouchEnd);
-      scrollContainer.removeEventListener('wheel', handleWheel);
-      scrollContainer.removeEventListener('contextmenu', (e) => e.preventDefault());
     };
-  }, []);
+  }, [isMobile]);
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -539,12 +442,7 @@ const Hero = () => {
             <div className="services-container w-full max-w-xs sm:max-w-4xl lg:max-w-6xl">
               <div 
                 ref={servicesScrollRef}
-                className="services-scroll-container md:hidden overflow-x-auto scrollbar-hide"
-                style={{
-                  scrollBehavior: 'auto', // Changed from 'smooth' to allow custom momentum
-                  WebkitOverflowScrolling: 'touch',
-                  cursor: 'grab'
-                }}
+                className="services-scroll-container md:hidden overflow-x-auto"
               >
                 <div className="services-row flex gap-4 pb-4" style={{ width: 'max-content' }}>
                   {services.map((service, index) => (
@@ -586,41 +484,41 @@ const Hero = () => {
           scroll-behavior: auto;
         }
         
-        .scrollbar-hide {
+        /* Native smooth scrolling for mobile */
+        .services-scroll-container {
+          scroll-behavior: smooth;
+          -webkit-overflow-scrolling: touch;
+          scroll-snap-type: x proximity;
+          overscroll-behavior-x: contain;
+        }
+        
+        /* Hide scrollbar but keep functionality */
+        .services-scroll-container {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
         
-        .scrollbar-hide::-webkit-scrollbar {
+        .services-scroll-container::-webkit-scrollbar {
           display: none;
-        }
-        
-        .services-scroll-container {
-          scroll-snap-type: x proximity; /* Changed from mandatory to proximity for smoother feel */
-          -webkit-overflow-scrolling: touch;
-          transform: translateZ(0); /* Hardware acceleration */
-          will-change: scroll-position;
         }
         
         .service-card {
           scroll-snap-align: start;
-          scroll-snap-stop: normal;
-          transform: translateZ(0); /* Hardware acceleration */
+          transform: translateZ(0);
         }
         
-        .services-scroll-container:active {
-          cursor: grabbing !important;
+        /* Desktop drag cursor only */
+        @media (min-width: 768px) {
+          .services-scroll-container {
+            cursor: grab;
+          }
+          
+          .services-scroll-container:active {
+            cursor: grabbing;
+          }
         }
         
-        .services-scroll-container {
-          -webkit-user-select: none;
-          -moz-user-select: none;
-          -ms-user-select: none;
-          user-select: none;
-          -webkit-touch-callout: none;
-          -webkit-tap-highlight-color: transparent;
-        }
-        
+        /* Mobile optimizations */
         @media (max-width: 768px) {
           .services-content {
             padding-top: env(safe-area-inset-top, 20px);
@@ -641,10 +539,15 @@ const Hero = () => {
             padding-right: 1rem;
             margin-left: -1rem;
             margin-right: -1rem;
-            /* Enhanced mobile scrolling */
+            /* Enhanced native mobile scrolling */
             -webkit-overflow-scrolling: touch;
-            scroll-behavior: auto;
+            scroll-behavior: smooth;
             overscroll-behavior-x: contain;
+            touch-action: pan-x;
+          }
+          
+          .service-card {
+            touch-action: manipulation;
           }
           
           @media (max-width: 375px) {
@@ -669,10 +572,6 @@ const Hero = () => {
           #services-section, #next-section, #video-container {
             will-change: transform;
           }
-          
-          .services-scroll-container {
-            will-change: scroll-position;
-          }
         }
         
         @media (max-width: 768px) {
@@ -682,29 +581,6 @@ const Hero = () => {
           
           .services-content, .appointment-content {
             max-width: 100vw;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .service-card {
-            touch-action: manipulation;
-          }
-          
-          .services-scroll-container {
-            touch-action: pan-x;
-          }
-        }
-
-        /* Enhanced momentum scrolling styles */
-        @media (hover: none) and (pointer: coarse) {
-          .services-scroll-container {
-            scroll-snap-type: x proximity;
-            overscroll-behavior-x: contain;
-            scroll-padding: 1rem;
-          }
-          
-          .service-card {
-            scroll-snap-align: center;
           }
         }
       `}</style>
