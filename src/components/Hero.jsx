@@ -277,7 +277,7 @@ const Hero = () => {
                 icon={<TiLocationArrow className="h-4 w-4 sm:h-5 sm:w-5" />}
                 label="Schedule a Call"
                 href="#contact"
-                className="text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto max-w-xs"
+                className="text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto max-w-xs justify-center"
               />
             </div>
           </div>
