@@ -57,7 +57,7 @@ const VerticalTextSlider = () => {
   const areVideosReady = () => {
     const hero2Ready = videoLoadStates.hero2.loaded && 
                       videoLoadStates.hero2.canPlay && 
-                      videoLoadStates.hero2.readyState >= 3;
+                      videoLoadStates.hero2.readyState >= 3; // HAVE_FUTURE_DATA or higher
     
     const hero3Ready = videoLoadStates.hero3.loaded && 
                       videoLoadStates.hero3.canPlay && 
@@ -70,6 +70,7 @@ const VerticalTextSlider = () => {
   useEffect(() => {
     if (areVideosReady()) {
       console.log('Both hero videos are fully loaded and ready');
+      // Add a small delay to ensure smooth transition
       const timer = setTimeout(() => {
         setLoading(false);
         setVideoReady(true);
@@ -144,6 +145,7 @@ const VerticalTextSlider = () => {
   // Enhanced video initialization with detailed loading tracking
   useEffect(() => {
     const initializeVideos = () => {
+      // Initialize hero-2 video
       if (videoRef.current) {
         const video1 = videoRef.current;
         
@@ -162,6 +164,7 @@ const VerticalTextSlider = () => {
             });
           };
 
+          // Multiple event listeners for comprehensive loading detection
           video1.addEventListener('loadeddata', () => {
             console.log('Hero-2: Data loaded');
             updateHero2State();
@@ -188,6 +191,7 @@ const VerticalTextSlider = () => {
 
           video1.addEventListener('error', (e) => {
             console.error('Hero-2 loading error:', e);
+            // Mark as ready even on error to prevent infinite loading
             updateVideoLoadState('hero2', {
               loaded: true,
               canPlay: true,
@@ -195,6 +199,7 @@ const VerticalTextSlider = () => {
             });
           });
 
+          // Initial state check
           updateHero2State();
 
         } catch (error) {
@@ -207,6 +212,7 @@ const VerticalTextSlider = () => {
         }
       }
 
+      // Initialize hero-3 video
       if (video2Ref.current) {
         const video2 = video2Ref.current;
         
@@ -225,6 +231,7 @@ const VerticalTextSlider = () => {
             });
           };
 
+          // Multiple event listeners for comprehensive loading detection
           video2.addEventListener('loadeddata', () => {
             console.log('Hero-3: Data loaded');
             updateHero3State();
@@ -251,6 +258,7 @@ const VerticalTextSlider = () => {
 
           video2.addEventListener('error', (e) => {
             console.error('Hero-3 loading error:', e);
+            // Mark as ready even on error to prevent infinite loading
             updateVideoLoadState('hero3', {
               loaded: true,
               canPlay: true,
@@ -258,6 +266,7 @@ const VerticalTextSlider = () => {
             });
           });
 
+          // Initial state check
           updateHero3State();
 
         } catch (error) {
@@ -271,8 +280,10 @@ const VerticalTextSlider = () => {
       }
     };
 
+    // Initialize videos immediately
     initializeVideos();
 
+    // Cleanup function
     return () => {
       if (videoRef.current) {
         const video1 = videoRef.current;
@@ -295,7 +306,7 @@ const VerticalTextSlider = () => {
     };
   }, []);
 
-  // Fallback timer to prevent infinite loading
+  // Fallback timer to prevent infinite loading (30 seconds max)
   useEffect(() => {
     const fallbackTimer = setTimeout(() => {
       if (loading) {
@@ -324,20 +335,18 @@ const VerticalTextSlider = () => {
     gsap.set(".slide-4 video", { scale: 1, force3D: true });
     gsap.set(".slide-5 video", { scale: 1, force3D: true });
 
+    // Small delay to ensure DOM is fully ready
     const initAnimation = () => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
           end: "+=600%",
-          scrub: 1.2, // Increased scrub value for smoother mobile experience
+          scrub: 0.5,
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           refreshPriority: -1,
-          normalizeScroll: true, // Better mobile scroll handling
-          ignoreMobileResize: true, // Prevent issues on mobile resize
-          fastScrollEnd: true, // Better mobile performance
           onUpdate: (self) => {
             if (self.progress > 0.8) {
               setIsVideoSlideActive(true);
@@ -348,156 +357,10 @@ const VerticalTextSlider = () => {
         }
       });
 
-      // More gradual transitions for better mobile experience
-      tl.to(".slide-1 .slide-content", {
-        y: 0,
-        opacity: 1,
-        duration: 0.2,
-        ease: "power2.out",
-        force3D: true
-      })
-      .to(".slide-1 .slide-overlay", {
-        opacity: 0.4,
-        duration: 0.15,
-        ease: "power2.out"
-      }, "<")
-      
-      // Slide 1 to 2 transition - more gradual
-      .to([slide2Ref.current, slide1Ref.current], {
-        y: (i) => i === 0 ? "0vh" : "-100vh",
-        duration: 0.25,
-        ease: "power2.inOut",
-        force3D: true,
-        stagger: 0
-      }, 0.2)
-      .to(".slide-1 .slide-content", {
-        y: -40,
-        opacity: 0,
-        duration: 0.2,
-        ease: "power2.in",
-        force3D: true
-      }, 0.2)
-      .to(".slide-1 .slide-overlay", {
-        opacity: 0.8,
-        duration: 0.15,
-        ease: "power2.in"
-      }, 0.2)
-      
-      // Slide 2 content appears more smoothly
-      .to(".slide-2 .slide-content", {
-        y: 0,
-        opacity: 1,
-        duration: 0.3,
-        ease: "power2.out",
-        force3D: true
-      }, 0.3)
-      .to(".slide-2 .slide-overlay", {
-        opacity: 0.3,
-        duration: 0.2,
-        ease: "power2.out"
-      }, 0.3)
-      
-      // Longer pause on services slide for better mobile interaction
-      .to(".slide-2 .slide-content", {
-        y: -40,
-        opacity: 0,
-        duration: 0.2,
-        ease: "power2.in",
-        force3D: true
-      }, 0.5) // Increased delay for more time on services
-      .to(".slide-2 .slide-overlay", {
-        opacity: 0.8,
-        duration: 0.2,
-        ease: "power2.in"
-      }, 0.5)
-      
-      // Slide 2 to 3 transition
-      .to([slide3Ref.current, slide2Ref.current], {
-        y: (i) => i === 0 ? "0vh" : "-100vh",
-        duration: 0.25,
-        ease: "power2.inOut",
-        force3D: true,
-        stagger: 0
-      }, 0.55)
-      
-      .to(".slide-3 .slide-content", {
-        y: 0,
-        opacity: 1,
-        duration: 0.25,
-        ease: "power2.out",
-        force3D: true
-      }, 0.6)
-      .to(".slide-3 .slide-overlay", {
-        opacity: 0.3,
-        duration: 0.2,
-        ease: "power2.out"
-      }, 0.6)
-      
-      .to(".slide-3 .slide-content", {
-        y: -40,
-        opacity: 0,
-        duration: 0.2,
-        ease: "power2.inOut",
-        force3D: true
-      }, 0.65)
-      .to(".slide-3 .slide-overlay", {
-        opacity: 0.8,
-        duration: 0.2,
-        ease: "power2.inOut"
-      }, 0.65)
-      
-      // Video slides transitions - smoother
-      .to(slide4Ref.current, {
-        x: "0vw",
-        duration: 0.2,
-        ease: "power2.inOut",
-        force3D: true
-      }, 0.7)
-      .to(".slide-4", {
-        opacity: 1,
-        duration: 0.15,
-        ease: "power2.inOut",
-        force3D: true
-      }, 0.75)
-      .to(".slide-4 video", {
-        scale: 1.02,
-        duration: 0.15,
-        ease: "power2.inOut",
-        force3D: true
-      }, 0.8)
-      .to(".slide-4 video", {
-        scale: 1.04,
-        duration: 0.2,
-        ease: "power2.inOut",
-        force3D: true
-      }, 0.85)
-      
-      .to(slide5Ref.current, {
-        x: "0vw",
-        duration: 0.2,
-        ease: "power2.inOut",
-        force3D: true
-      }, 0.9)
-      .to(".slide-5", {
-        opacity: 1,
-        duration: 0.15,
-        ease: "power2.inOut",
-        force3D: true
-      }, 0.92)
-      .to(".slide-5 video", {
-        scale: 1.02,
-        duration: 0.15,
-        ease: "power2.inOut",
-        force3D: true
-      }, 0.94)
-      .to(".slide-5 video", {
-        scale: 1.05,
-        duration: 0.1,
-        ease: "power2.inOut",
-        force3D: true
-      }, 0.96);
+      tl.to(".slide-1 .slide-content",{y:0,opacity:1,duration:0.16,ease:"power3.out",force3D:true}).to(".slide-1 .slide-overlay",{opacity:0.4,duration:0.12,ease:"power2.out"},"<").to([slide2Ref.current,slide1Ref.current],{y:(i)=>i===0?"0vh":"-100vh",duration:0.16,ease:"power2.out",force3D:true,stagger:0},0.16).to(".slide-1 .slide-content",{y:-40,opacity:0,duration:0.12,ease:"power2.in",force3D:true},0.16).to(".slide-1 .slide-overlay",{opacity:0.8,duration:0.12,ease:"power2.in"},0.16).to(".slide-2 .slide-content",{y:0,opacity:1,duration:0.2,ease:"power3.out",force3D:true},0.24).to(".slide-2 .slide-overlay",{opacity:0.3,duration:0.16,ease:"power2.out"},0.24).to(".slide-2 .slide-content",{y:-40,opacity:0,duration:0.16,ease:"power2.in",force3D:true},0.32).to(".slide-2 .slide-overlay",{opacity:0.8,duration:0.16,ease:"power2.in"},0.32).to([slide3Ref.current,slide2Ref.current],{y:(i)=>i===0?"0vh":"-100vh",duration:0.16,ease:"power2.out",force3D:true,stagger:0},0.36).to(".slide-3 .slide-content",{y:0,opacity:1,duration:0.2,ease:"power3.out",force3D:true},0.44).to(".slide-3 .slide-overlay",{opacity:0.3,duration:0.16,ease:"power2.out"},0.44).to(".slide-3 .slide-content",{y:-40,opacity:0,duration:0.16,ease:"power2.inOut",force3D:true},0.48).to(".slide-3 .slide-overlay",{opacity:0.8,duration:0.16,ease:"power2.inOut"},0.48).to(slide4Ref.current,{x:"0vw",duration:0.16,ease:"power2.inOut",force3D:true},0.52).to(".slide-4",{opacity:1,duration:0.12,ease:"power2.inOut",force3D:true},0.56).to(".slide-4 video",{scale:1.02,duration:0.12,ease:"power2.inOut",force3D:true},0.6).to(".slide-4 video",{scale:1.04,duration:0.16,ease:"power2.inOut",force3D:true},0.68).to(slide5Ref.current,{x:"0vw",duration:0.16,ease:"power2.inOut",force3D:true},0.8).to(".slide-5",{opacity:1,duration:0.12,ease:"power2.inOut",force3D:true},0.84).to(".slide-5 video",{scale:1.02,duration:0.12,ease:"power2.inOut",force3D:true},0.86).to(".slide-5 video",{scale:1.05,duration:0.1,ease:"power2.inOut",force3D:true},0.9);
     };
 
+    // Small delay to ensure everything is properly initialized
     const timeoutId = setTimeout(initAnimation, 100);
 
     return () => {
@@ -515,7 +378,7 @@ const VerticalTextSlider = () => {
   }, [loading, videoReady, video2Ready]);
 
   return (
-    <div className="relative h-[700vh] touch-pan-y">
+    <div className="relative h-[700vh]">
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
           <div className="relative flex flex-col items-center">
@@ -527,9 +390,11 @@ const VerticalTextSlider = () => {
               playsInline
             >
               <source src="/videos/loading.mp4" type="video/mp4" />
+              {/* Fallback spinner if video fails to load */}
               <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
             </video>
             
+            {/* Loading progress indicator */}
             <div className="mt-8 text-white text-center">
               <div className="text-sm opacity-75 mb-2">Thank you for waiting!</div>
               <div className="flex gap-4 text-xs">
@@ -548,12 +413,7 @@ const VerticalTextSlider = () => {
           </div>
         </div>
       )}
-      
-      <div 
-        ref={containerRef} 
-        className="sticky top-0 h-screen w-screen overflow-hidden touch-pan-y" 
-        style={{ willChange: 'transform' }}
-      >
+      <div ref={containerRef} className="sticky top-0 h-screen w-screen overflow-hidden" style={{ willChange: 'transform' }}>
         <div ref={slide1Ref} className="slide-1 absolute inset-0 h-full w-full" style={{ willChange: 'transform' }}>
           <div className="slide-overlay absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black pointer-events-none" />
           <div className="slide-content absolute inset-0 flex flex-col justify-center items-center text-center text-white z-10 px-8">
@@ -570,19 +430,16 @@ const VerticalTextSlider = () => {
           </div>
         </div>
 
-        <div 
-          ref={slide2Ref} 
-          className="slide-2 relative min-h-screen w-full bg-black touch-pan-y overflow-y-auto md:overflow-y-visible" 
-          style={{ willChange: 'transform' }}
-        >
-          <div className="slide-overlay absolute inset-0 bg-gradient-to-br from-black/90 via-black/80 to-black/90 pointer-events-none" />
-          <div className="slide-content relative flex flex-col justify-center items-center text-center text-white z-10 px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20 max-w-7xl mx-auto min-h-screen">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold mb-8 sm:mb-10 md:mb-12 tracking-tight">
-              <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent" id="services">
-                SERVICES OFFERED
-              </span>
-            </h1>
-                    
+       <div ref={slide2Ref} className="slide-2 relative min-h-screen w-full bg-black" style={{ willChange: 'transform' }}>
+      <div className="slide-overlay absolute inset-0 bg-gradient-to-br from-black/90 via-black/80 to-black/90 pointer-events-none" />
+      <div className="slide-content relative flex flex-col justify-center items-center text-center text-white z-10 px-4 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20 max-w-7xl mx-auto min-h-screen">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold mb-8 sm:mb-10 md:mb-12 tracking-tight">
+          <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent" id="services">
+            SERVICES OFFERED
+          </span>
+        </h1>
+        
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 w-full max-w-6xl">
           <div className="group relative overflow-hidden p-6 sm:p-7 md:p-8 bg-gradient-to-br from-white/12 via-white/6 to-white/3 backdrop-blur-2xl border border-white/20 rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/20 hover:border-white/40 hover:bg-gradient-to-br hover:from-white/30 hover:via-white/20 hover:to-white/15 cursor-pointer">
             <div className="absolute inset-0 bg-gradient-to-br from-black via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
