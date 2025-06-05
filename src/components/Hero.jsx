@@ -339,8 +339,155 @@ const Hero = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Inline styles object to replace styled-jsx
+  const componentStyles = {
+    fontSmoothing: {
+      WebkitFontSmoothing: 'antialiased',
+      MozOsxFontSmoothing: 'grayscale'
+    }
+  };
+
+  // Add styles to document head
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+      * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      html {
+        scroll-behavior: auto;
+      }
+      
+      /* Performance optimizations */
+      .will-change-transform {
+        will-change: transform;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+      }
+      
+      /* Native smooth scrolling for mobile */
+      .services-scroll-container {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+        overscroll-behavior-x: contain;
+        contain: layout style paint;
+      }
+      
+      /* Hide scrollbar but keep functionality */
+      .services-scroll-container {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      
+      .services-scroll-container::-webkit-scrollbar {
+        display: none;
+      }
+      
+      .service-card {
+        scroll-snap-align: start;
+        transform: translateZ(0);
+        contain: layout style paint;
+      }
+      
+      /* Desktop drag cursor only */
+      @media (min-width: 768px) {
+        .services-scroll-container {
+          cursor: grab;
+        }
+        
+        .services-scroll-container:active {
+          cursor: grabbing;
+        }
+      }
+      
+      /* Mobile optimizations */
+      @media (max-width: 768px) {
+        .services-content {
+          padding-top: env(safe-area-inset-top, 20px);
+          padding-bottom: env(safe-area-inset-bottom, 20px);
+        }
+        
+        * {
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
+        }
+        
+        .services-content {
+          padding: 1rem;
+        }
+        
+        .services-scroll-container {
+          padding-left: 1rem;
+          padding-right: 1rem;
+          margin-left: -1rem;
+          margin-right: -1rem;
+          -webkit-overflow-scrolling: touch;
+          scroll-behavior: smooth;
+          overscroll-behavior-x: contain;
+          touch-action: pan-x;
+        }
+        
+        .service-card {
+          touch-action: manipulation;
+        }
+        
+        @media (max-width: 375px) {
+          .services-content {
+            padding: 0.75rem;
+          }
+          
+          .services-scroll-container {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+            margin-left: -0.75rem;
+            margin-right: -0.75rem;
+          }
+          
+          .service-card {
+            min-width: 260px;
+          }
+        }
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        #services-section, #next-section, #video-container {
+          will-change: transform;
+          transform: translateZ(0);
+        }
+      }
+      
+      @media (max-width: 768px) {
+        body {
+          overflow-x: hidden;
+        }
+        
+        .services-content, .appointment-content {
+          max-width: 100vw;
+        }
+      }
+      
+      /* Reduce motion for users who prefer it */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    `;
+    
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
+
   return (
-    <div id="home" className="relative h-[600vh]"> {/* Reduced height for better performance */}
+    <div id="home" className="relative h-[600vh]" style={componentStyles.fontSmoothing}> {/* Reduced height for better performance */}
       <div ref={heroRef} className="sticky top-0 h-screen w-screen overflow-hidden bg-black">
         {loading && (
           <div className="absolute inset-0 z-30 flex items-center justify-center bg-black">
@@ -441,135 +588,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        * {
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-        
-        html {
-          scroll-behavior: auto;
-        }
-        
-        /* Performance optimizations */
-        .will-change-transform {
-          will-change: transform;
-          transform: translateZ(0);
-          backface-visibility: hidden;
-        }
-        
-        /* Native smooth scrolling for mobile */
-        .services-scroll-container {
-          scroll-behavior: smooth;
-          -webkit-overflow-scrolling: touch;
-          scroll-snap-type: x proximity;
-          overscroll-behavior-x: contain;
-          contain: layout style paint;
-        }
-        
-        /* Hide scrollbar but keep functionality */
-        .services-scroll-container {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        
-        .services-scroll-container::-webkit-scrollbar {
-          display: none;
-        }
-        
-        .service-card {
-          scroll-snap-align: start;
-          transform: translateZ(0);
-          contain: layout style paint;
-        }
-        
-        /* Desktop drag cursor only */
-        @media (min-width: 768px) {
-          .services-scroll-container {
-            cursor: grab;
-          }
-          
-          .services-scroll-container:active {
-            cursor: grabbing;
-          }
-        }
-        
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-          .services-content {
-            padding-top: env(safe-area-inset-top, 20px);
-            padding-bottom: env(safe-area-inset-bottom, 20px);
-          }
-          
-          * {
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-          }
-          
-          .services-content {
-            padding: 1rem;
-          }
-          
-          .services-scroll-container {
-            padding-left: 1rem;
-            padding-right: 1rem;
-            margin-left: -1rem;
-            margin-right: -1rem;
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
-            overscroll-behavior-x: contain;
-            touch-action: pan-x;
-          }
-          
-          .service-card {
-            touch-action: manipulation;
-          }
-          
-          @media (max-width: 375px) {
-            .services-content {
-              padding: 0.75rem;
-            }
-            
-            .services-scroll-container {
-              padding-left: 0.75rem;
-              padding-right: 0.75rem;
-              margin-left: -0.75rem;
-              margin-right: -0.75rem;
-            }
-            
-            .service-card {
-              min-width: 260px;
-            }
-          }
-        }
-
-        @media (prefers-reduced-motion: no-preference) {
-          #services-section, #next-section, #video-container {
-            will-change: transform;
-            transform: translateZ(0);
-          }
-        }
-        
-        @media (max-width: 768px) {
-          body {
-            overflow-x: hidden;
-          }
-          
-          .services-content, .appointment-content {
-            max-width: 100vw;
-          }
-        }
-        
-        /* Reduce motion for users who prefer it */
-        @media (prefers-reduced-motion: reduce) {
-          * {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };
