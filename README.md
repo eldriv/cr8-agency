@@ -44,7 +44,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser to view the 
 ## Live Site
 
 The live site is available at:
-👉 [https://cr8-nine.vercel.app](https://cr8-nine.vercel.app)
+👉 [Live Site](https://cr8-agency-production.up.railway.app/)
 
 ## About
 
