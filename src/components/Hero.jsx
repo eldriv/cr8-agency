@@ -84,8 +84,8 @@ const ServiceCard = ({ icon: Icon, title, desc, className = "" }) => (
     className={`service-card group relative overflow-hidden p-4 sm:p-6 md:p-8 border border-gray-700 rounded-xl sm:rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/10 hover:border-gray-600 cursor-pointer flex-shrink-0 ${className}`}
     style={{ backgroundColor: '#1f2937', minWidth: '280px' }}
   >
-    <div className="absolute inset-0 opacity-100 z-0" style={{ backgroundColor: '#1f2937' }}></div>
-    <div className="absolute inset-0 bg-gray-800 opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-1"></div>
+    <div className="absolute inset-0 opacity-100 z-0" style={{ backgroundColor: '#000000' }}></div>
+    <div className="absolute inset-0 bg-black/30 group-hover:opacity-100 transition-opacity duration-700 z-1"></div>
     
     <div className="relative z-10">
       <div 
