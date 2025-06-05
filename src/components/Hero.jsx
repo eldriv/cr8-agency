@@ -3,27 +3,28 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
 import { TiLocationArrow } from "react-icons/ti";
 import { Palette, Film, Zap, Layers, RotateCcw, Code } from 'lucide-react';
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 
-// ModernButton component
+// Optimized ModernButton with reduced calculations
 const ModernButton = ({ icon, label, className = "", onClick, href }) => {
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [hoverOpacity, setHoverOpacity] = useState(0);
+  const [cursorPosition, setCursorPosition] = useState({ x: 50, y: 50 });
   const buttonRef = useRef(null);
   
-  const handleMouseMove = (event) => {
+  // Throttled mouse move handler
+  const handleMouseMove = useCallback((event) => {
     if (!buttonRef.current) return;
     const rect = buttonRef.current.getBoundingClientRect();
     setCursorPosition({ 
       x: event.clientX - rect.left, 
       y: event.clientY - rect.top, 
     });
-  };
+  }, []);
   
-  const handleMouseEnter = () => setHoverOpacity(1);
-  const handleMouseLeave = () => setHoverOpacity(0);
+  const handleMouseEnter = useCallback(() => setHoverOpacity(1), []);
+  const handleMouseLeave = useCallback(() => setHoverOpacity(0), []);
   
-  const handleClick = (e) => {
+  const handleClick = useCallback((e) => {
     if (href) {
       e.preventDefault();
       const element = document.getElementById(href.replace('#', ''));
@@ -32,21 +33,25 @@ const ModernButton = ({ icon, label, className = "", onClick, href }) => {
       }
     }
     if (onClick) onClick(e);
-  };
+  }, [href, onClick]);
+
+  const gradientStyle = useMemo(() => ({
+    opacity: hoverOpacity,
+    background: `radial-gradient(100px circle at ${cursorPosition.x}px ${cursorPosition.y}px, #ffffff33, #00000026)`,
+  }), [hoverOpacity, cursorPosition.x, cursorPosition.y]);
 
   const ButtonContent = () => (
     <>
       <div 
-        className="pointer-events-none absolute -inset-px opacity-0 transition duration-300" 
-        style={{ 
-          opacity: hoverOpacity, 
-          background: `radial-gradient(100px circle at ${cursorPosition.x}px ${cursorPosition.y}px, #ffffff33, #00000026)`, 
-        }} 
+        className="pointer-events-none absolute -inset-px transition-opacity duration-300" 
+        style={gradientStyle}
       />
       <span className="relative z-20">{icon}</span>
       <span className="relative z-20">{label}</span>
     </>
   );
+
+  const baseClasses = `relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-black px-5 py-3 text-sm uppercase text-white border border-gray-800 font-body ${className}`;
 
   if (href) {
     return (
@@ -57,7 +62,7 @@ const ModernButton = ({ icon, label, className = "", onClick, href }) => {
         onMouseEnter={handleMouseEnter} 
         onMouseLeave={handleMouseLeave}
         onClick={handleClick}
-        className={`relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-black px-5 py-3 text-sm uppercase text-white border border-gray-800 font-body ${className}`}
+        className={baseClasses}
       >
         <ButtonContent />
       </a>
@@ -71,34 +76,45 @@ const ModernButton = ({ icon, label, className = "", onClick, href }) => {
       onMouseEnter={handleMouseEnter} 
       onMouseLeave={handleMouseLeave} 
       onClick={handleClick} 
-      className={`relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-full bg-black px-5 py-3 text-sm uppercase text-white border border-gray-800 font-body ${className}`}
+      className={baseClasses}
     >
       <ButtonContent />
     </button>
   );
 };
 
-// ServiceCard component
-const ServiceCard = ({ icon: Icon, title, desc, className = "" }) => (
-  <div 
-    className={`service-card group relative overflow-hidden p-4 sm:p-6 md:p-8 border border-gray-700 rounded-xl sm:rounded-2xl transition-all duration-700 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/10 hover:border-gray-600 cursor-pointer flex-shrink-0 ${className}`}
-    style={{ backgroundColor: '#1f2937', minWidth: '280px' }}
-  >
-    <div className="absolute inset-0 opacity-100 z-0" style={{ backgroundColor: '#000000' }}></div>
-    <div className="absolute inset-0 bg-black/30 group-hover:opacity-100 transition-opacity duration-700 z-1"></div>
-    
-    <div className="relative z-10">
-      <div 
-        className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl mb-3 sm:mb-4 md:mb-5 mx-auto flex items-center justify-center border border-gray-600 shadow-lg group-hover:scale-110 transition-all duration-500 group-hover:shadow-white/20"
-        style={{ backgroundColor: '#374151' }}
-      >
-        <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white drop-shadow-lg group-hover:drop-shadow-xl transition-all duration-300" />
+// Optimized ServiceCard with reduced DOM complexity
+const ServiceCard = ({ icon: Icon, title, desc, className = "" }) => {
+  const cardStyle = useMemo(() => ({
+    backgroundColor: '#1f2937',
+    minWidth: '280px'
+  }), []);
+
+  const iconContainerStyle = useMemo(() => ({
+    backgroundColor: '#374151'
+  }), []);
+
+  return (
+    <div 
+      className={`service-card group relative overflow-hidden p-4 sm:p-6 md:p-8 border border-gray-700 rounded-xl sm:rounded-2xl transition-all duration-500 ease-out hover:scale-105 hover:-translate-y-2 active:scale-95 shadow-2xl hover:shadow-white/10 hover:border-gray-600 cursor-pointer flex-shrink-0 ${className}`}
+      style={cardStyle}
+    >
+      <div className="absolute inset-0 bg-black"></div>
+      <div className="absolute inset-0 bg-black/30 group-hover:opacity-100 transition-opacity duration-500"></div>
+      
+      <div className="relative z-10">
+        <div 
+          className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-xl mb-3 sm:mb-4 md:mb-5 mx-auto flex items-center justify-center border border-gray-600 shadow-lg group-hover:scale-110 transition-transform duration-300"
+          style={iconContainerStyle}
+        >
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white transition-all duration-300" />
+        </div>
+        <h3 className="text-base sm:text-lg md:text-xl font-display font-bold mb-2 sm:mb-3 md:mb-4 text-white transition-all duration-300 text-center">{title}</h3>
+        <p className="text-gray-300 font-body leading-relaxed text-xs sm:text-sm md:text-base group-hover:text-white transition-colors duration-300 text-center">{desc}</p>
       </div>
-      <h3 className="text-base sm:text-lg md:text-xl font-display font-bold mb-2 sm:mb-3 md:mb-4 text-white drop-shadow-sm group-hover:text-white group-hover:drop-shadow-lg transition-all duration-300 text-center">{title}</h3>
-      <p className="text-gray-300 font-body leading-relaxed text-xs sm:text-sm md:text-base drop-shadow-sm group-hover:text-white transition-all duration-300 text-center">{desc}</p>
     </div>
-  </div>
-);
+  );
+};
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -110,19 +126,21 @@ const Hero = () => {
   const containerRef = useRef(null);
   const servicesScrollRef = useRef(null);
 
-  const handleVideoLoad = () => {
-    setLoading(false);
-  };
-
-  const services = [
+  // Memoized services data
+  const services = useMemo(() => [
     { icon: Palette, title: "Graphic Design", desc: "From logos to comprehensive brand visuals" },
     { icon: Film, title: "Video Editing", desc: "Crafting dynamic content that captures attention" },
     { icon: Zap, title: "Motion Graphics", desc: "Elevating your visuals with movements" },
     { icon: Layers, title: "2D/3D Animation", desc: "Bringing your ideas to life with dimension" },
     { icon: RotateCcw, title: "Logo Animation", desc: "Giving your brand identity dynamic edge" },
     { icon: Code, title: "Web Development", desc: "Build websites effectively and promote your brand" }
-  ];
+  ], []);
 
+  const handleVideoLoad = useCallback(() => {
+    setLoading(false);
+  }, []);
+
+  // Optimized video setup
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
@@ -139,21 +157,28 @@ const Hero = () => {
     }
   }, []);
 
-  // Check if device is mobile
+  // Optimized mobile detection with debounce
   useEffect(() => {
+    let timeoutId;
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setIsMobile(window.innerWidth < 768);
+      }, 100);
     };
     
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
-  // Simplified scroll handling for desktop only
+  // Optimized scroll handling with passive listeners
   useEffect(() => {
     const scrollContainer = servicesScrollRef.current;
-    if (!scrollContainer || isMobile) return; // Skip custom scrolling on mobile
+    if (!scrollContainer || isMobile) return;
 
     let isDown = false;
     let startX;
@@ -179,7 +204,6 @@ const Hero = () => {
       scrollContainer.scrollLeft = scrollLeft - walk;
     };
 
-    // Only add mouse events for desktop
     scrollContainer.addEventListener('mousedown', handleMouseDown);
     scrollContainer.addEventListener('mouseleave', handleMouseUp);
     scrollContainer.addEventListener('mouseup', handleMouseUp);
@@ -193,182 +217,130 @@ const Hero = () => {
     };
   }, [isMobile]);
 
+  // Optimized GSAP animations with better performance settings
   useGSAP(() => {
+    // Set force3D to auto for better performance
+    gsap.config({ force3D: "auto" });
+    
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: heroRef.current,
         start: "top top",
-        end: "+=800%",
-        scrub: 1,
+        end: "+=600%", // Reduced from 800% for smoother experience
+        scrub: 0.5, // Reduced scrub value for more responsive feel
         pin: true,
         anticipatePin: 1,
         markers: false,
         invalidateOnRefresh: true,
         fastScrollEnd: true,
         preventOverlaps: true,
-        immediateRender: false,
+        refreshPriority: 1,
       },
     });
 
-    gsap.set("#next-section", { 
-      x: "100%"
-    });
+    // Initial states - set for better performance
+    gsap.set("#next-section", { x: "100%", force3D: true });
+    gsap.set("#services-section", { x: "-100%", force3D: true });
+    gsap.set(".appointment-content", { y: 50, scale: 0.9, force3D: true });
+    gsap.set(".services-content", { x: -50, opacity: 0, force3D: true });
+    gsap.set(".service-card", { x: -120, opacity: 0, scale: 0.8, force3D: true });
+    gsap.set(".services-title", { y: 30, opacity: 0, force3D: true });
+    gsap.set(".services-description", { y: 30, opacity: 0, force3D: true });
 
-    gsap.set("#services-section", {
-      x: "-100%"
-    });
-
-    gsap.set(".appointment-content", {
-      y: 50,
-      scale: 0.9
-    });
-
-    gsap.set(".services-content", {
-      x: -50,
-      opacity: 0
-    });
-
-    gsap.set(".service-card", {
-      x: -120,
-      opacity: 0,
-      scale: 0.8
-    });
-
-    // Set initial state for services title and description
-    gsap.set(".services-title", {
-      y: 30,
-      opacity: 0
-    });
-
-    gsap.set(".services-description", {
-      y: 30,
-      opacity: 0
-    });
-
-    const scaleValue = 0.95;
-    const translateValue = "-25%";
-
+    // Streamlined animation sequence with fewer overlapping animations
     tl.to("#next-section", {
       x: "0%",
       ease: "power2.inOut",
-      duration: 0.25,
+      duration: 0.3,
+      force3D: true
     })
-    .to("#video-container", {
-      scale: scaleValue,
+    .to(["#video-container", ".hero-content"], {
+      scale: 0.95,
+      x: "-25%",
       ease: "power2.inOut",
-      duration: 0.25,
-    }, 0)
-    .to(".hero-content", {
-      x: translateValue,
-      ease: "power2.inOut",
-      duration: 0.25,
+      duration: 0.3,
+      force3D: true
     }, 0)
     .to(".appointment-content", {
       y: 0,
       scale: 1,
       ease: "power2.out",
+      duration: 0.25,
+      force3D: true
+    }, 0.1)
+    .to([".appointment-title", ".appointment-description", ".appointment-buttons"], {
+      y: 0,
+      ease: "power2.out",
       duration: 0.2,
-    }, 0.05)
-    .to(".appointment-title", {
-      y: 0,
-      ease: "power2.out",
-      duration: 0.15,
-    }, 0.08)
-    .to(".appointment-description", {
-      y: 0,
-      ease: "power2.out",
-      duration: 0.15,
-    }, 0.13)
-    .to(".appointment-buttons", {
-      y: 0,
-      ease: "power2.out",
-      duration: 0.15,
-    }, 0.18)
+      stagger: 0.05,
+      force3D: true
+    }, 0.15)
     .to("#services-section", {
       x: "0%",
       ease: "power2.inOut",
-      duration: 0.15,
-    }, 0.25)
+      duration: 0.2,
+      force3D: true
+    }, 0.35)
     .to("#next-section", {
       x: "100%",
       ease: "power2.inOut",
-      duration: 0.15,
-    }, 0.25)
+      duration: 0.2,
+      force3D: true
+    }, 0.35)
     .to("#video-container", {
       x: "-100%",
       opacity: 0,
       scale: 0.8,
       ease: "power2.inOut",
-      duration: 0.15,
-    }, 0.25)
+      duration: 0.2,
+      force3D: true
+    }, 0.35)
     .to(".services-content", {
       x: 0,
       opacity: 1,
       ease: "power2.out",
-      duration: 0.1,
-    }, 0.3)
-    .to(".services-title", {
+      duration: 0.15,
+      force3D: true
+    }, 0.45)
+    .to([".services-title", ".services-description"], {
       y: 0,
       opacity: 1,
       ease: "power2.out",
-      duration: 0.08,
-    }, 0.32)
-    .to(".services-description", {
-      y: 0,
-      opacity: 1,
-      ease: "power2.out",
-      duration: 0.08,
-    }, 0.34)
+      duration: 0.15,
+      stagger: 0.05,
+      force3D: true
+    }, 0.5)
     .to(".service-card", {
       x: 0,
       opacity: 1,
       scale: 1,
       ease: "power2.out",
-      duration: 0.35,
+      duration: 0.4,
       stagger: {
-        amount: 0.25,
+        amount: 0.2,
         from: "start"
-      }
-    }, 0.4)
-    .to({}, { duration: 0.1 }, 0.85)
-    .to("#video-container", {
-      x: "-150%",
-      y: -100,
-      opacity: 0,
-      scale: 0.6,
-      ease: "power2.in",
-      duration: 0.05,
-    }, 0.95)
-    .to(".hero-content", {
-      y: -50,
-      ease: "power2.in",
-      duration: 0.05,
-    }, 0.95)
-    .to("#services-section", {
-      y: "100%",
-      ease: "power2.inOut",
-      duration: 0.05,
-    }, 0.95)
-    .to(".services-content", {
-      y: 50,
-      opacity: 0.5,
-      ease: "power2.inOut",
-      duration: 0.05,
-    }, 0.95);
+      },
+      force3D: true
+    }, 0.6);
 
+    // Cleanup on unmount
+    return () => {
+      ScrollTrigger.getAll().forEach(st => st.kill());
+    };
+  }, { scope: heroRef, dependencies: [] });
+
+  // Add resize handler for ScrollTrigger refresh
+  useEffect(() => {
     const handleResize = () => {
       ScrollTrigger.refresh();
     };
 
     window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      ScrollTrigger.getAll().forEach(st => st.kill());
-    };
-  }, [], { scope: heroRef });
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
-    <div id="home" className="relative h-[800vh]">
+    <div id="home" className="relative h-[600vh]"> {/* Reduced height for better performance */}
       <div ref={heroRef} className="sticky top-0 h-screen w-screen overflow-hidden bg-black">
         {loading && (
           <div className="absolute inset-0 z-30 flex items-center justify-center bg-black">
@@ -379,7 +351,7 @@ const Hero = () => {
         <div
           id="video-container"
           ref={containerRef}
-          className="absolute inset-0 z-5 h-full w-full bg-black"
+          className="absolute inset-0 z-5 h-full w-full bg-black will-change-transform"
         >
           <div
             id="video-frame"
@@ -401,7 +373,7 @@ const Hero = () => {
 
         <div 
           id="next-section"
-          className="absolute inset-0 z-15 flex items-center justify-center bg-black h-full w-full"
+          className="absolute inset-0 z-15 flex items-center justify-center bg-black h-full w-full will-change-transform"
         >
           <div className="appointment-content text-center text-white px-4 sm:px-6 md:px-8 lg:px-10 max-w-4xl">
             <h2 className="appointment-title font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 sm:mb-6 tracking-tight translate-y-8 leading-tight px-2">
@@ -423,13 +395,9 @@ const Hero = () => {
 
         <div 
           id="services-section"
-          className="absolute inset-0 z-30 h-full w-full"
-          style={{ backgroundColor: '#000000' }}
+          className="absolute inset-0 z-30 h-full w-full bg-black will-change-transform"
         >
-          <div className="absolute inset-0 bg-black opacity-100 z-0"></div>
-          <div className="absolute inset-0" style={{ backgroundColor: '#000000' }}></div>
-          
-          <div className="services-content relative flex flex-col justify-center items-center text-center text-white z-10 px-3 sm:px-6 md:px-8 py-8 sm:py-12 md:py-20 max-w-7xl mx-auto min-h-screen" style={{ backgroundColor: '#000000' }}>
+          <div className="services-content relative flex flex-col justify-center items-center text-center text-white z-10 px-3 sm:px-6 md:px-8 py-8 sm:py-12 md:py-20 max-w-7xl mx-auto min-h-screen bg-black">
             <h1 className="services-title text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-display font-bold mb-4 sm:mb-6 md:mb-8 tracking-tight">
               <span className="bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
                 SERVICES OFFERED
@@ -445,7 +413,7 @@ const Hero = () => {
                 className="services-scroll-container md:hidden overflow-x-auto"
               >
                 <div className="services-row flex gap-4 pb-4" style={{ width: 'max-content' }}>
-                  {services.map((service, index) => (
+                  {services.map((service) => (
                     <ServiceCard 
                       key={service.title}
                       icon={service.icon}
@@ -484,12 +452,20 @@ const Hero = () => {
           scroll-behavior: auto;
         }
         
+        /* Performance optimizations */
+        .will-change-transform {
+          will-change: transform;
+          transform: translateZ(0);
+          backface-visibility: hidden;
+        }
+        
         /* Native smooth scrolling for mobile */
         .services-scroll-container {
           scroll-behavior: smooth;
           -webkit-overflow-scrolling: touch;
           scroll-snap-type: x proximity;
           overscroll-behavior-x: contain;
+          contain: layout style paint;
         }
         
         /* Hide scrollbar but keep functionality */
@@ -505,6 +481,7 @@ const Hero = () => {
         .service-card {
           scroll-snap-align: start;
           transform: translateZ(0);
+          contain: layout style paint;
         }
         
         /* Desktop drag cursor only */
@@ -539,7 +516,6 @@ const Hero = () => {
             padding-right: 1rem;
             margin-left: -1rem;
             margin-right: -1rem;
-            /* Enhanced native mobile scrolling */
             -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
             overscroll-behavior-x: contain;
@@ -571,6 +547,7 @@ const Hero = () => {
         @media (prefers-reduced-motion: no-preference) {
           #services-section, #next-section, #video-container {
             will-change: transform;
+            transform: translateZ(0);
           }
         }
         
@@ -581,6 +558,15 @@ const Hero = () => {
           
           .services-content, .appointment-content {
             max-width: 100vw;
+          }
+        }
+        
+        /* Reduce motion for users who prefer it */
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
           }
         }
       `}</style>

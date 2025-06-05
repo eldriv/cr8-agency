@@ -570,11 +570,11 @@ const HorizontalVideoShowcase = () => {
   }, []);
 
   const videos = [
-    { id: 1, thumbnail: "", video: "videos/hero-4.mp4", },
-    { id: 2, thumbnail: "", video: "videos/hero-5.mp4", },
-    { id: 3, thumbnail: "", video: "videos/hero-6.mp4", },
-    { id: 4, thumbnail: "", video: "videos/hero-7.mp4", },
-    { id: 5, thumbnail: "", video: "videos/hero-8.mp4", },
+    { id: 1, thumbnail: "img/thumbnail-1.png", video: "videos/hero-4.mp4", },
+    { id: 2, thumbnail: "img/thumbnail-2.png", video: "videos/hero-5.mp4", },
+    { id: 3, thumbnail: "img/thumbnail-3.png", video: "videos/hero-6.mp4", },
+    { id: 4, thumbnail: "img/thumbnail-4.png", video: "videos/hero-7.mp4", },
+    { id: 5, thumbnail: "img/thumbnail-5.png", video: "videos/hero-8.mp4", },
   ];
 
   // Create multiple copies for seamless looping

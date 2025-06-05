@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { VolumeX, Volume2 } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -11,6 +11,8 @@ const VerticalTextSlider = () => {
   const [slide1Ref, slide2Ref, slide3Ref, slide4Ref] = slideRefs;
   const videoRef = useRef(null);
   const video2Ref = useRef(null);
+  const timelineRef = useRef(null);
+  const animationInitialized = useRef(false);
   
   const [state, setState] = useState({
     isVideoSlideActive: false,
@@ -27,8 +29,11 @@ const VerticalTextSlider = () => {
     }
   });
 
-  const updateState = (updates) => setState(prev => ({ ...prev, ...updates }));
-  const updateVideoLoadState = (videoKey, updates) => {
+  const updateState = useCallback((updates) => {
+    setState(prev => ({ ...prev, ...updates }));
+  }, []);
+
+  const updateVideoLoadState = useCallback((videoKey, updates) => {
     setState(prev => ({
       ...prev,
       videoLoadStates: {
@@ -36,15 +41,15 @@ const VerticalTextSlider = () => {
         [videoKey]: { ...prev.videoLoadStates[videoKey], ...updates }
       }
     }));
-  };
+  }, []);
 
-  const areVideosReady = () => {
+  const areVideosReady = useMemo(() => {
     const { hero2, hero3 } = state.videoLoadStates;
-    return (hero2.loaded && hero2.canPlay && hero2.readyState >= 3) && 
+    return (hero2.loaded && hero2.canPlay && hero2.readyState >= 3) &&
            (hero3.loaded && hero3.canPlay && hero3.readyState >= 3);
-  };
+  }, [state.videoLoadStates]);
 
-  const setInitialPositions = () => {
+  const setInitialPositions = useCallback(() => {
     gsap.set(slide2Ref.current, { y: "100vh", force3D: true });
     gsap.set(slide3Ref.current, { x: "100vw", force3D: true });
     gsap.set(slide4Ref.current, { x: "-100vw", force3D: true });
@@ -52,16 +57,15 @@ const VerticalTextSlider = () => {
     gsap.set(".slide-content", { y: -60, opacity: 0, force3D: true });
     gsap.set([".slide-3", ".slide-4"], { opacity: 0, force3D: true });
     gsap.set([".slide-3 video", ".slide-4 video"], { scale: 1, force3D: true });
-  };
+  }, []);
 
-  const startVideoPlayback = async (videoRef, videoKey) => {
+  const startVideoPlayback = useCallback(async (videoRef, videoKey) => {
     const isReady = videoKey === 'video1' ? state.videoReady : state.video2Ready;
     if (videoRef.current && isReady) {
       try {
         videoRef.current.currentTime = 0;
         videoRef.current.muted = true;
         await videoRef.current.play();
-        console.log(`${videoKey} started playing`);
         updateState(videoKey === 'video1' ? { videoStarted: true } : { video2Started: true });
         return true;
       } catch (error) {
@@ -70,30 +74,31 @@ const VerticalTextSlider = () => {
       }
     }
     return false;
-  };
+  }, [state.videoReady, state.video2Ready, updateState]);
 
-  const toggleVideoSound = async (videoRef, videoKey) => {
+  const toggleVideoSound = useCallback(async (videoRef, videoKey) => {
     const { isMuted, isMuted2, videoReady, video2Ready, videoStarted, video2Started } = state;
     const isReady = videoKey === 'video1' ? videoReady : video2Ready;
     const isStarted = videoKey === 'video1' ? videoStarted : video2Started;
     const currentMuted = videoKey === 'video1' ? isMuted : isMuted2;
-
+    
     if (videoRef.current && isReady) {
       try {
-        if (videoRef.current.paused || !isStarted) await startVideoPlayback(videoRef, videoKey);
+        if (videoRef.current.paused || !isStarted) {
+          await startVideoPlayback(videoRef, videoKey);
+        }
         const newMutedState = !currentMuted;
         videoRef.current.muted = newMutedState;
         updateState(videoKey === 'video1' ? { isMuted: newMutedState } : { isMuted2: newMutedState });
-        console.log(`${videoKey} sound: ${newMutedState ? 'OFF' : 'ON'}`);
       } catch (error) {
         console.log(`Error toggling sound for ${videoKey}:`, error);
       }
     }
-  };
+  }, [state, startVideoPlayback, updateState]);
 
-  const initializeVideo = (videoElement, videoKey) => {
+  const initializeVideo = useCallback((videoElement, videoKey) => {
     if (!videoElement) return;
-
+    
     try {
       videoElement.load();
       Object.assign(videoElement, {
@@ -103,7 +108,7 @@ const VerticalTextSlider = () => {
         playsInline: true
       });
 
-      const updateState = () => {
+      const updateVideoState = () => {
         updateVideoLoadState(videoKey, {
           loaded: videoElement.readyState >= 2,
           canPlay: videoElement.readyState >= 3,
@@ -111,98 +116,183 @@ const VerticalTextSlider = () => {
         });
       };
 
-      const events = ['loadeddata', 'canplay', 'canplaythrough', 'loadedmetadata', 'progress'];
+      const events = ['loadeddata', 'canplay', 'canplaythrough', 'loadedmetadata'];
       events.forEach(event => {
-        videoElement.addEventListener(event, () => {
-          console.log(`${videoKey}: ${event}`);
-          updateState();
-        });
+        videoElement.addEventListener(event, updateVideoState, { passive: true });
       });
 
-      videoElement.addEventListener('error', (e) => {
-        console.error(`${videoKey} loading error:`, e);
+      videoElement.addEventListener('error', () => {
         updateVideoLoadState(videoKey, { loaded: true, canPlay: true, readyState: 4 });
-      });
+      }, { passive: true });
 
-      updateState();
+      updateVideoState();
     } catch (error) {
       console.log(`${videoKey} initialization error:`, error);
       updateVideoLoadState(videoKey, { loaded: true, canPlay: true, readyState: 4 });
     }
-  };
+  }, [updateVideoLoadState]);
 
+  // Initialize positions when refs are ready
   useEffect(() => {
-    if (slideRefs.every(ref => ref.current)) setInitialPositions();
-  }, []);
+    if (slideRefs.every(ref => ref.current)) {
+      setInitialPositions();
+    }
+  }, [setInitialPositions]);
 
+  // Handle video loading completion
   useEffect(() => {
-    if (areVideosReady()) {
-      console.log('Both hero videos are fully loaded and ready');
+    if (areVideosReady) {
       const timer = setTimeout(() => {
         updateState({ loading: false, videoReady: true, video2Ready: true });
-      }, 500);
+      }, 300);
       return () => clearTimeout(timer);
     }
-  }, [state.videoLoadStates]);
+  }, [areVideosReady, updateState]);
 
+  // Initialize videos
   useEffect(() => {
     initializeVideo(videoRef.current, 'hero2');
     initializeVideo(video2Ref.current, 'hero3');
-  }, []);
+  }, [initializeVideo]);
 
+  // Fallback timer
   useEffect(() => {
     const fallbackTimer = setTimeout(() => {
       if (state.loading) {
-        console.log('Fallback: Force ending loading after timeout');
         updateState({ loading: false, videoReady: true, video2Ready: true });
       }
-    }, 2000);
+    }, 1500);
     return () => clearTimeout(fallbackTimer);
-  }, [state.loading]);
+  }, [state.loading, updateState]);
 
+  // Main animation setup
   useEffect(() => {
-    if (state.loading || !state.videoReady || !state.video2Ready) return;
-
-    setInitialPositions();
+    if (state.loading || !state.videoReady || !state.video2Ready || animationInitialized.current) return;
 
     const initAnimation = () => {
+      setInitialPositions();
+      
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
           end: "+=400%",
-          scrub: 0.5,
+          scrub: 1,
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           refreshPriority: -1,
-          onUpdate: (self) => updateState({ isVideoSlideActive: self.progress > 0.7 })
+          fastScrollEnd: true,
+          preventOverlaps: true,
+          onUpdate: (self) => {
+            if (self.progress > 0.7 !== state.isVideoSlideActive) {
+              updateState({ isVideoSlideActive: self.progress > 0.7 });
+            }
+          }
         }
       });
 
-      tl.to(".slide-1 .slide-content",{y:0,opacity:1,duration:0.2,ease:"power3.out",force3D:true})
-        .to(".slide-1 .slide-overlay",{opacity:0.4,duration:0.15,ease:"power2.out"},"<")
-        .to([slide2Ref.current,slide1Ref.current],{y:(i)=>i===0?"0vh":"-100vh",duration:0.2,ease:"power2.out",force3D:true,stagger:0},0.2)
-        .to(".slide-1 .slide-content",{y:-40,opacity:0,duration:0.15,ease:"power2.in",force3D:true},0.2)
-        .to(".slide-1 .slide-overlay",{opacity:0.8,duration:0.15,ease:"power2.in"},0.2)
-        .to(".slide-2 .slide-content",{y:0,opacity:1,duration:0.25,ease:"power3.out",force3D:true},0.3)
-        .to(".slide-2 .slide-overlay",{opacity:0.3,duration:0.2,ease:"power2.out"},0.3)
-        .to(".slide-2 .slide-content",{y:-40,opacity:0,duration:0.2,ease:"power2.inOut",force3D:true},0.4)
-        .to(".slide-2 .slide-overlay",{opacity:0.8,duration:0.2,ease:"power2.inOut"},0.4)
-        .to(slide3Ref.current,{x:"0vw",duration:0.2,ease:"power2.inOut",force3D:true},0.5)
-        .to(".slide-3",{opacity:1,duration:0.15,ease:"power2.inOut",force3D:true},0.55)
-        .to(".slide-3 video",{scale:1.02,duration:0.15,ease:"power2.inOut",force3D:true},0.6)
-        .to(".slide-3 video",{scale:1.04,duration:0.2,ease:"power2.inOut",force3D:true},0.7)
-        .to(slide4Ref.current,{x:"0vw",duration:0.2,ease:"power2.inOut",force3D:true},0.8)
-        .to(".slide-4",{opacity:1,duration:0.15,ease:"power2.inOut",force3D:true},0.85)
-        .to(".slide-4 video",{scale:1.02,duration:0.15,ease:"power2.inOut",force3D:true},0.87)
-        .to(".slide-4 video",{scale:1.05,duration:0.13,ease:"power2.inOut",force3D:true},0.92);
+      // Optimized timeline with better pacing for slide 3 and 4
+      tl.to(".slide-1 .slide-content", {
+        y: 0,
+        opacity: 1,
+        duration: 0.2,
+        ease: "power2.out",
+        force3D: true
+      })
+      .to(".slide-1 .slide-overlay", {
+        opacity: 0.4,
+        duration: 0.15,
+        ease: "power2.out"
+      }, "<")
+      .to([slide2Ref.current, slide1Ref.current], {
+        y: (i) => i === 0 ? "0vh" : "-100vh",
+        duration: 0.25,
+        ease: "power2.inOut",
+        force3D: true
+      }, 0.2)
+      .to(".slide-1 .slide-content", {
+        y: -40,
+        opacity: 0,
+        duration: 0.15,
+        ease: "power2.in",
+        force3D: true
+      }, 0.2)
+      .to(".slide-2 .slide-content", {
+        y: 0,
+        opacity: 1,
+        duration: 0.25,
+        ease: "power2.out",
+        force3D: true
+      }, 0.3)
+      .to(".slide-2 .slide-overlay", {
+        opacity: 0.3,
+        duration: 0.2,
+        ease: "power2.out"
+      }, 0.3)
+      .to(".slide-2 .slide-content", {
+        y: -40,
+        opacity: 0,
+        duration: 0.2,
+        ease: "power2.inOut",
+        force3D: true
+      }, 0.45)
+      .to(slide3Ref.current, {
+        x: "0vw",
+        duration: 0.25,
+        ease: "power2.inOut",
+        force3D: true
+      }, 0.55)
+      .to(".slide-3", {
+        opacity: 1,
+        duration: 0.15,
+        ease: "power2.inOut",
+        force3D: true
+      }, 0.6)
+      .to(".slide-3 video", {
+        scale: 1.02,
+        duration: 0.2,
+        ease: "power2.out",
+        force3D: true
+      }, 0.65)
+      // Extended pause for slide 3 to be fully viewed
+      .to(".slide-3 video", {
+        scale: 1.05,
+        duration: 0.15,
+        ease: "power2.inOut",
+        force3D: true
+      }, 0.75)
+      // Slide 4 now appears much later, giving slide 3 more time
+      .to(slide4Ref.current, {
+        x: "0vw",
+        duration: 0.2,
+        ease: "power2.inOut",
+        force3D: true
+      }, 0.85)
+      .to(".slide-4", {
+        opacity: 1,
+        duration: 0.1,
+        ease: "power2.inOut",
+        force3D: true
+      }, 0.9)
+      .to(".slide-4 video", {
+        scale: 1.05,
+        duration: 0.1,
+        ease: "power2.inOut",
+        force3D: true
+      }, 0.95);
+
+      timelineRef.current = tl;
+      animationInitialized.current = true;
     };
 
-    const timeoutId = setTimeout(initAnimation, 100);
-
+    const timeoutId = setTimeout(initAnimation, 50);
+    
     return () => {
       clearTimeout(timeoutId);
+      if (timelineRef.current) {
+        timelineRef.current.kill();
+      }
       ScrollTrigger.getAll().forEach(st => st.kill());
       [videoRef, video2Ref].forEach(ref => {
         if (ref.current) {
@@ -210,10 +300,11 @@ const VerticalTextSlider = () => {
           ref.current.muted = true;
         }
       });
+      animationInitialized.current = false;
     };
-  }, [state.loading, state.videoReady, state.video2Ready]);
+  }, [state.loading, state.videoReady, state.video2Ready, setInitialPositions, updateState]);
 
-  const VideoControls = ({ videoRef, isStarted, isMuted, onToggle, position = "left" }) => (
+  const VideoControls = React.memo(({ videoRef, isStarted, isMuted, onToggle, position = "left" }) => (
     <div className={`absolute bottom-8 sm:bottom-16 ${position === "left" ? "left-4 sm:left-8" : "right-4 sm:right-8 text-right"} z-10`}>
       <h2 className="text-white text-xl sm:text-2xl md:text-4xl font-display font-bold mb-2">
         {position === "left" ? "Experience the Creativity." : "Helping clients succeed"}
@@ -221,9 +312,11 @@ const VerticalTextSlider = () => {
       <p className="text-white/80 text-sm sm:text-lg font-body max-w-xs sm:max-w-md mb-4">
         {position === "left" ? "Watch the client's vision turned into life." : "Discover how we push creative boundaries and deliver exceptional results."}
       </p>
-      
       <div className={`flex flex-col gap-2 ${position === "right" ? "items-end" : ""}`}>
-        <button onClick={onToggle} className="px-3 py-2 sm:px-4 sm:py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30 font-medium w-fit flex items-center gap-2 text-sm">
+        <button 
+          onClick={onToggle} 
+          className="px-3 py-2 sm:px-4 sm:py-2 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-all duration-200 border border-white/30 font-medium w-fit flex items-center gap-2 text-sm"
+        >
           {!isStarted ? 'Start Video' : (
             <>
               {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
@@ -231,7 +324,6 @@ const VerticalTextSlider = () => {
             </>
           )}
         </button>
-        
         {isStarted && (
           <p className="text-white/60 text-xs">
             Video is {videoRef.current?.paused ? 'paused' : 'playing'} • Sound {isMuted ? 'off' : 'on'}
@@ -239,18 +331,23 @@ const VerticalTextSlider = () => {
         )}
       </div>
     </div>
-  );
+  ));
 
   return (
     <div className="relative h-[500vh]">
       {state.loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
           <div className="relative flex flex-col items-center px-4">
-            <video className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 object-cover rounded-full" autoPlay loop muted playsInline>
+            <video 
+              className="w-32 h-32 sm:w-48 sm:h-48 md:w-64 md:h-64 object-cover rounded-full" 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+            >
               <source src="/videos/loading.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
-            
             <div className="mt-6 sm:mt-8 text-white text-center">
               <div className="text-sm opacity-75 mb-2">Thank you for waiting!</div>
               <div className="flex gap-4 text-xs justify-center">
@@ -302,16 +399,16 @@ const VerticalTextSlider = () => {
 
         {/* Slide 3 - Video */}
         <div ref={slide3Ref} className="slide-3 absolute inset-0 h-full w-full opacity-0 overflow-hidden" style={{ willChange: 'transform, opacity' }}>
-          <video 
-            ref={videoRef} 
-            className="absolute inset-0 w-full h-full object-cover" 
-            style={{ willChange: 'transform' }} 
-            src="videos/hero-2.mp4" 
-            loop 
-            playsInline 
+          <video
+            ref={videoRef}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ willChange: 'transform' }}
+            src="videos/hero-2.mp4"
+            loop
+            playsInline
             preload="metadata"
           />
-          <VideoControls 
+          <VideoControls
             videoRef={videoRef}
             isStarted={state.videoStarted}
             isMuted={state.isMuted}
@@ -326,16 +423,16 @@ const VerticalTextSlider = () => {
             <div className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat" style={{backgroundImage: `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0)), url('img/thumbnail.png')`}}>
             </div>
           )}
-          <video 
-            ref={video2Ref} 
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${state.video2Started ? 'opacity-100' : 'opacity-0'}`} 
-            style={{ willChange: 'transform' }} 
-            src="videos/hero-3.mp4" 
-            loop 
-            playsInline 
+          <video
+            ref={video2Ref}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${state.video2Started ? 'opacity-100' : 'opacity-0'}`}
+            style={{ willChange: 'transform' }}
+            src="videos/hero-3.mp4"
+            loop
+            playsInline
             preload="metadata"
           />
-          <VideoControls 
+          <VideoControls
             videoRef={video2Ref}
             isStarted={state.video2Started}
             isMuted={state.isMuted2}
@@ -360,72 +457,35 @@ const VerticalTextSlider = () => {
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
         }
-        
         html {
           scroll-behavior: auto;
         }
-        
-        .animation-delay-150 {
-          animation-delay: 150ms;
-        }
-        
-        @keyframes fadeInDown {
-          from {
-            opacity: 0;
-            transform: translateY(-30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .slide-content {
-          animation: fadeInDown 1s ease-out;
-        }
-
         .slide-1, .slide-2, .slide-3, .slide-4 {
           backface-visibility: hidden;
           perspective: 1000px;
           transform-style: preserve-3d;
         }
-
         /* Mobile optimizations */
         @media (max-width: 768px) {
           .slide-content {
             padding-top: env(safe-area-inset-top, 20px);
             padding-bottom: env(safe-area-inset-bottom, 20px);
           }
-          
           * {
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
           }
-        }
-
-        /* Smooth scrolling improvements */
-        @media (prefers-reduced-motion: no-preference) {
-          .slide-1, .slide-2, .slide-3, .slide-4 {
-            will-change: transform;
-          }
-        }
-        
-        /* Prevent horizontal overflow on mobile */
-        @media (max-width: 768px) {
           body {
             overflow-x: hidden;
           }
-          
           .slide-content {
             max-width: 100vw;
           }
         }
-
-        /* Ensure scroll indicator is centered on desktop, unchanged on mobile */
-        @media (min-width: 769px) {
-          .scroll-indicator {
-            left: 50%;
-            transform: translateX(-50%);
+        /* Smooth scrolling improvements */
+        @media (prefers-reduced-motion: no-preference) {
+          .slide-1, .slide-2, .slide-3, .slide-4 {
+            will-change: transform;
           }
         }
       `}</style>
