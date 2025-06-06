@@ -106,7 +106,12 @@ const ChatWidget = () => {
   const loadTrainingData = async () => {
     setTrainingDataStatus('loading');
     try {
-      const response = await UTILS.fetchWithTimeout(ENDPOINTS.TRAINING_DATA, { method: 'GET', headers: { 'Accept': 'text/plain' }, mode: 'cors' });
+      const response = await UTILS.fetchWithTimeout(ENDPOINTS.BACKEND_PROXY, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: prompt }), // <- this change
+        mode: 'cors'
+      });      
       const data = await response.text();
       if (UTILS.isValidTrainingData(data)) {
         setTrainingData(data);
