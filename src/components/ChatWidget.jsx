@@ -4,9 +4,14 @@ import { CONFIG, UTILS, PROMPT_TEMPLATE } from '/backend/config';
 
 const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
   <div className="text-center p-8 space-y-6">
-    <div className="w-16 h-16 mx-auto bg-black border-2 border-white rounded-2xl flex items-center justify-center mb-4">
-      <MessageCircle size={32} className="text-white" />
-    </div>
+      <img 
+      src={CONFIG.APP.LOGO_PATH} 
+      alt={CONFIG.APP.LOGO_ALT} 
+      className="w-40 h-30 mx-auto"
+      onError={(e) => {
+        e.target.style.display = 'none';
+      }}
+    />
     <h3 className="text-xl font-bold text-white">{CONFIG.APP.NAME}</h3>
     <p className="text-gray-400 text-sm leading-relaxed">
       {trainingDataStatus === 'loaded' ? CONFIG.MESSAGES.WELCOME.SUBTITLE_LOADED :
