@@ -9,7 +9,7 @@ PKG_MGR := $(shell \
 
 # ───────────────────────────────────────────────────────────────────────────────
 # BODY: Development commands
-.PHONY: run dev install
+.PHONY: run dev build install
 
 BACKEND_DIR := backend
 ROOT_DIR := .
@@ -20,6 +20,10 @@ run:
 dev:
 	@echo "Using package manager: $(PKG_MGR)"
 	cd $(ROOT_DIR) && $(PKG_MGR) dev
+
+build:
+	@echo "Using package manager: $(PKG_MGR)"
+	cd $(ROOT_DIR) && $(PKG_MGR) build
 
 install:
 	npm install
