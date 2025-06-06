@@ -34,8 +34,6 @@ make install
 ### Local Development
 
 ```bash
-make run
-# or for development mode
 make dev
 ```
 
