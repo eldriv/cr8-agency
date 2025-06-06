@@ -8,9 +8,8 @@ export const CONFIG = {
           return 'http://localhost:3002';
         }
 
-        // Use environment variable if set, else default production backend URL
-        // UPDATE THIS URL TO MATCH YOUR ACTUAL RENDER DEPLOYMENT URL
-        return process.env.REACT_APP_API_BASE || 'https://cr8-agency.netlify.app/';
+        // ✅ FIXED: Use the correct Render backend URL
+        return process.env.REACT_APP_API_BASE || 'https://cr8-backend.onrender.com';
       }
 
       return process.env.REACT_APP_API_BASE || 'http://localhost:3002';
@@ -306,7 +305,7 @@ export const UTILS = {
     }
   },
 
-  // New debugging utility
+  // Enhanced debugging utility
   debugConnection: async () => {
     const apiBase = CONFIG.API.getApiBase();
     const endpoints = CONFIG.API.getEndpoints(apiBase);
