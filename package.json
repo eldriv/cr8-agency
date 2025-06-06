@@ -1,13 +1,43 @@
 {
-  "name": "CR8 Agency",
+  "name": "cr8-agency",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "CR8 Digital Agency Full Stack App (Frontend + Backend API with Gemini AI Integration)",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server.js",
+    "backend:dev": "node --watch server.js",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "railway:healthcheck": "curl -f http://localhost:$PORT/api/health || exit 1"
+  },
+  "keywords": [
+    "cr8",
+    "agency",
+    "api",
+    "gemini",
+    "chatbot",
+    "express",
+    "railway",
+    "react",
+    "vite"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "your-repository-url"
+  },
+  "railway": {
+    "healthcheck": {
+      "path": "/api/health",
+      "timeout": 100
+    }
   },
   "dependencies": {
     "@google/genai": "^1.3.0",

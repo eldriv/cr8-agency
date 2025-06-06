@@ -16,8 +16,12 @@ const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
     <p className="text-gray-400 text-sm leading-relaxed">
       {trainingDataStatus === 'loaded' ? CONFIG.MESSAGES.WELCOME.SUBTITLE_LOADED :
        trainingDataStatus === 'loading' ? CONFIG.MESSAGES.WELCOME.SUBTITLE_LOADING :
-       trainingDataStatus === 'fallback' ? 'Using default information' : CONFIG.MESSAGES.NO_TRAINING_DATA}
+       trainingDataStatus === 'fallback' ? 'Using fallback CR8 information' : CONFIG.MESSAGES.NO_TRAINING_DATA}
     </p>
+    {/* Debug info - remove in production */}
+    <div className="text-xs text-gray-500 bg-gray-900/50 p-2 rounded">
+      Training Status: {trainingDataStatus}
+    </div>
     <div className="flex flex-wrap gap-2 justify-center">
       {(isMobile ? (CONFIG.SUGGESTIONS.MOBILE_SPECIFIC || []) : [
         ...(CONFIG.SUGGESTIONS.CR8_SPECIFIC || []),
@@ -87,6 +91,12 @@ const ChatHeader = ({ isMobile, connectionStatus, trainingDataStatus, chatHistor
           <span className="text-xs text-gray-400">
             {connectionStatus === CONFIG.STATUS.CONNECTION.CONNECTED ? 'Online' : 'Offline'}
           </span>
+          {/* Training data status indicator */}
+          <div className={`w-2 h-2 rounded-full ${
+            trainingDataStatus === 'loaded' ? 'bg-blue-400' : 
+            trainingDataStatus === 'fallback' ? 'bg-yellow-400' : 
+            trainingDataStatus === 'loading' ? 'bg-gray-400' : 'bg-red-400'
+          }`} />
         </div>
       </div>
     </div>
@@ -174,46 +184,77 @@ const ChatWidget = () => {
   }, [isOpen, isMinimized]);
 
   const loadTrainingData = async () => {
+    console.log('🔄 Starting training data load...');
     setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADING);
-    for (const path of CONFIG.TRAINING_DATA_PATHS) {
-      try {
-        console.log('Fetching training data from:', path);
-        const response = await UTILS.fetchWithTimeout(path, {
-          method: 'GET',
-          headers: { 'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON, 'Accept': CONFIG.FETCH.HEADERS.ACCEPT_JSON },
-          timeout: CONFIG.FETCH.TIMEOUT,
-        });
-        if (!response.ok) throw new Error(`Failed to fetch training data from ${path}: ${response.status}`);
+    
+    // First try the backend endpoint
+    const apiBase = CONFIG.API.getApiBase();
+    const trainingEndpoint = `${apiBase}/api/training-data`;
+    
+    console.log('📡 API Base:', apiBase);
+    console.log('🎯 Training endpoint:', trainingEndpoint);
+    
+    try {
+      console.log('🔍 Fetching training data from backend...');
+      const response = await fetch(trainingEndpoint, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'text/plain'
+        },
+        mode: 'cors'
+      });
+      
+      console.log('📥 Training data response status:', response.status);
+      console.log('📥 Training data response headers:', Object.fromEntries(response.headers.entries()));
+      
+      if (response.ok) {
         const data = await response.text();
+        console.log('📄 Training data length:', data.length);
+        console.log('📄 Training data preview:', data.substring(0, 200) + '...');
+        
         if (UTILS.isValidTrainingData(data)) {
           setTrainingData(data);
           setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADED);
+          console.log('✅ Training data loaded successfully from backend');
           return;
+        } else {
+          console.log('❌ Training data validation failed');
         }
-      } catch (error) {
-        console.error('Error fetching training data:', error.message);
+      } else {
+        console.log('❌ Backend training data fetch failed:', response.status, response.statusText);
       }
+    } catch (error) {
+      console.error('❌ Error fetching training data from backend:', error.message);
     }
+    
+    // Fallback to default training data
+    console.log('🔄 Using fallback training data...');
     if (CONFIG.DEFAULT_TRAINING_DATA && UTILS.isValidTrainingData(CONFIG.DEFAULT_TRAINING_DATA)) {
       setTrainingData(CONFIG.DEFAULT_TRAINING_DATA);
       setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.FALLBACK);
+      console.log('✅ Fallback training data loaded');
       return;
     }
+    
+    // Final fallback
+    console.log('❌ All training data sources failed');
     setTrainingData(CONFIG.MESSAGES.NO_TRAINING_DATA);
     setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.FAILED);
   };
 
   const checkBackendConnection = async () => {
     try {
-      console.log('Checking backend connection at:', ENDPOINTS.HEALTH_CHECK);
+      console.log('🔍 Checking backend connection at:', ENDPOINTS.HEALTH_CHECK);
       const response = await fetch(ENDPOINTS.HEALTH_CHECK, {
         method: 'GET',
-        headers: { 'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON },
+        headers: { 'Content-Type': 'application/json' },
+        mode: 'cors'
       });
-      console.log('Health check response:', response.status);
+      console.log('💚 Health check response:', response.status);
       setConnectionStatus(response.ok ? CONFIG.STATUS.CONNECTION.CONNECTED : CONFIG.STATUS.CONNECTION.OFFLINE);
     } catch (error) {
-      console.error('Backend connection check failed:', error.message);
+      console.error('❌ Backend connection check failed:', error.message);
       setConnectionStatus(CONFIG.STATUS.CONNECTION.OFFLINE);
       setTimeout(checkBackendConnection, 5000);
     }
@@ -243,30 +284,40 @@ const ChatWidget = () => {
     setMessages([...newMessages, tempMessage]);
 
     try {
+      console.log('🤖 Building prompt with training data status:', trainingDataStatus);
+      console.log('📄 Training data available:', trainingData ? 'Yes' : 'No');
+      console.log('📄 Training data length:', trainingData.length);
+      
       const prompt = PROMPT_TEMPLATE.buildHybridPrompt(userMessage, trainingData);
+      console.log('📝 Built prompt preview:', prompt.substring(0, 300) + '...');
+      
       const apiBase = CONFIG.API.getApiBase();
       const endpoints = CONFIG.API.getEndpoints(apiBase);
 
-      console.log('Sending POST request to:', endpoints.BACKEND_PROXY);
-      console.log('Prompt:', prompt);
+      console.log('📡 Sending POST request to:', endpoints.BACKEND_PROXY);
 
       const response = await fetch(endpoints.BACKEND_PROXY, {
         method: 'POST',
-        headers: { 'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
+        mode: 'cors'
       });
 
-      console.log('Response status:', response.status);
+      console.log('📥 Response status:', response.status);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`HTTP error! status: ${response.status}, details: ${errorData.error || 'Unknown error'}`);
       }
 
       const data = await response.json();
+      console.log('📥 Response data:', data);
+      
       const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 
                          data.content?.parts?.[0]?.text || 
                          data.text || 
                          CONFIG.MESSAGES.NO_RESPONSE;
+
+      console.log('🤖 AI Response:', aiResponse);
 
       setMessages(newMessages);
       const finalMessage = { role: 'assistant', content: '', timestamp: new Date() };
@@ -278,7 +329,7 @@ const ChatWidget = () => {
 
       setConnectionStatus(CONFIG.STATUS.CONNECTION.CONNECTED);
     } catch (error) {
-      console.error('Error sending message:', error.message);
+      console.error('❌ Error sending message:', error.message);
       let errorMessage = CONFIG.MESSAGES.DEFAULT_ERROR;
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         errorMessage += CONFIG.MESSAGES.CONNECTION_ERROR;
@@ -292,17 +343,22 @@ const ChatWidget = () => {
     }
   };
 
- const handleKeyPress = (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-};
-
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
-    if (!isOpen) checkBackendConnection();
+    if (!isOpen) {
+      checkBackendConnection();
+      // Reload training data when chat opens if it failed before
+      if (trainingDataStatus === CONFIG.STATUS.TRAINING_DATA.FAILED) {
+        loadTrainingData();
+      }
+    }
   };
 
   const toggleMinimize = () => setIsMinimized(!isMinimized);

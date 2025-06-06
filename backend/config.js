@@ -5,16 +5,29 @@ export const CONFIG = {
         const hostname = window.location.hostname;
         const protocol = window.location.protocol;
         
+        // Local development
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
           return 'http://localhost:3002';
         }
         
-        // Force HTTPS for Railway production deployment
-        return `https://${hostname}`;
+        // Production - Railway specific
+        if (hostname.includes('railway.app')) {
+          return `${protocol}//${hostname}`;
+        }
+        
+        // Production - Vercel or other hosting
+        if (hostname.includes('vercel.app') || hostname.includes('netlify.app')) {
+          // If frontend and backend are separate, use Railway backend URL
+          return 'https://cr8-agency-production.up.railway.app';
+        }
+        
+        // Default production
+        return `${protocol}//${hostname}`;
       }
       
+      // Server-side fallback
       return process.env.NODE_ENV === 'production' 
-        ? 'https://cr8-agency-production.up.railway.app'  // Explicitly use HTTPS
+        ? 'https://cr8-agency-production.up.railway.app'
         : 'http://localhost:3002';
     },
     
@@ -170,7 +183,7 @@ Brands trust CR8 because we:
     },
     
     MIN_CONTENT_LENGTH: 50,
-    TIMEOUT: 10000,
+    TIMEOUT: 30000, // Increased timeout for production
     MAX_RETRIES: 3
   },
 
@@ -276,28 +289,48 @@ export const UTILS = {
     const { timeout = CONFIG.FETCH.TIMEOUT, ...fetchOptions } = options;
     
     let fetchUrl = url;
+    
+    // Handle relative URLs
     if (url.startsWith('/api/')) {
       const apiBase = CONFIG.API.getApiBase();
       fetchUrl = apiBase ? `${apiBase}${url}` : url;
     }
     
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-    
-    try {
-      console.log('Fetching with timeout:', fetchUrl);
-      const response = await fetch(fetchUrl, {
-        ...fetchOptions,
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-      return response;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      if (error.name === 'AbortError') {
-        throw new Error('Request timeout');
+    // Add retry logic for production
+    let lastError;
+    for (let i = 0; i < CONFIG.FETCH.MAX_RETRIES; i++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
+        console.log(`Fetch attempt ${i + 1}/${CONFIG.FETCH.MAX_RETRIES}:`, fetchUrl);
+        const response = await fetch(fetchUrl, {
+          ...fetchOptions,
+          signal: controller.signal,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            ...fetchOptions.headers
+          }
+        });
+        
+        clearTimeout(timeoutId);
+        return response;
+      } catch (error) {
+        lastError = error;
+        console.error(`Fetch attempt ${i + 1} failed:`, error.message);
+        
+        if (error.name === 'AbortError') {
+          lastError = new Error('Request timeout');
+        }
+        
+        // Wait before retrying (exponential backoff)
+        if (i < CONFIG.FETCH.MAX_RETRIES - 1) {
+          await UTILS.sleep(1000 * Math.pow(2, i));
+        }
       }
-      throw error;
     }
+    
+    throw lastError;
   }
 };
