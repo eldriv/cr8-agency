@@ -4,15 +4,15 @@ export const CONFIG = {
       if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
 
-        // Localhost development
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
           return 'http://localhost:3002';
         }
-        return 'https://cr8-backend.onrender.com';  
+
+        // Use environment variable if set, else default production backend URL
+        return process.env.REACT_APP_API_BASE || 'https://cr8-backend.onrender.com';
       }
-      return process.env.NODE_ENV === 'production'
-        ? 'https://cr8-backend.onrender.com'  
-        : 'http://localhost:3002';
+
+      return process.env.REACT_APP_API_BASE || 'http://localhost:3002';
     },
 
     getEndpoints: (apiBase) => ({
@@ -298,3 +298,4 @@ export const UTILS = {
     }
   }
 };
+console.log('API Base URL:', CONFIG.API.getApiBase());
