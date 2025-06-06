@@ -1,5 +1,5 @@
 export const CONFIG = {
-  // API Configuration
+  // API Configuration - Fixed for production
   API: {
     getApiBase: () => {
       if (typeof window !== 'undefined') {
@@ -8,34 +8,34 @@ export const CONFIG = {
         
         // Local development - point to backend server
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          return 'http://localhost:3002'; // Backend server port
+          return 'http://localhost:3002';
         }
-        // Production
+        
+        // Production - use same origin (Railway will handle this)
         return `${protocol}//${hostname}`;
       }
-      return 'http://localhost:3002'; // Default to backend port
+      
+      // Server-side rendering fallback
+      return process.env.NODE_ENV === 'production' 
+        ? '' // Use relative URLs in production
+        : 'http://localhost:3002';
     },
     
     getEndpoints: (apiBase) => ({
-      BACKEND_PROXY: `${apiBase}/api/gemini`, // Full URL for backend
+      BACKEND_PROXY: `${apiBase}/api/gemini`,
       HEALTH_CHECK: `${apiBase}/api/health`,
       TRAINING_DATA: `${apiBase}/api/training-data`
     })
   },
 
-  // Training Data Paths - Updated to use backend endpoint first
+  // Training Data Paths - Updated for production
   TRAINING_DATA_PATHS: [
-    // This will be resolved to http://localhost:3002/api/training-data in development
-    '/api/training-data',
+    '/api/training-data', // This should work in production
     '/data/training.txt',
-    '/training.txt',
-    '/public/data/training.txt',
-    '/public/training.txt',
-    './data/training.txt',
-    './training.txt',
+    '/training.txt'
   ],
 
-  // Default training data as fallback
+  // Rest of your config remains the same...
   DEFAULT_TRAINING_DATA: `CR8 - Digital Solutions Company
 
 CR8 is a digital creative agency that helps clients bring their creative vision to life through graphic design, video editing, animation, and motion graphics.
@@ -144,8 +144,7 @@ Brands trust CR8 because we:
       "Tell me about CR8's portfolio"
     ],
     
-    GENERAL: [
-      ],
+    GENERAL: [],
 
     MOBILE_SPECIFIC: [
       "What is CR8?",
@@ -181,7 +180,7 @@ Brands trust CR8 because we:
     },
     
     MIN_CONTENT_LENGTH: 50,
-    TIMEOUT: 5000,
+    TIMEOUT: 10000, // Increased timeout for production
     MAX_RETRIES: 3
   },
 
@@ -194,10 +193,9 @@ Brands trust CR8 because we:
   }
 };
 
-// Fixed prompt template with better handling of empty training data
+// Fixed prompt template
 export const PROMPT_TEMPLATE = {
   buildHybridPrompt: (userMessage, trainingData) => {
-    // Check if we have valid training data
     const hasValidTrainingData = trainingData && 
                                 trainingData.trim().length > CONFIG.FETCH.MIN_CONTENT_LENGTH &&
                                 trainingData !== CONFIG.MESSAGES.NO_TRAINING_DATA;
@@ -219,7 +217,6 @@ Instructions:
 
 Please provide a helpful response:`;
     } else {
-      // Fallback mode - no specific CR8 data available
       return `You are a helpful AI assistant. The user asked: "${userMessage}"
 
 I currently don't have access to specific CR8 company information, but I can help with general questions about technology, web development, AI, programming, and other topics.
@@ -255,7 +252,6 @@ export const UTILS = {
         return;
       }
       
-      // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = text;
       textArea.style.position = 'fixed';
@@ -281,7 +277,6 @@ export const UTILS = {
     }
   },
 
-  // Helper function to validate training data
   isValidTrainingData: (data) => {
     return data && 
            typeof data === 'string' && 
@@ -289,14 +284,16 @@ export const UTILS = {
            data.trim() !== CONFIG.MESSAGES.NO_TRAINING_DATA;
   },
 
-  // Updated fetchWithTimeout to handle both relative and absolute URLs
+  // Fixed fetchWithTimeout for production
   fetchWithTimeout: async (url, options = {}) => {
     const { timeout = CONFIG.FETCH.TIMEOUT, ...fetchOptions } = options;
     
     let fetchUrl = url;
+    // Only modify URL for relative API paths
     if (url.startsWith('/api/')) {
       const apiBase = CONFIG.API.getApiBase();
-      fetchUrl = `${apiBase}${url}`;
+      // Don't double up if apiBase is empty (production)
+      fetchUrl = apiBase ? `${apiBase}${url}` : url;
     }
     
     const controller = new AbortController();
@@ -311,6 +308,9 @@ export const UTILS = {
       return response;
     } catch (error) {
       clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout');
+      }
       throw error;
     }
   }
