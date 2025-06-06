@@ -48,4 +48,4 @@ The live site is available at:
 
 This project is open source with their permission and will actively be used by my client, CR8 Agency. It is developed in close collaboration to ensure it meets their needs and reflects their brand. Contributions and forks are welcome.
 
-> **Note:** Still under development.
+> **Note:** The backend API will not be publicized, it's intended to be separated for private use. You will see in the code under src/config.js that the backend URL has been deployed through [Render](https://cr8-backend.onrender.com/)
