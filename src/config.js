@@ -9,7 +9,8 @@ export const CONFIG = {
         }
 
         // Use environment variable if set, else default production backend URL
-        return process.env.REACT_APP_API_BASE || 'https://cr8-backend.onrender.com';
+        // UPDATE THIS URL TO MATCH YOUR ACTUAL RENDER DEPLOYMENT URL
+        return process.env.REACT_APP_API_BASE || 'https://cr8-agency.netlify.app/';
       }
 
       return process.env.REACT_APP_API_BASE || 'http://localhost:3002';
@@ -18,7 +19,9 @@ export const CONFIG = {
     getEndpoints: (apiBase) => ({
       BACKEND_PROXY: `${apiBase}/api/gemini`,
       HEALTH_CHECK: `${apiBase}/api/health`,
-      TRAINING_DATA: `${apiBase}/api/training-data`
+      TRAINING_DATA: `${apiBase}/api/training-data`,
+      DIAGNOSE: `${apiBase}/api/diagnose`,
+      VERSION: `${apiBase}/api/version`
     })
   },
 
@@ -36,7 +39,7 @@ Let's Create & Unleash Your Creative Vision.
 How can I contact CR8?
 You can reach us via email at creativscr8@gmail.com or eldriv@proton.me
 Where can I view CR8's portfolio?
-You can view our portfolio here: https://cr8-nine.vercel.app/#works
+You can view our portfolio here: https://cr8-agency.netlify.app/#works
 What services does CR8 offer?
 We offer the following creative services:
 - Graphic Design
@@ -167,7 +170,7 @@ Brands trust CR8 because we:
     },
     
     MIN_CONTENT_LENGTH: 50,
-    TIMEOUT: 10000,
+    TIMEOUT: 15000, // Increased timeout for Render
     MAX_RETRIES: 3
   },
 
@@ -285,7 +288,12 @@ export const UTILS = {
       console.log('Fetching with timeout:', fetchUrl);
       const response = await fetch(fetchUrl, {
         ...fetchOptions,
-        signal: controller.signal
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          ...fetchOptions.headers
+        }
       });
       clearTimeout(timeoutId);
       return response;
@@ -296,6 +304,35 @@ export const UTILS = {
       }
       throw error;
     }
+  },
+
+  // New debugging utility
+  debugConnection: async () => {
+    const apiBase = CONFIG.API.getApiBase();
+    const endpoints = CONFIG.API.getEndpoints(apiBase);
+    
+    console.log('🔍 Connection Debug:');
+    console.log('API Base:', apiBase);
+    console.log('Endpoints:', endpoints);
+    
+    try {
+      // Test health endpoint
+      const healthResponse = await UTILS.fetchWithTimeout(endpoints.HEALTH_CHECK);
+      console.log('Health check status:', healthResponse.status);
+      
+      if (healthResponse.ok) {
+        const healthData = await healthResponse.json();
+        console.log('Health data:', healthData);
+      }
+      
+      return { status: 'connected', apiBase, healthResponse: healthResponse.status };
+    } catch (error) {
+      console.error('Connection test failed:', error);
+      return { status: 'failed', apiBase, error: error.message };
+    }
   }
 };
+
+// Log configuration on load
 console.log('API Base URL:', CONFIG.API.getApiBase());
+console.log('Environment:', process.env.NODE_ENV);
