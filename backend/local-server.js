@@ -22,7 +22,9 @@ app.use(express.json());
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   console.log('Headers:', req.headers);
-  console.log('Body:', req.body);
+  if (req.method === 'POST') {
+    console.log('Body:', req.body);
+  }
   console.log('Query:', req.query);
   next();
 });
@@ -141,17 +143,70 @@ app.get('/api/training-data', (req, res) => {
   res.status(200).send(TRAINING_DATA);
 });
 
-// Temporary: Switch /api/gemini to GET
-app.get('/api/gemini', async (req, res) => {
-  console.log('GET /api/gemini route hit');
-  const { prompt } = req.query; // Use query parameter instead of body
-
+// Helper function to call Gemini API
+const callGeminiAPI = async (prompt) => {
   if (!process.env.GEMINI_API_KEY) {
-    console.error('GEMINI_API_KEY missing');
-    return res.status(500).json({
-      error: 'GEMINI_API_KEY not found in environment variables',
+    throw new Error('GEMINI_API_KEY not found in environment variables');
+  }
+
+  const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+
+  console.log('Making request to Gemini API...');
+  const response = await fetch(GEMINI_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.4,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 1024,
+      },
+    }),
+  });
+
+  console.log('Gemini API response status:', response.status);
+  const data = await response.json();
+
+  if (!response.ok) {
+    console.error('Gemini API request failed:', data);
+    throw new Error(`Gemini API request failed: ${data.error?.message || 'Unknown error'}`);
+  }
+
+  return data;
+};
+
+// Main POST endpoint for /api/gemini (what your frontend expects)
+app.post('/api/gemini', async (req, res) => {
+  console.log('POST /api/gemini route hit');
+  const { prompt } = req.body;
+
+  if (!prompt) {
+    console.error('Prompt missing in request body');
+    return res.status(400).json({
+      error: 'Prompt is required',
     });
   }
+
+  try {
+    const data = await callGeminiAPI(prompt);
+    res.status(200).json(data);
+  } catch (error) {
+    console.error('Error in POST /api/gemini:', error.message, error.stack);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      details: error.message,
+    });
+  }
+});
+
+// Keep the GET endpoint for backwards compatibility/testing
+app.get('/api/gemini', async (req, res) => {
+  console.log('GET /api/gemini route hit');
+  const { prompt } = req.query;
 
   if (!prompt) {
     console.error('Prompt missing in query parameters');
@@ -160,40 +215,11 @@ app.get('/api/gemini', async (req, res) => {
     });
   }
 
-  const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
-
   try {
-    console.log('Making request to Gemini API:', GEMINI_API_URL);
-    const response = await fetch(GEMINI_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.4,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
-        },
-      }),
-    });
-
-    console.log('Gemini API response status:', response.status);
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error('Gemini API request failed:', data);
-      return res.status(response.status).json({
-        error: 'Gemini API request failed',
-        details: data.error?.message || 'Unknown error',
-      });
-    }
-
+    const data = await callGeminiAPI(prompt);
     res.status(200).json(data);
   } catch (error) {
-    console.error('Error in /api/gemini:', error.message, error.stack);
+    console.error('Error in GET /api/gemini:', error.message, error.stack);
     res.status(500).json({
       error: 'Internal Server Error',
       details: error.message,
@@ -224,6 +250,8 @@ const server = app.listen(PORT, () => {
   console.log(`Backend server running at http://localhost:${PORT}`);
   console.log(`Health check available at http://localhost:${PORT}/api/health`);
   console.log(`Training data available at http://localhost:${PORT}/api/training-data`);
+  console.log(`POST Gemini endpoint available at http://localhost:${PORT}/api/gemini`);
+  console.log(`GET Gemini endpoint available at http://localhost:${PORT}/api/gemini`);
   console.log(`Test POST available at http://localhost:${PORT}/api/test-post`);
   console.log(`Routes diagnostic available at http://localhost:${PORT}/api/routes`);
   console.log(`Server diagnostic available at http://localhost:${PORT}/api/diagnose`);
