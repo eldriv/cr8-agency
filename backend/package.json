@@ -1,33 +1,20 @@
-
 {
-  "name": "railway-gemini-api",
+  "name": "cr8-backend",
   "version": "1.0.0",
-  "description": "Gemini API proxy server for Railway",
-  "main": "local-server.js",
+  "description": "CR8 Backend Server",
+  "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node local-server.js",
-    "dev": "nodemon local-server.js",
-    "build": "echo 'No build step required'"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.10"
+    "dotenv": "^16.3.1"
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "keywords": [
-    "gemini",
-    "api",
-    "proxy",
-    "railway",
-    "express"
-  ],
-  "author": "",
-  "license": "MIT"
+  }
 }
