@@ -9,11 +9,12 @@ export const CONFIG = {
           return 'http://localhost:3002';
         }
         
-        return `${protocol}//${hostname}`;
+        // Force HTTPS for Railway production deployment
+        return `https://${hostname}`;
       }
       
       return process.env.NODE_ENV === 'production' 
-        ? 'https://cr8-agency-production.up.railway.app'
+        ? 'https://cr8-agency-production.up.railway.app'  // Explicitly use HTTPS
         : 'http://localhost:3002';
     },
     
