@@ -9,10 +9,11 @@ PKG_MGR := $(shell \
 
 # ───────────────────────────────────────────────────────────────────────────────
 # BODY: Development commands
-.PHONY: run dev
+.PHONY: run dev install
 
-BACKEND_DIR := ~/gh/cr8/backend
-ROOT_DIR := ~/gh/cr8
+BACKEND_DIR := backend
+ROOT_DIR := .
+
 run:
 	cd $(BACKEND_DIR) && node local-server.js
 
