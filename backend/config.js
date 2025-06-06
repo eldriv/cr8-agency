@@ -13,7 +13,7 @@ export const CONFIG = {
       }
       
       return process.env.NODE_ENV === 'production' 
-        ? ''
+        ? 'https://cr8-agency-production.up.railway.app'
         : 'http://localhost:3002';
     },
     
