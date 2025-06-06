@@ -1,48 +1,19 @@
 export const CONFIG = {
   API: {
     getApiBase: () => {
-      if (typeof window !== 'undefined') {
-        const hostname = window.location.hostname;
-        const protocol = window.location.protocol;
-        
-        // Local development
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          return 'http://localhost:3002';
-        }
-        
-        // Production - Railway specific
-        if (hostname.includes('railway.app')) {
-          return `${protocol}//${hostname}`;
-        }
-        
-        // Production - Vercel or other hosting
-        if (hostname.includes('vercel.app') || hostname.includes('netlify.app')) {
-          // If frontend and backend are separate, use Railway backend URL
-          return 'https://cr8-agency-production.up.railway.app';
-        }
-        
-        // Default production
-        return `${protocol}//${hostname}`;
-      }
-      
-      // Server-side fallback
-      return process.env.NODE_ENV === 'production' 
+      const isProduction = process.env.NODE_ENV === 'production';
+      const apiBase = isProduction 
         ? 'https://cr8-agency-production.up.railway.app'
         : 'http://localhost:3002';
+      console.log('API Base:', apiBase, 'Environment:', process.env.NODE_ENV);
+      return apiBase;
     },
-    
     getEndpoints: (apiBase) => ({
       BACKEND_PROXY: `${apiBase}/api/gemini`,
       HEALTH_CHECK: `${apiBase}/api/health`,
       TRAINING_DATA: `${apiBase}/api/training-data`
     })
   },
-
-  TRAINING_DATA_PATHS: [
-    '/api/training-data',
-    '/data/training.txt',
-    '/training.txt'
-  ],
 
   DEFAULT_TRAINING_DATA: `CR8 - Digital Solutions Company
 
@@ -99,12 +70,10 @@ Brands trust CR8 because we:
       MINIMIZED_HEIGHT: 'minimized',
       MINIMIZED_WIDTH: 'minimized'
     },
-    
     MOBILE: {
       SAFE_AREA_TOP: 'safe-area-top',
       SAFE_AREA_BOTTOM: 'safe-area-bottom'
     },
-
     ANIMATIONS: {
       TYPING_DELAY: {
         BASE: 50,
@@ -112,7 +81,6 @@ Brands trust CR8 because we:
       },
       BOUNCE_DELAYS: ['0.1s', '0.2s', '0.3s']
     },
-
     FIXED_DIMENSIONS: {
       DESKTOP: {
         WIDTH: '384px',
@@ -128,12 +96,10 @@ Brands trust CR8 because we:
     RETRY_MESSAGE: 'Please try again.',
     NO_RESPONSE: 'Sorry, I could not generate a response.',
     NO_TRAINING_DATA: 'Using general knowledge mode - specific CR8 data not available.',
-    
     PLACEHOLDERS: {
       DESKTOP: 'Ask about CR8 or any questions...',
       MOBILE: 'Type your message...'
     },
-
     WELCOME: {
       TITLE: 'CR8 Assistant',
       SUBTITLE_LOADED: "I can help with CR8 information and general questions.",
@@ -148,9 +114,7 @@ Brands trust CR8 because we:
       "What services does CR8 offer?",
       "Tell me about CR8's portfolio"
     ],
-    
     GENERAL: [],
-
     MOBILE_SPECIFIC: [
       "What is CR8?",
       "CR8 services?",
@@ -165,7 +129,6 @@ Brands trust CR8 because we:
       OFFLINE: 'offline', 
       UNKNOWN: 'unknown'
     },
-    
     TRAINING_DATA: {
       LOADED: 'loaded',
       LOADING: 'loading',
@@ -175,15 +138,7 @@ Brands trust CR8 because we:
   },
 
   FETCH: {
-    HEADERS: {
-      ACCEPT_TEXT: 'text/plain',
-      ACCEPT_JSON: 'application/json',
-      CONTENT_TYPE_JSON: 'application/json',
-      CACHE_CONTROL: 'no-cache'
-    },
-    
-    MIN_CONTENT_LENGTH: 50,
-    TIMEOUT: 30000, // Increased timeout for production
+    TIMEOUT: 30000,
     MAX_RETRIES: 3
   },
 
@@ -198,10 +153,10 @@ Brands trust CR8 because we:
 export const PROMPT_TEMPLATE = {
   buildHybridPrompt: (userMessage, trainingData) => {
     const hasValidTrainingData = trainingData && 
-                                trainingData.trim().length > CONFIG.FETCH.MIN_CONTENT_LENGTH &&
+                                trainingData.trim().length > 50 &&
                                 trainingData !== CONFIG.MESSAGES.NO_TRAINING_DATA;
     if (hasValidTrainingData) {
-      return `You are an AI assistant for CR8. You MUST use the following information about CR8 EXCLUSIVELY when answering questions specifically about CR8. Do not rely on any external knowledge for CR8-related queries; use only the data provided below:
+      return `You are an AI assistant for CR8. Use the following information EXCLUSIVELY for CR8-related questions:
 
 === CR8 INFORMATION ===
 ${trainingData.trim()}
@@ -210,26 +165,17 @@ ${trainingData.trim()}
 User Question: ${userMessage}
 
 Instructions:
-1. For questions specifically about CR8 (e.g., services, contact, portfolio, technologies, about CR8), base your answer ENTIRELY on the provided CR8 information above.
-2. For general questions (e.g., about AI, web development, technology concepts), provide helpful information from your general knowledge.
-3. Maintain a professional, helpful tone.
-4. If the question is about CR8 and the data doesn't provide a complete answer, say: "Based on the available CR8 information, [provide what you can], but I don't have complete details about that specific aspect. Feel free to ask other questions!"
-5. Always be concise but informative.
-
-Please provide a helpful response:`;
+1. For CR8-specific questions, use only the provided CR8 information.
+2. For general questions, use your general knowledge.
+3. Be concise, professional, and helpful.
+4. If CR8 data is insufficient, say: "Based on available CR8 information, [answer], but I lack full details."
+5. Response:`;
     } else {
-      return `You are a helpful AI assistant. The user asked: "${userMessage}"
+      return `You are a helpful AI assistant. User asked: "${userMessage}"
 
-I currently don't have access to specific CR8 company information, but I can help with general questions about technology, web development, AI, programming, and other topics.
+I lack specific CR8 information but can assist with general questions about technology, web development, or AI.
 
-If you're asking about CR8 specifically, I apologize that I don't have detailed information available right now. However, I can still help with:
-- General technology questions
-- Web development concepts
-- Programming help
-- AI and machine learning topics
-- Business technology advice
-
-Please provide a helpful response based on general knowledge:`;
+Response:`;
     }
   }
 };
@@ -237,9 +183,9 @@ Please provide a helpful response based on general knowledge:`;
 export const UTILS = {
   formatTime: (timestamp) => {
     try {
-      return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } catch (error) {
       return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (error) {
+      return 'Unknown time';
     }
   },
 
@@ -247,90 +193,47 @@ export const UTILS = {
 
   copyToClipboard: async (text) => {
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
-        console.log('Text copied to clipboard successfully');
-        return;
-      }
-      
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      
-      try {
-        const successful = document.execCommand('copy');
-        if (successful) {
-          console.log('Text copied using fallback method');
-        } else {
-          throw new Error('Copy command failed');
-        }
-      } finally {
-        document.body.removeChild(textArea);
-      }
+      await navigator.clipboard.writeText(text);
+      console.log('Text copied to clipboard');
     } catch (error) {
       console.error('Failed to copy text:', error);
-      throw error;
     }
   },
 
   isValidTrainingData: (data) => {
-    return data && 
-           typeof data === 'string' && 
-           data.trim().length > CONFIG.FETCH.MIN_CONTENT_LENGTH &&
+    return data && typeof data === 'string' && data.trim().length > 50 &&
            data.trim() !== CONFIG.MESSAGES.NO_TRAINING_DATA;
   },
 
   fetchWithTimeout: async (url, options = {}) => {
     const { timeout = CONFIG.FETCH.TIMEOUT, ...fetchOptions } = options;
-    
-    let fetchUrl = url;
-    
-    // Handle relative URLs
-    if (url.startsWith('/api/')) {
-      const apiBase = CONFIG.API.getApiBase();
-      fetchUrl = apiBase ? `${apiBase}${url}` : url;
-    }
-    
-    // Add retry logic for production
     let lastError;
     for (let i = 0; i < CONFIG.FETCH.MAX_RETRIES; i++) {
       try {
+        console.log(`Fetch attempt ${i + 1}/${CONFIG.FETCH.MAX_RETRIES}: ${url}`);
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
-        
-        console.log(`Fetch attempt ${i + 1}/${CONFIG.FETCH.MAX_RETRIES}:`, fetchUrl);
-        const response = await fetch(fetchUrl, {
+        const response = await fetch(url, {
           ...fetchOptions,
           signal: controller.signal,
+          mode: 'cors',
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             ...fetchOptions.headers
           }
         });
-        
         clearTimeout(timeoutId);
+        console.log(`Fetch successful, status: ${response.status}`);
         return response;
       } catch (error) {
         lastError = error;
-        console.error(`Fetch attempt ${i + 1} failed:`, error.message);
-        
-        if (error.name === 'AbortError') {
-          lastError = new Error('Request timeout');
-        }
-        
-        // Wait before retrying (exponential backoff)
+        console.error(`Fetch attempt ${i + 1} failed: ${error.message}`);
         if (i < CONFIG.FETCH.MAX_RETRIES - 1) {
           await UTILS.sleep(1000 * Math.pow(2, i));
         }
       }
     }
-    
-    throw lastError;
+    throw lastError || new Error('Fetch failed after retries');
   }
 };

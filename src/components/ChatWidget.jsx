@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, Send, X, Minimize2, Maximize2, RotateCcw, Copy, Trash2 } from 'lucide-react';
-import { CONFIG, UTILS, PROMPT_TEMPLATE } from "@config";
+import { CONFIG, UTILS, PROMPT_TEMPLATE } from '@config';
 
 const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
   <div className="text-center p-8 space-y-6">
@@ -8,9 +8,7 @@ const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
       src={CONFIG.APP.LOGO_PATH} 
       alt={CONFIG.APP.LOGO_ALT} 
       className="w-40 h-30 mx-auto"
-      onError={(e) => {
-        e.target.style.display = 'none';
-      }}
+      onError={(e) => { e.target.style.display = 'none'; }}
     />
     <h3 className="text-xl font-bold text-white">{CONFIG.APP.NAME}</h3>
     <p className="text-gray-400 text-sm leading-relaxed">
@@ -18,19 +16,15 @@ const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
        trainingDataStatus === 'loading' ? CONFIG.MESSAGES.WELCOME.SUBTITLE_LOADING :
        trainingDataStatus === 'fallback' ? 'Using fallback CR8 information' : CONFIG.MESSAGES.NO_TRAINING_DATA}
     </p>
-    {/* Debug info - remove in production */}
-    <div className="text-xs text-gray-500 bg-gray-900/50 p-2 rounded">
-      Training Status: {trainingDataStatus}
-    </div>
     <div className="flex flex-wrap gap-2 justify-center">
-      {(isMobile ? (CONFIG.SUGGESTIONS.MOBILE_SPECIFIC || []) : [
-        ...(CONFIG.SUGGESTIONS.CR8_SPECIFIC || []),
-        ...(CONFIG.SUGGESTIONS.GENERAL || [])
+      {(isMobile ? CONFIG.SUGGESTIONS.MOBILE_SPECIFIC : [
+        ...CONFIG.SUGGESTIONS.CR8_SPECIFIC,
+        ...CONFIG.SUGGESTIONS.GENERAL
       ]).map((suggestion, index) => (
         <button
           key={index}
           onClick={() => setInputMessage(suggestion)}
-          className="px-4 py-4 text-xs bg-gray-800/60 hover:bg-white hover:text-black text-gray-300 rounded-full transition-all duration-200 backdrop-blur-sm border border-gray-700/50 hover:border-white"
+          className="px-4 py-2 text-xs bg-gray-800/60 hover:bg-white hover:text-black text-gray-300 rounded-full transition-all duration-200 border border-gray-700/50"
         >
           {suggestion}
         </button>
@@ -44,7 +38,7 @@ const Message = ({ message, copyMessage }) => (
     <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
       message.role === 'user' 
         ? 'bg-white text-black shadow-lg' 
-        : 'bg-gray-800/80 text-gray-100 backdrop-blur-sm border border-gray-700/50'
+        : 'bg-gray-800/80 text-gray-100 border border-gray-700/50'
     }`}>
       <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
         {message.content}
@@ -68,7 +62,7 @@ const Message = ({ message, copyMessage }) => (
 
 const TypingIndicator = () => (
   <div className="flex justify-start mb-4">
-    <div className="bg-gray-800/80 backdrop-blur-sm border border-gray-700/50 rounded-2xl px-4 py-3">
+    <div className="bg-gray-800/80 border border-gray-700/50 rounded-2xl px-4 py-3">
       <div className="flex space-x-1">
         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
         <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
@@ -79,7 +73,7 @@ const TypingIndicator = () => (
 );
 
 const ChatHeader = ({ isMobile, connectionStatus, trainingDataStatus, chatHistory, restoreLastChat, clearChat, messages, toggleMinimize, isMinimized, toggleChat }) => (
-  <div className={`flex items-center justify-between p-4 bg-black/90 backdrop-blur-xl border-b border-gray-800/60 ${isMobile ? 'relative z-[10000]' : ''}`}>
+  <div className={`flex items-center justify-between p-4 bg-black/90 border-b border-gray-800/60 ${isMobile ? 'relative z-[10000]' : ''}`}>
     <div className="flex items-center space-x-3">
       <div className="w-10 h-10 bg-black border-2 border-white rounded-xl flex items-center justify-center">
         <MessageCircle size={18} className="text-white" />
@@ -91,7 +85,6 @@ const ChatHeader = ({ isMobile, connectionStatus, trainingDataStatus, chatHistor
           <span className="text-xs text-gray-400">
             {connectionStatus === CONFIG.STATUS.CONNECTION.CONNECTED ? 'Online' : 'Offline'}
           </span>
-          {/* Training data status indicator */}
           <div className={`w-2 h-2 rounded-full ${
             trainingDataStatus === 'loaded' ? 'bg-blue-400' : 
             trainingDataStatus === 'fallback' ? 'bg-yellow-400' : 
@@ -124,7 +117,7 @@ const ChatHeader = ({ isMobile, connectionStatus, trainingDataStatus, chatHistor
 );
 
 const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress, isLoading, connectionStatus, sendMessage }) => (
-  <div className="p-4 bg-black/90 backdrop-blur-xl border-t border-gray-800/60">
+  <div className="p-4 bg-black/90 border-t border-gray-800/60">
     <div className="flex items-end space-x-3">
       <div className="flex-1 relative">
         <textarea
@@ -133,7 +126,7 @@ const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Type your message..."
-          className="w-full p-4 bg-gray-900/80 backdrop-blur-sm border border-gray-700/60 rounded-2xl text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200"
+          className="w-full p-4 bg-gray-900/80 border border-gray-700/60 rounded-2xl text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-white/50"
           rows="1"
           style={{ minHeight: '52px', maxHeight: '120px' }}
           disabled={isLoading}
@@ -142,7 +135,7 @@ const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress
       <button
         onClick={sendMessage}
         disabled={isLoading || !inputMessage.trim()}
-        className="h-[52px] px-4 bg-white hover:bg-gray-200 disabled:bg-gray-700 disabled:cursor-not-allowed text-black disabled:text-gray-400 rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none flex items-center justify-center"
+        className="h-[52px] px-4 bg-white hover:bg-gray-200 disabled:bg-gray-700 disabled:cursor-not-allowed text-black disabled:text-gray-400 rounded-2xl transition-all duration-200 shadow-lg"
       >
         <Send size={18} />
       </button>
@@ -184,77 +177,45 @@ const ChatWidget = () => {
   }, [isOpen, isMinimized]);
 
   const loadTrainingData = async () => {
-    console.log('🔄 Starting training data load...');
     setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADING);
-    
-    // First try the backend endpoint
-    const apiBase = CONFIG.API.getApiBase();
-    const trainingEndpoint = `${apiBase}/api/training-data`;
-    
-    console.log('📡 API Base:', apiBase);
-    console.log('🎯 Training endpoint:', trainingEndpoint);
-    
+    console.log('Fetching training data from:', ENDPOINTS.TRAINING_DATA);
     try {
-      console.log('🔍 Fetching training data from backend...');
-      const response = await fetch(trainingEndpoint, {
+      const response = await UTILS.fetchWithTimeout(ENDPOINTS.TRAINING_DATA, {
         method: 'GET',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'text/plain'
-        },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'text/plain' },
         mode: 'cors'
       });
-      
-      console.log('📥 Training data response status:', response.status);
-      console.log('📥 Training data response headers:', Object.fromEntries(response.headers.entries()));
-      
-      if (response.ok) {
-        const data = await response.text();
-        console.log('📄 Training data length:', data.length);
-        console.log('📄 Training data preview:', data.substring(0, 200) + '...');
-        
-        if (UTILS.isValidTrainingData(data)) {
-          setTrainingData(data);
-          setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADED);
-          console.log('✅ Training data loaded successfully from backend');
-          return;
-        } else {
-          console.log('❌ Training data validation failed');
-        }
+      const data = await response.text();
+      if (UTILS.isValidTrainingData(data)) {
+        setTrainingData(data);
+        setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADED);
+        console.log('Training data loaded successfully');
       } else {
-        console.log('❌ Backend training data fetch failed:', response.status, response.statusText);
+        throw new Error('Invalid training data');
       }
     } catch (error) {
-      console.error('❌ Error fetching training data from backend:', error.message);
+      console.error('Error fetching training data:', error.message);
+      if (CONFIG.DEFAULT_TRAINING_DATA && UTILS.isValidTrainingData(CONFIG.DEFAULT_TRAINING_DATA)) {
+        setTrainingData(CONFIG.DEFAULT_TRAINING_DATA);
+        setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.FALLBACK);
+      } else {
+        setTrainingData(CONFIG.MESSAGES.NO_TRAINING_DATA);
+        setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.FAILED);
+      }
     }
-    
-    // Fallback to default training data
-    console.log('🔄 Using fallback training data...');
-    if (CONFIG.DEFAULT_TRAINING_DATA && UTILS.isValidTrainingData(CONFIG.DEFAULT_TRAINING_DATA)) {
-      setTrainingData(CONFIG.DEFAULT_TRAINING_DATA);
-      setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.FALLBACK);
-      console.log('✅ Fallback training data loaded');
-      return;
-    }
-    
-    // Final fallback
-    console.log('❌ All training data sources failed');
-    setTrainingData(CONFIG.MESSAGES.NO_TRAINING_DATA);
-    setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.FAILED);
   };
 
   const checkBackendConnection = async () => {
+    console.log('Checking backend connection at:', ENDPOINTS.HEALTH_CHECK);
     try {
-      console.log('🔍 Checking backend connection at:', ENDPOINTS.HEALTH_CHECK);
-      const response = await fetch(ENDPOINTS.HEALTH_CHECK, {
+      const response = await UTILS.fetchWithTimeout(ENDPOINTS.HEALTH_CHECK, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         mode: 'cors'
       });
-      console.log('💚 Health check response:', response.status);
       setConnectionStatus(response.ok ? CONFIG.STATUS.CONNECTION.CONNECTED : CONFIG.STATUS.CONNECTION.OFFLINE);
     } catch (error) {
-      console.error('❌ Backend connection check failed:', error.message);
+      console.error('Backend connection check failed:', error.message);
       setConnectionStatus(CONFIG.STATUS.CONNECTION.OFFLINE);
       setTimeout(checkBackendConnection, 5000);
     }
@@ -284,40 +245,20 @@ const ChatWidget = () => {
     setMessages([...newMessages, tempMessage]);
 
     try {
-      console.log('🤖 Building prompt with training data status:', trainingDataStatus);
-      console.log('📄 Training data available:', trainingData ? 'Yes' : 'No');
-      console.log('📄 Training data length:', trainingData.length);
-      
       const prompt = PROMPT_TEMPLATE.buildHybridPrompt(userMessage, trainingData);
-      console.log('📝 Built prompt preview:', prompt.substring(0, 300) + '...');
-      
-      const apiBase = CONFIG.API.getApiBase();
-      const endpoints = CONFIG.API.getEndpoints(apiBase);
+      console.log('Sending POST to:', ENDPOINTS.BACKEND_PROXY, 'Body:', { prompt });
 
-      console.log('📡 Sending POST request to:', endpoints.BACKEND_PROXY);
-
-      const response = await fetch(endpoints.BACKEND_PROXY, {
+      const response = await UTILS.fetchWithTimeout(ENDPOINTS.BACKEND_PROXY, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
         mode: 'cors'
       });
 
-      console.log('📥 Response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`HTTP error! status: ${response.status}, details: ${errorData.error || 'Unknown error'}`);
-      }
-
       const data = await response.json();
-      console.log('📥 Response data:', data);
-      
-      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 
-                         data.content?.parts?.[0]?.text || 
-                         data.text || 
-                         CONFIG.MESSAGES.NO_RESPONSE;
+      console.log('Response data:', data);
 
-      console.log('🤖 AI Response:', aiResponse);
+      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || CONFIG.MESSAGES.NO_RESPONSE;
 
       setMessages(newMessages);
       const finalMessage = { role: 'assistant', content: '', timestamp: new Date() };
@@ -329,9 +270,9 @@ const ChatWidget = () => {
 
       setConnectionStatus(CONFIG.STATUS.CONNECTION.CONNECTED);
     } catch (error) {
-      console.error('❌ Error sending message:', error.message);
+      console.error('Error sending message:', error.message);
       let errorMessage = CONFIG.MESSAGES.DEFAULT_ERROR;
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      if (error.message.includes('fetch') || error.message.includes('timeout')) {
         errorMessage += CONFIG.MESSAGES.CONNECTION_ERROR;
         setConnectionStatus(CONFIG.STATUS.CONNECTION.OFFLINE);
       } else {
@@ -354,7 +295,6 @@ const ChatWidget = () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
       checkBackendConnection();
-      // Reload training data when chat opens if it failed before
       if (trainingDataStatus === CONFIG.STATUS.TRAINING_DATA.FAILED) {
         loadTrainingData();
       }
@@ -383,7 +323,7 @@ const ChatWidget = () => {
   };
 
   const ChatWindow = ({ isMobile }) => (
-    <div className={`${isMobile ? 'fixed inset-0 z-[9999]' : `w-96 h-[600px] ${isMinimized ? 'h-16' : ''}`} bg-black/95 backdrop-blur-2xl border border-gray-800/60 ${isMobile ? '' : 'rounded-3xl'} shadow-2xl transition-all duration-300 flex flex-col overflow-hidden`}>
+    <div className={`${isMobile ? 'fixed inset-0 z-[9999]' : `w-96 h-[600px] ${isMinimized ? 'h-16' : ''}`} bg-black/95 border border-gray-800/60 ${isMobile ? '' : 'rounded-3xl'} shadow-2xl transition-all duration-300 flex flex-col overflow-hidden`}>
       <ChatHeader
         isMobile={isMobile}
         connectionStatus={connectionStatus}
@@ -396,10 +336,9 @@ const ChatWidget = () => {
         isMinimized={isMinimized}
         toggleChat={toggleChat}
       />
-
       {!isMinimized && (
         <>
-          <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+          <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-700">
             {messages.length === 0 && (
               <WelcomeMessage
                 trainingDataStatus={trainingDataStatus}
@@ -429,12 +368,11 @@ const ChatWidget = () => {
 
   return (
     <>
-      {/* Desktop */}
       <div className="hidden md:block fixed bottom-6 right-6 z-50">
         {!isOpen && (
           <button
             onClick={toggleChat}
-            className="group bg-black hover:bg-gray-900 text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white backdrop-blur-sm"
+            className="group bg-black hover:bg-gray-900 text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white"
           >
             <MessageCircle size={28} className="text-white group-hover:rotate-12 transition-transform duration-300" />
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full animate-pulse"></div>
@@ -442,13 +380,11 @@ const ChatWidget = () => {
         )}
         {isOpen && <ChatWindow isMobile={false} />}
       </div>
-
-      {/* Mobile */}
       <div className="md:hidden">
         {!isOpen && (
           <button
             onClick={toggleChat}
-            className="fixed bottom-6 right-6 z-[9998] group bg-black hover:bg-gray-900 text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white backdrop-blur-sm"
+            className="fixed bottom-6 right-6 z-[9998] group bg-black hover:bg-gray-900 text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white"
           >
             <MessageCircle size={28} className="text-white group-hover:rotate-12 transition-transform duration-300" />
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full animate-pulse"></div>
