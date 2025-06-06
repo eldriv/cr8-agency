@@ -353,7 +353,6 @@ const ChatWidget = () => {
       )}
     </div>
   );
-
   return (
     <>
       {/* Desktop */}
