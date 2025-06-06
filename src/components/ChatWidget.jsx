@@ -238,47 +238,45 @@ const ChatWidget = () => {
     const newMessages = [...messages, { role: 'user', content: userMessage, timestamp: new Date() }];
     setMessages(newMessages);
     setIsLoading(true);
-
+  
     const tempMessage = { role: 'assistant', content: '', timestamp: new Date(), isTyping: true };
     setMessages([...newMessages, tempMessage]);
-
+  
     try {
       const prompt = PROMPT_TEMPLATE.buildHybridPrompt(userMessage, trainingData);
       const apiBase = CONFIG.API.getApiBase();
       const endpoints = CONFIG.API.getEndpoints(apiBase);
-
-      console.log('Sending POST request to:', endpoints.BACKEND_PROXY);
-      console.log('Prompt:', prompt);
-
-      const response = await fetch(endpoints.BACKEND_PROXY, {
-        method: 'POST',
-        headers: { 'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON },
-        body: JSON.stringify({ prompt }),
+  
+      console.log('Sending GET request to:', `${endpoints.BACKEND_PROXY}?prompt=${encodeURIComponent(prompt)}`);
+  
+      const response = await fetch(`${endpoints.BACKEND_PROXY}?prompt=${encodeURIComponent(prompt)}`, {
+        method: 'GET',
+        headers: { 'Accept': CONFIG.FETCH.HEADERS.ACCEPT_JSON },
       });
-
+  
       console.log('Response status:', response.status);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`HTTP error! status: ${response.status}, details: ${errorData.error || 'Unknown error'}`);
       }
-
+  
       const data = await response.json();
-      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 
-                         data.content?.parts?.[0]?.text || 
-                         data.text || 
+      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text ||
+                         data.content?.parts?.[0]?.text ||
+                         data.text ||
                          CONFIG.MESSAGES.NO_RESPONSE;
-
+  
       setMessages(newMessages);
       const finalMessage = { role: 'assistant', content: '', timestamp: new Date() };
       setMessages([...newMessages, finalMessage]);
-
+  
       await typeMessage(aiResponse, (partialMessage) => {
         setMessages([...newMessages, { ...finalMessage, content: partialMessage }]);
       });
-
+  
       setConnectionStatus(CONFIG.STATUS.CONNECTION.CONNECTED);
     } catch (error) {
-      console.error('Error sending message:', error.message);
+      console.error('Error sending message:', error.message, error.stack);
       let errorMessage = CONFIG.MESSAGES.DEFAULT_ERROR;
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         errorMessage += CONFIG.MESSAGES.CONNECTION_ERROR;

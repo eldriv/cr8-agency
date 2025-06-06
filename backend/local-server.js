@@ -8,10 +8,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-// Simplified CORS middleware for debugging
+// Simplified CORS middleware
 app.use(cors({
-  origin: '*', // Allow all origins for now to rule out CORS issues
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
@@ -23,10 +23,41 @@ app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
   console.log('Headers:', req.headers);
   console.log('Body:', req.body);
+  console.log('Query:', req.query);
   next();
 });
 
-// Temporary test POST route for debugging
+// Diagnostic endpoint to list all routes
+app.get('/api/routes', (req, res) => {
+  const routes = [];
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      routes.push({
+        path: middleware.route.path,
+        methods: Object.keys(middleware.route.methods).filter((method) => middleware.route.methods[method]),
+      });
+    }
+  });
+  res.json({
+    message: 'List of registered routes',
+    routes,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Diagnostic endpoint to check environment and server status
+app.get('/api/diagnose', (req, res) => {
+  res.json({
+    message: 'Server diagnostics',
+    methodsSupported: ['GET', 'POST', 'OPTIONS'],
+    GEMINI_API_KEY: !!process.env.GEMINI_API_KEY,
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Test POST endpoint for debugging
 app.post('/api/test-post', (req, res) => {
   console.log('Test POST route hit:', req.body);
   res.status(200).json({ message: 'Test POST successful', received: req.body });
@@ -80,23 +111,24 @@ Brands trust CR8 because we:
 - Align projects with brand identity
 - Stay current with industry trends`;
 
-// Root route — health check or simple confirmation
+// Root route
 app.get('/', (req, res) => {
   res.json({
     message: 'Backend server is running',
     status: 'OK',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
   });
 });
 
+// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
     message: 'API is working',
     timestamp: new Date().toISOString(),
     hasApiKey: !!process.env.GEMINI_API_KEY,
     environment: process.env.NODE_ENV || 'development',
-    port: PORT
+    port: PORT,
   });
 });
 
@@ -104,26 +136,27 @@ app.get('/api/health', (req, res) => {
 app.get('/api/training-data', (req, res) => {
   res.set({
     'Content-Type': 'text/plain',
-    'Cache-Control': 'no-cache'
+    'Cache-Control': 'no-cache',
   });
   res.status(200).send(TRAINING_DATA);
 });
 
-app.post('/api/gemini', async (req, res) => {
-  console.log('POST /api/gemini route hit');
-  const { prompt } = req.body;
+// Temporary: Switch /api/gemini to GET
+app.get('/api/gemini', async (req, res) => {
+  console.log('GET /api/gemini route hit');
+  const { prompt } = req.query; // Use query parameter instead of body
 
   if (!process.env.GEMINI_API_KEY) {
     console.error('GEMINI_API_KEY missing');
     return res.status(500).json({
-      error: 'GEMINI_API_KEY not found in environment variables'
+      error: 'GEMINI_API_KEY not found in environment variables',
     });
   }
 
   if (!prompt) {
-    console.error('Prompt missing in request body');
+    console.error('Prompt missing in query parameters');
     return res.status(400).json({
-      error: 'Prompt is required'
+      error: 'Prompt is required',
     });
   }
 
@@ -134,7 +167,7 @@ app.post('/api/gemini', async (req, res) => {
     const response = await fetch(GEMINI_API_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
@@ -154,16 +187,16 @@ app.post('/api/gemini', async (req, res) => {
       console.error('Gemini API request failed:', data);
       return res.status(response.status).json({
         error: 'Gemini API request failed',
-        details: data.error?.message || 'Unknown error'
+        details: data.error?.message || 'Unknown error',
       });
     }
 
     res.status(200).json(data);
   } catch (error) {
-    console.error('Error in /api/gemini:', error.message);
+    console.error('Error in /api/gemini:', error.message, error.stack);
     res.status(500).json({
       error: 'Internal Server Error',
-      details: error.message
+      details: error.message,
     });
   }
 });
@@ -173,7 +206,7 @@ app.use((err, req, res, next) => {
   console.error('Error middleware triggered:', err.message);
   res.status(500).json({
     error: 'Internal Server Error',
-    message: err.message
+    message: err.message,
   });
 });
 
@@ -182,7 +215,7 @@ app.use((req, res) => {
   console.log(`404: Route ${req.originalUrl} not found`);
   res.status(404).json({
     error: 'Not Found',
-    message: `Route ${req.originalUrl} not found`
+    message: `Route ${req.originalUrl} not found`,
   });
 });
 
@@ -192,6 +225,8 @@ const server = app.listen(PORT, () => {
   console.log(`Health check available at http://localhost:${PORT}/api/health`);
   console.log(`Training data available at http://localhost:${PORT}/api/training-data`);
   console.log(`Test POST available at http://localhost:${PORT}/api/test-post`);
+  console.log(`Routes diagnostic available at http://localhost:${PORT}/api/routes`);
+  console.log(`Server diagnostic available at http://localhost:${PORT}/api/diagnose`);
 });
 
 // Graceful shutdown
