@@ -8,26 +8,28 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-// Middleware - Allow all origins for development
+// Simplified CORS middleware for debugging
 app.use(cors({
-  origin: true,
-  credentials: true,
+  origin: '*', // Allow all origins for now to rule out CORS issues
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Requested-With', 'Accept', 'Accept-Version', 'Content-Length', 'Content-MD5', 'Date', 'X-Api-Version']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 app.use(express.json());
 
-// Handle OPTIONS requests for CORS preflight
+// Debug middleware to log all incoming requests
 app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Date, X-Api-Version');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    return res.sendStatus(200);
-  }
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
   next();
+});
+
+// Temporary test POST route for debugging
+app.post('/api/test-post', (req, res) => {
+  console.log('Test POST route hit:', req.body);
+  res.status(200).json({ message: 'Test POST successful', received: req.body });
 });
 
 const TRAINING_DATA = `CR8 - Digital Solutions Company
@@ -98,7 +100,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// NEW: Training data endpoint
+// Training data endpoint
 app.get('/api/training-data', (req, res) => {
   res.set({
     'Content-Type': 'text/plain',
@@ -108,15 +110,18 @@ app.get('/api/training-data', (req, res) => {
 });
 
 app.post('/api/gemini', async (req, res) => {
+  console.log('POST /api/gemini route hit');
   const { prompt } = req.body;
 
   if (!process.env.GEMINI_API_KEY) {
+    console.error('GEMINI_API_KEY missing');
     return res.status(500).json({
       error: 'GEMINI_API_KEY not found in environment variables'
     });
   }
 
   if (!prompt) {
+    console.error('Prompt missing in request body');
     return res.status(400).json({
       error: 'Prompt is required'
     });
@@ -125,6 +130,7 @@ app.post('/api/gemini', async (req, res) => {
   const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
   try {
+    console.log('Making request to Gemini API:', GEMINI_API_URL);
     const response = await fetch(GEMINI_API_URL, {
       method: 'POST',
       headers: {
@@ -141,9 +147,11 @@ app.post('/api/gemini', async (req, res) => {
       }),
     });
 
+    console.log('Gemini API response status:', response.status);
     const data = await response.json();
 
     if (!response.ok) {
+      console.error('Gemini API request failed:', data);
       return res.status(response.status).json({
         error: 'Gemini API request failed',
         details: data.error?.message || 'Unknown error'
@@ -152,6 +160,7 @@ app.post('/api/gemini', async (req, res) => {
 
     res.status(200).json(data);
   } catch (error) {
+    console.error('Error in /api/gemini:', error.message);
     res.status(500).json({
       error: 'Internal Server Error',
       details: error.message
@@ -161,6 +170,7 @@ app.post('/api/gemini', async (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
+  console.error('Error middleware triggered:', err.message);
   res.status(500).json({
     error: 'Internal Server Error',
     message: err.message
@@ -169,6 +179,7 @@ app.use((err, req, res, next) => {
 
 // 404 handler
 app.use((req, res) => {
+  console.log(`404: Route ${req.originalUrl} not found`);
   res.status(404).json({
     error: 'Not Found',
     message: `Route ${req.originalUrl} not found`
@@ -180,6 +191,7 @@ const server = app.listen(PORT, () => {
   console.log(`Backend server running at http://localhost:${PORT}`);
   console.log(`Health check available at http://localhost:${PORT}/api/health`);
   console.log(`Training data available at http://localhost:${PORT}/api/training-data`);
+  console.log(`Test POST available at http://localhost:${PORT}/api/test-post`);
 });
 
 // Graceful shutdown

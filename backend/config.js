@@ -1,23 +1,19 @@
 export const CONFIG = {
-  // API Configuration - Fixed for production
   API: {
     getApiBase: () => {
       if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
         const protocol = window.location.protocol;
         
-        // Local development - point to backend server
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
           return 'http://localhost:3002';
         }
         
-        // Production - use same origin (Railway will handle this)
         return `${protocol}//${hostname}`;
       }
       
-      // Server-side rendering fallback
       return process.env.NODE_ENV === 'production' 
-        ? '' // Use relative URLs in production
+        ? ''
         : 'http://localhost:3002';
     },
     
@@ -28,14 +24,12 @@ export const CONFIG = {
     })
   },
 
-  // Training Data Paths - Updated for production
   TRAINING_DATA_PATHS: [
-    '/api/training-data', // This should work in production
+    '/api/training-data',
     '/data/training.txt',
     '/training.txt'
   ],
 
-  // Rest of your config remains the same...
   DEFAULT_TRAINING_DATA: `CR8 - Digital Solutions Company
 
 CR8 is a digital creative agency that helps clients bring their creative vision to life through graphic design, video editing, animation, and motion graphics.
@@ -84,7 +78,6 @@ Brands trust CR8 because we:
 - Align projects with brand identity
 - Stay current with industry trends`,
 
-  // UI Configuration
   UI: {
     DESKTOP: {
       CHAT_WIDTH: 'chat-window-desktop',
@@ -115,7 +108,6 @@ Brands trust CR8 because we:
     }
   },
 
-  // Message Configuration
   MESSAGES: {
     DEFAULT_ERROR: 'Sorry, I encountered an error. ',
     CONNECTION_ERROR: 'Cannot connect to the backend server.',
@@ -136,7 +128,6 @@ Brands trust CR8 because we:
     }
   },
 
-  // Suggestion Buttons
   SUGGESTIONS: {
     CR8_SPECIFIC: [
       "What is CR8?",
@@ -154,7 +145,6 @@ Brands trust CR8 because we:
     ]
   },
 
-  // Status Messages
   STATUS: {
     CONNECTION: {
       CONNECTED: 'connected',
@@ -170,7 +160,6 @@ Brands trust CR8 because we:
     }
   },
 
-  // Fetch Configuration
   FETCH: {
     HEADERS: {
       ACCEPT_TEXT: 'text/plain',
@@ -180,11 +169,10 @@ Brands trust CR8 because we:
     },
     
     MIN_CONTENT_LENGTH: 50,
-    TIMEOUT: 10000, // Increased timeout for production
+    TIMEOUT: 10000,
     MAX_RETRIES: 3
   },
 
-  // App Information
   APP: {
     NAME: 'CR8 Assistant',
     MOBILE_NAME: 'CR8 AI',
@@ -193,7 +181,6 @@ Brands trust CR8 because we:
   }
 };
 
-// Fixed prompt template
 export const PROMPT_TEMPLATE = {
   buildHybridPrompt: (userMessage, trainingData) => {
     const hasValidTrainingData = trainingData && 
@@ -284,15 +271,12 @@ export const UTILS = {
            data.trim() !== CONFIG.MESSAGES.NO_TRAINING_DATA;
   },
 
-  // Fixed fetchWithTimeout for production
   fetchWithTimeout: async (url, options = {}) => {
     const { timeout = CONFIG.FETCH.TIMEOUT, ...fetchOptions } = options;
     
     let fetchUrl = url;
-    // Only modify URL for relative API paths
     if (url.startsWith('/api/')) {
       const apiBase = CONFIG.API.getApiBase();
-      // Don't double up if apiBase is empty (production)
       fetchUrl = apiBase ? `${apiBase}${url}` : url;
     }
     
@@ -300,6 +284,7 @@ export const UTILS = {
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     
     try {
+      console.log('Fetching with timeout:', fetchUrl);
       const response = await fetch(fetchUrl, {
         ...fetchOptions,
         signal: controller.signal

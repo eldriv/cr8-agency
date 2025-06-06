@@ -4,7 +4,7 @@ import { CONFIG, UTILS, PROMPT_TEMPLATE } from "@config";
 
 const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
   <div className="text-center p-8 space-y-6">
-      <img 
+    <img 
       src={CONFIG.APP.LOGO_PATH} 
       alt={CONFIG.APP.LOGO_ALT} 
       className="w-40 h-30 mx-auto"
@@ -177,6 +177,7 @@ const ChatWidget = () => {
     setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADING);
     for (const path of CONFIG.TRAINING_DATA_PATHS) {
       try {
+        console.log('Fetching training data from:', path);
         const response = await UTILS.fetchWithTimeout(path, {
           method: 'GET',
           headers: { 'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON, 'Accept': CONFIG.FETCH.HEADERS.ACCEPT_JSON },
@@ -189,7 +190,9 @@ const ChatWidget = () => {
           setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADED);
           return;
         }
-      } catch (error) { /* Continue to next path */ }
+      } catch (error) {
+        console.error('Error fetching training data:', error.message);
+      }
     }
     if (CONFIG.DEFAULT_TRAINING_DATA && UTILS.isValidTrainingData(CONFIG.DEFAULT_TRAINING_DATA)) {
       setTrainingData(CONFIG.DEFAULT_TRAINING_DATA);
@@ -202,12 +205,15 @@ const ChatWidget = () => {
 
   const checkBackendConnection = async () => {
     try {
+      console.log('Checking backend connection at:', ENDPOINTS.HEALTH_CHECK);
       const response = await fetch(ENDPOINTS.HEALTH_CHECK, {
         method: 'GET',
         headers: { 'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON },
       });
+      console.log('Health check response:', response.status);
       setConnectionStatus(response.ok ? CONFIG.STATUS.CONNECTION.CONNECTED : CONFIG.STATUS.CONNECTION.OFFLINE);
     } catch (error) {
+      console.error('Backend connection check failed:', error.message);
       setConnectionStatus(CONFIG.STATUS.CONNECTION.OFFLINE);
       setTimeout(checkBackendConnection, 5000);
     }
@@ -241,12 +247,16 @@ const ChatWidget = () => {
       const apiBase = CONFIG.API.getApiBase();
       const endpoints = CONFIG.API.getEndpoints(apiBase);
 
+      console.log('Sending POST request to:', endpoints.BACKEND_PROXY);
+      console.log('Prompt:', prompt);
+
       const response = await fetch(endpoints.BACKEND_PROXY, {
         method: 'POST',
         headers: { 'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON },
         body: JSON.stringify({ prompt }),
       });
 
+      console.log('Response status:', response.status);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`HTTP error! status: ${response.status}, details: ${errorData.error || 'Unknown error'}`);
@@ -268,6 +278,7 @@ const ChatWidget = () => {
 
       setConnectionStatus(CONFIG.STATUS.CONNECTION.CONNECTED);
     } catch (error) {
+      console.error('Error sending message:', error.message);
       let errorMessage = CONFIG.MESSAGES.DEFAULT_ERROR;
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         errorMessage += CONFIG.MESSAGES.CONNECTION_ERROR;
@@ -286,7 +297,7 @@ const ChatWidget = () => {
       e.preventDefault();
       sendMessage();
     }
-  };
+  };  
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
@@ -358,6 +369,7 @@ const ChatWidget = () => {
       )}
     </div>
   );
+
   return (
     <>
       {/* Desktop */}
