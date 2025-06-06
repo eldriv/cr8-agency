@@ -1,10 +1,6 @@
 export const CONFIG = {
   API: {
-    getApiBase: () => {
-      return process.env.NODE_ENV === 'production'
-        ? 'https://cr8-agency-production.up.railway.app'
-        : 'http://localhost:3002';
-    },
+    getApiBase: () => (process.env.NODE_ENV === 'production' ? 'https://cr8-agency-production.up.railway.app' : 'http://localhost:3002'),
     getEndpoints: (apiBase) => ({
       BACKEND_PROXY: `${apiBase}/api/gemini`,
       HEALTH_CHECK: `${apiBase}/api/health`,
@@ -72,10 +68,9 @@ Brands trust CR8 because we:
     NO_TRAINING_DATA: 'Using general knowledge mode - specific CR8 data not available.',
     PLACEHOLDERS: { DESKTOP: 'Ask about CR8 or any questions...', MOBILE: 'Type your message...' },
     WELCOME: {
-      TITLE: 'CR8 Assistant',
       SUBTITLE_LOADED: "I can help with CR8 information and general questions.",
-      SUBTITLE_LOADING: "I can answer general questions while CR8 data loads.",
-      MOBILE_SUBTITLE: "I'm here to help you with any questions."
+      SUBTITLE_LOADING: "Loading CR8 data, answering general questions...",
+      MOBILE_SUBTITLE: "I'm here to help with your questions."
     }
   },
   SUGGESTIONS: {
@@ -83,60 +78,50 @@ Brands trust CR8 because we:
     GENERAL: [],
     MOBILE_SPECIFIC: ["What is CR8?", "CR8 services?", "Contact CR8?", "CR8 portfolio?"]
   },
-  STATUS: {
-    CONNECTION: { CONNECTED: 'connected', OFFLINE: 'offline', UNKNOWN: 'unknown' },
-    TRAINING_DATA: { LOADED: 'loaded', LOADING: 'loading', FALLBACK: 'fallback', FAILED: 'failed' }
-  },
+  STATUS: { CONNECTION: { connected: 'connected', offline: 'offline', unknown: 'unknown' }, TRAINING_DATA: { loaded: 'loaded', loading: 'loading', fallback: 'fallback', failed: 'failed' } },
   FETCH: { TIMEOUT: 30000, MAX_RETRIES: 3 },
   APP: { NAME: 'CR8 Assistant', MOBILE_NAME: 'CR8 AI', LOGO_PATH: '/img/logo.png', LOGO_ALT: 'CR8 Logo' }
 };
 
 export const PROMPT_TEMPLATE = {
   buildHybridPrompt: (userMessage, trainingData) => {
-    const hasValidTrainingData = trainingData && trainingData.trim().length > 50 && trainingData !== CONFIG.MESSAGES.NO_TRAINING_DATA;
-    return hasValidTrainingData
-      ? `You are an AI assistant for CR8. Use only the following for CR8 questions:
+    return trainingData && trainingData.trim().length > 50 && trainingData !== CONFIG.MESSAGES.NO_TRAINING_DATA
+      ? `You are CR8's AI assistant. Use only:
 
-=== CR8 INFORMATION ===
+=== CR8 INFO ===
 ${trainingData.trim()}
-=== END CR8 INFORMATION ===
+=== END CR8 INFO ===
 
-User Question: ${userMessage}
+Question: ${userMessage}
 
-Instructions: 1. Use only CR8 data for CR8 questions. 2. Use general knowledge for other questions. 3. Be concise and professional. 4. If CR8 data is insufficient, say: "Based on available CR8 information, [answer], but I lack full details." 5. Response:`
-      : `You are a helpful AI assistant. User asked: "${userMessage}"
+Respond using only CR8 data for CR8 questions, general knowledge otherwise. Be concise. If CR8 data lacks details, say: "Based on CR8 info, [answer], but details are limited."`
+      : `You are a general AI assistant. Question: ${userMessage}
 
-No CR8 data available, but I can help with general technology questions.
-
-Response:`;
+No CR8 data available, respond with general knowledge.`;
   }
 };
 
 export const UTILS = {
-  formatTime: (timestamp) => {
-    try { return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); } catch { return 'Unknown time'; }
-  },
+  formatTime: (timestamp) => { try { return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); } catch { return 'Unknown'; } },
   sleep: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
-  copyToClipboard: async (text) => { try { await navigator.clipboard.writeText(text); console.log('Copied'); } catch (err) { console.error('Copy failed:', err); } },
-  isValidTrainingData: (data) => data && typeof data === 'string' && data.trim().length > 50 && data.trim() !== CONFIG.MESSAGES.NO_TRAINING_DATA,
+  copyToClipboard: async (text) => { try { await navigator.clipboard.writeText(text); } catch { console.log('Copy failed'); } },
+  isValidTrainingData: (data) => data && typeof data === 'string' && data.trim().length > 50 && data !== CONFIG.MESSAGES.NO_TRAINING_DATA,
   fetchWithTimeout: async (url, options = {}) => {
     const { timeout = CONFIG.FETCH.TIMEOUT, ...fetchOptions } = options;
-    let lastError;
     for (let i = 0; i < CONFIG.FETCH.MAX_RETRIES; i++) {
       try {
-        console.log(`Fetch attempt ${i + 1}/${CONFIG.FETCH.MAX_RETRIES}: ${url}`);
+        console.log(`Attempt ${i + 1}/${CONFIG.FETCH.MAX_RETRIES}: ${url}`);
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        const id = setTimeout(() => controller.abort(), timeout);
         const response = await fetch(url, { ...fetchOptions, signal: controller.signal, mode: 'cors', headers: { 'Content-Type': 'application/json', ...fetchOptions.headers } });
-        clearTimeout(timeoutId);
-        console.log(`Fetch success, status: ${response.status}`);
+        clearTimeout(id);
+        console.log(`Success, status: ${response.status}`);
         return response;
       } catch (error) {
-        lastError = error;
-        console.error(`Fetch failed: ${error.message}`);
+        console.error(`Failed: ${error.message}`);
         if (i < CONFIG.FETCH.MAX_RETRIES - 1) await UTILS.sleep(1000 * Math.pow(2, i));
+        else throw error;
       }
     }
-    throw lastError || new Error('Fetch failed after retries');
   }
 };

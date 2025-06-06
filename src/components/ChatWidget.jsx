@@ -9,12 +9,12 @@ const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
     <p className="text-gray-400 text-sm leading-relaxed">
       {trainingDataStatus === 'loaded' ? CONFIG.MESSAGES.WELCOME.SUBTITLE_LOADED :
        trainingDataStatus === 'loading' ? CONFIG.MESSAGES.WELCOME.SUBTITLE_LOADING :
-       trainingDataStatus === 'fallback' ? 'Using fallback CR8 information' : CONFIG.MESSAGES.NO_TRAINING_DATA}
+       trainingDataStatus === 'fallback' ? 'Using fallback CR8 info' : CONFIG.MESSAGES.NO_TRAINING_DATA}
     </p>
     <div className="flex flex-wrap gap-2 justify-center">
       {(isMobile ? CONFIG.SUGGESTIONS.MOBILE_SPECIFIC : [...CONFIG.SUGGESTIONS.CR8_SPECIFIC, ...CONFIG.SUGGESTIONS.GENERAL])
         .map((suggestion, index) => (
-          <button key={index} onClick={() => setInputMessage(suggestion)} className="px-4 py-2 text-xs bg-gray-800/60 hover:bg-white hover:text-black text-gray-300 rounded-full transition-all duration-200 border border-gray-700/50">
+          <button key={index} onClick={() => setInputMessage(suggestion)} className="px-4 py-2 text-xs bg-gray-800/60 hover:bg-white hover:text-black text-gray-300 rounded-full border border-gray-700/50">
             {suggestion}
           </button>
         ))}
@@ -25,14 +25,10 @@ const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
 const Message = ({ message, copyMessage }) => (
   <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
     <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.role === 'user' ? 'bg-white text-black shadow-lg' : 'bg-gray-800/80 text-gray-100 border border-gray-700/50'}`}>
-      <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">{message.content}</div>
+      <div className="whitespace-pre-wrap break-words text-sm">{message.content}</div>
       <div className="flex items-center justify-between mt-2">
         <span className="text-xs opacity-60">{UTILS.formatTime(message.timestamp)}</span>
-        {message.role === 'assistant' && message.content && (
-          <button onClick={() => copyMessage(message.content)} className="opacity-40 hover:opacity-80 transition-opacity p-1 rounded">
-            <Copy size={12} />
-          </button>
-        )}
+        {message.role === 'assistant' && message.content && <button onClick={() => copyMessage(message.content)} className="opacity-40 hover:opacity-80 p-1 rounded"><Copy size={12} /></button>}
       </div>
     </div>
   </div>
@@ -53,19 +49,13 @@ const TypingIndicator = () => (
 const ChatHeader = ({ isMobile, connectionStatus, trainingDataStatus, chatHistory, restoreLastChat, clearChat, messages, toggleMinimize, isMinimized, toggleChat }) => (
   <div className={`flex items-center justify-between p-4 bg-black/90 border-b border-gray-800/60 ${isMobile ? 'relative z-[10000]' : ''}`}>
     <div className="flex items-center space-x-3">
-      <div className="w-10 h-10 bg-black border-2 border-white rounded-xl flex items-center justify-center">
-        <MessageCircle size={18} className="text-white" />
-      </div>
+      <div className="w-10 h-10 bg-black border-2 border-white rounded-xl flex items-center justify-center"><MessageCircle size={18} className="text-white" /></div>
       <div>
         <h3 className="font-semibold text-white text-sm">{isMobile ? CONFIG.APP.MOBILE_NAME : CONFIG.APP.NAME}</h3>
         <div className="flex items-center space-x-2">
-          <div className={`w-2 h-2 rounded-full ${connectionStatus === CONFIG.STATUS.CONNECTION.CONNECTED ? 'bg-green-400' : 'bg-red-400'}`} />
-          <span className="text-xs text-gray-400">{connectionStatus === CONFIG.STATUS.CONNECTION.CONNECTED ? 'Online' : 'Offline'}</span>
-          <div className={`w-2 h-2 rounded-full ${
-            trainingDataStatus === 'loaded' ? 'bg-blue-400' : 
-            trainingDataStatus === 'fallback' ? 'bg-yellow-400' : 
-            trainingDataStatus === 'loading' ? 'bg-gray-400' : 'bg-red-400'
-          }`} />
+          <div className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-400' : 'bg-red-400'}`} />
+          <span className="text-xs text-gray-400">{connectionStatus === 'connected' ? 'Online' : 'Offline'}</span>
+          <div className={`w-2 h-2 rounded-full ${trainingDataStatus === 'loaded' ? 'bg-blue-400' : trainingDataStatus === 'fallback' ? 'bg-yellow-400' : 'bg-red-400'}`} />
         </div>
       </div>
     </div>
@@ -82,27 +72,13 @@ const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress
   <div className="p-4 bg-black/90 border-t border-gray-800/60">
     <div className="flex items-end space-x-3">
       <div className="flex-1 relative">
-        <textarea
-          ref={inputRef}
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Type your message..."
-          className="w-full p-4 bg-gray-900/80 border border-gray-700/60 rounded-2xl text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-white/50"
-          rows="1"
-          style={{ minHeight: '52px', maxHeight: '120px' }}
-          disabled={isLoading}
-        />
+        <textarea ref={inputRef} value={inputMessage} onChange={(e) => setInputMessage(e.target.value)} onKeyPress={handleKeyPress} placeholder="Type your message..." className="w-full p-4 bg-gray-900/80 border border-gray-700/60 rounded-2xl text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-white/50" rows="1" style={{ minHeight: '52px', maxHeight: '120px' }} disabled={isLoading} />
       </div>
       <button onClick={sendMessage} disabled={isLoading || !inputMessage.trim()} className="h-[52px] px-4 bg-white hover:bg-gray-200 disabled:bg-gray-700 disabled:cursor-not-allowed text-black disabled:text-gray-400 rounded-2xl transition-all duration-200 shadow-lg">
         <Send size={18} />
       </button>
     </div>
-    {connectionStatus === CONFIG.STATUS.CONNECTION.OFFLINE && (
-      <div className="mt-3 text-xs text-red-400 flex items-center space-x-2 bg-red-500/10 rounded-lg p-2 border border-red-500/20">
-        <span>⚠️</span><span>Backend server disconnected</span>
-      </div>
-    )}
+    {connectionStatus === 'offline' && <div className="mt-3 text-xs text-red-400 flex items-center space-x-2 bg-red-500/10 rounded-lg p-2 border border-red-500/20"><span>⚠️</span><span>Backend disconnected</span></div>}
   </div>
 );
 
@@ -112,9 +88,9 @@ const ChatWidget = () => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState(CONFIG.STATUS.CONNECTION.UNKNOWN);
+  const [connectionStatus, setConnectionStatus] = useState('unknown');
   const [trainingData, setTrainingData] = useState('');
-  const [trainingDataStatus, setTrainingDataStatus] = useState(CONFIG.STATUS.TRAINING_DATA.LOADING);
+  const [trainingDataStatus, setTrainingDataStatus] = useState('loading');
   const [isTyping, setIsTyping] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const messagesEndRef = useRef(null);
@@ -125,44 +101,36 @@ const ChatWidget = () => {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
   useEffect(() => { loadTrainingData(); checkBackendConnection(); }, []);
-  useEffect(() => {
-    if (isOpen && !isMinimized && window.innerWidth > 768) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
-  }, [isOpen, isMinimized]);
+  useEffect(() => { if (isOpen && !isMinimized && window.innerWidth > 768) setTimeout(() => inputRef.current?.focus(), 100); }, [isOpen, isMinimized]);
 
   const loadTrainingData = async () => {
-    setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADING);
-    console.log('Fetching training data from:', ENDPOINTS.TRAINING_DATA);
+    setTrainingDataStatus('loading');
     try {
       const response = await UTILS.fetchWithTimeout(ENDPOINTS.TRAINING_DATA, { method: 'GET', headers: { 'Accept': 'text/plain' }, mode: 'cors' });
       const data = await response.text();
       if (UTILS.isValidTrainingData(data)) {
         setTrainingData(data);
-        setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADED);
-      } else {
-        throw new Error('Invalid training data');
-      }
+        setTrainingDataStatus('loaded');
+      } else throw new Error('Invalid data');
     } catch (error) {
-      console.error('Error fetching training data:', error.message);
+      console.error('Training data error:', error);
       if (CONFIG.DEFAULT_TRAINING_DATA && UTILS.isValidTrainingData(CONFIG.DEFAULT_TRAINING_DATA)) {
         setTrainingData(CONFIG.DEFAULT_TRAINING_DATA);
-        setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.FALLBACK);
+        setTrainingDataStatus('fallback');
       } else {
         setTrainingData(CONFIG.MESSAGES.NO_TRAINING_DATA);
-        setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.FAILED);
+        setTrainingDataStatus('failed');
       }
     }
   };
 
   const checkBackendConnection = async () => {
-    console.log('Checking connection at:', ENDPOINTS.HEALTH_CHECK);
     try {
       const response = await UTILS.fetchWithTimeout(ENDPOINTS.HEALTH_CHECK, { method: 'GET', headers: { 'Content-Type': 'application/json' }, mode: 'cors' });
-      setConnectionStatus(response.ok ? CONFIG.STATUS.CONNECTION.CONNECTED : CONFIG.STATUS.CONNECTION.OFFLINE);
+      setConnectionStatus(response.ok ? 'connected' : 'offline');
     } catch (error) {
-      console.error('Connection check failed:', error.message);
-      setConnectionStatus(CONFIG.STATUS.CONNECTION.OFFLINE);
+      console.error('Connection check failed:', error);
+      setConnectionStatus('offline');
       setTimeout(checkBackendConnection, 5000);
     }
   };
@@ -170,10 +138,10 @@ const ChatWidget = () => {
   const typeMessage = async (message, callback) => {
     setIsTyping(true);
     const words = message.split(' ');
-    let currentMessage = '';
+    let current = '';
     for (let i = 0; i < words.length; i++) {
-      currentMessage += (i === 0 ? '' : ' ') + words[i];
-      callback(currentMessage);
+      current += (i === 0 ? '' : ' ') + words[i];
+      callback(current);
       await UTILS.sleep(CONFIG.UI.ANIMATIONS.TYPING_DELAY.BASE + Math.random() * CONFIG.UI.ANIMATIONS.TYPING_DELAY.RANDOM);
     }
     setIsTyping(false);
@@ -209,71 +177,42 @@ const ChatWidget = () => {
       }
 
       const data = await response.json();
-      console.log('Parsed response:', data);
+      console.log('Parsed data:', data);
 
       const aiResponse = data.text || CONFIG.MESSAGES.NO_RESPONSE;
-
       setMessages(newMessages);
       const finalMessage = { role: 'assistant', content: '', timestamp: new Date() };
       setMessages([...newMessages, finalMessage]);
 
-      await typeMessage(aiResponse, (partialMessage) => {
-        setMessages([...newMessages, { ...finalMessage, content: partialMessage }]);
-      });
-
-      setConnectionStatus(CONFIG.STATUS.CONNECTION.CONNECTED);
+      await typeMessage(aiResponse, (partial) => setMessages([...newMessages, { ...finalMessage, content: partial }]));
+      setConnectionStatus('connected');
     } catch (error) {
-      console.error('Send message error:', error.message, error.stack);
-      let errorMessage = CONFIG.MESSAGES.DEFAULT_ERROR;
+      console.error('Send error:', error.message, error.stack);
+      let errorMsg = CONFIG.MESSAGES.DEFAULT_ERROR;
       if (error.message.includes('fetch') || error.message.includes('timeout')) {
-        errorMessage += CONFIG.MESSAGES.CONNECTION_ERROR;
-        setConnectionStatus(CONFIG.STATUS.CONNECTION.OFFLINE);
-      } else {
-        errorMessage += CONFIG.MESSAGES.RETRY_MESSAGE;
-      }
-      setMessages([...newMessages, { role: 'assistant', content: errorMessage, timestamp: new Date() }]);
+        errorMsg += CONFIG.MESSAGES.CONNECTION_ERROR;
+        setConnectionStatus('offline');
+      } else errorMsg += CONFIG.MESSAGES.RETRY_MESSAGE;
+      setMessages([...newMessages, { role: 'assistant', content: errorMsg, timestamp: new Date() }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
+  const handleKeyPress = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
-    if (!isOpen) {
-      checkBackendConnection();
-      if (trainingDataStatus === CONFIG.STATUS.TRAINING_DATA.FAILED) {
-        loadTrainingData();
-      }
-    }
+    if (!isOpen) { checkBackendConnection(); if (trainingDataStatus === 'failed') loadTrainingData(); }
   };
 
   const toggleMinimize = () => setIsMinimized(!isMinimized);
 
-  const clearChat = () => {
-    if (messages.length > 0) {
-      setChatHistory([...chatHistory, { messages, timestamp: new Date() }]);
-    }
-    setMessages([]);
-  };
+  const clearChat = () => { if (messages.length > 0) setChatHistory([...chatHistory, { messages, timestamp: new Date() }]); setMessages([]); };
 
-  const copyMessage = (content) => {
-    UTILS.copyToClipboard(content).catch(err => console.error('Copy failed:', err));
-  };
+  const copyMessage = (content) => UTILS.copyToClipboard(content).catch(err => console.error('Copy failed:', err));
 
-  const restoreLastChat = () => {
-    if (chatHistory.length > 0) {
-      const lastChat = chatHistory[chatHistory.length - 1];
-      setMessages(lastChat.messages);
-      setChatHistory(chatHistory.slice(0, -1));
-    }
-  };
+  const restoreLastChat = () => { if (chatHistory.length > 0) { const last = chatHistory.pop(); setMessages(last.messages); setChatHistory(chatHistory); } };
 
   const ChatWindow = ({ isMobile }) => (
     <div className={`${isMobile ? 'fixed inset-0 z-[9999]' : `w-96 h-[600px] ${isMinimized ? 'h-16' : ''}`} bg-black/95 border border-gray-800/60 ${isMobile ? '' : 'rounded-3xl'} shadow-2xl transition-all duration-300 flex flex-col overflow-hidden`}>
