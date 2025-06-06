@@ -1,5 +1,6 @@
 import React from 'react';
 import { Bot, X, Trash2, Minimize2, Maximize2, RotateCcw, Send } from 'lucide-react';
+import { CONFIG } from '/backend/config';
 import { ConnectionStatus, TrainingDataStatus } from './ChatInterface';
 
 export const ChatHeader = ({ 
