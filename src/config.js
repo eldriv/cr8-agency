@@ -8,12 +8,8 @@ export const CONFIG = {
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
           return 'http://localhost:3002';
         }
-
-        // Production → use Render backend URL
         return 'https://cr8-backend.onrender.com';  
       }
-
-      // Node env fallback (SSR, etc.)
       return process.env.NODE_ENV === 'production'
         ? 'https://cr8-backend.onrender.com'  
         : 'http://localhost:3002';
