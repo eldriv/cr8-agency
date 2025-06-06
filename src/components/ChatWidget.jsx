@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, Send, X, Minimize2, Maximize2, RotateCcw, Copy, Trash2 } from 'lucide-react';
-import { CONFIG, UTILS, PROMPT_TEMPLATE } from '@config';
 
 const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
   <div className="text-center p-8 space-y-6">
