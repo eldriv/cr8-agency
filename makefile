@@ -1,12 +1,12 @@
 # ───────────────────────────────────────────────────────────────────────────────
 # HEAD: Detect available package manager
 PKG_MGR := $(shell \
-	command -v bun >/dev/null 2>&1 && echo "bun" || \
-	command -v pnpm >/dev/null 2>&1 && echo "pnpm" || \
-	command -v yarn >/dev/null 2>&1 && echo "yarn" || \
-	echo "npm run" \
+	if command -v bun >/dev/null 2>&1; then echo bun; \
+	elif command -v pnpm >/dev/null 2>&1; then echo pnpm; \
+	elif command -v yarn >/dev/null 2>&1; then echo yarn; \
+	else echo "npm run"; \
+	fi \
 )
-
 # ───────────────────────────────────────────────────────────────────────────────
 # BODY: Development commands
 .PHONY: run dev build install
