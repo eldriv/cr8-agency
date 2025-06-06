@@ -8,29 +8,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-// Simplified CORS configuration for production
+// CORS configuration for production
 const corsOptions = {
-  origin: [
-    'https://cr8-agency-production.up.railway.app/',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3002',
-    'http://localhost:5173',
-    'http://localhost:5174'
-  ],
+  origin: 'https://cr8-nine.vercel.app',
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
   optionsSuccessStatus: 200
 };
 
-// Apply CORS before other middleware
+// Apply CORS
 app.use(cors(corsOptions));
 
 // Handle preflight requests
 app.options('*', cors(corsOptions));
 
-// Parse JSON with increased limits
+// Parse JSON
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -42,10 +35,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Enhanced logging middleware
+// Logging middleware
 app.use((req, res, next) => {
   const timestamp = new Date().toISOString();
-  console.log(`\n[${timestamp}] ${req.method} ${req.originalUrl}`);
+  console.log(`[${timestamp}] ${req.method} ${req.originalUrl}`);
   console.log('Origin:', req.get('Origin'));
   console.log('Headers:', JSON.stringify(req.headers, null, 2));
   if (req.method === 'POST' && req.body) {
@@ -120,27 +113,15 @@ app.get('/', (req, res) => {
     message: 'CR8 Backend Server - Railway Production',
     status: 'OK',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'production',
-    endpoints: [
-      'GET /',
-      'GET /api/health',
-      'GET /api/training-data',
-      'POST /api/gemini',
-      'GET /api/diagnose'
-    ]
+    endpoints: ['GET /', 'GET /api/health', 'GET /api/training-data', 'POST /api/gemini', 'GET /api/diagnose']
   });
 });
 
-// Health check with supported methods
+// Health check
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-    environment: process.env.NODE_ENV || 'production',
-    port: PORT,
-    hasApiKey: !!process.env.GEMINI_API_KEY,
     supportedMethods: {
       '/api/gemini': ['POST', 'OPTIONS'],
       '/api/health': ['GET', 'OPTIONS'],
@@ -153,39 +134,27 @@ app.get('/api/health', (req, res) => {
 // Training data endpoint
 app.get('/api/training-data', (req, res) => {
   console.log('Serving training data, length:', TRAINING_DATA.length);
-  res.set({
-    'Content-Type': 'text/plain; charset=utf-8',
-    'Cache-Control': 'public, max-age=3600'
-  });
+  res.set({ 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=3600' });
   res.status(200).send(TRAINING_DATA);
 });
 
-// Gemini API helper function
+// Gemini API helper
 const callGeminiAPI = async (prompt) => {
   if (!process.env.GEMINI_API_KEY) {
     throw new Error('GEMINI_API_KEY not configured');
   }
-
   const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
-
   const requestBody = {
     contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: {
-      temperature: 0.4,
-      topK: 40,
-      topP: 0.95,
-      maxOutputTokens: 2048
-    },
+    generationConfig: { temperature: 0.4, topK: 40, topP: 0.95, maxOutputTokens: 2048 },
     safetySettings: [
       { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
       { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
     ]
   };
-
-  console.log('Making request to Gemini API...');
+  console.log('Calling Gemini API with prompt:', prompt.substring(0, 50) + '...');
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000);
-
   try {
     const response = await fetch(GEMINI_API_URL, {
       method: 'POST',
@@ -193,13 +162,11 @@ const callGeminiAPI = async (prompt) => {
       body: JSON.stringify(requestBody),
       signal: controller.signal
     });
-
     clearTimeout(timeoutId);
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(`Gemini API error: ${errorData.error?.message || response.status}`);
     }
-
     return await response.json();
   } catch (error) {
     clearTimeout(timeoutId);
@@ -207,13 +174,9 @@ const callGeminiAPI = async (prompt) => {
   }
 };
 
-// Main POST endpoint for /api/gemini
+// Main POST endpoint
 app.post('/api/gemini', async (req, res) => {
-  console.log('POST /api/gemini - Request received:', {
-    headers: req.headers,
-    body: req.body
-  });
-
+  console.log('POST /api/gemini - Request received:', { headers: req.headers, body: req.body });
   try {
     const { prompt } = req.body;
     if (!prompt || typeof prompt !== 'string') {
@@ -222,31 +185,18 @@ app.post('/api/gemini', async (req, res) => {
     if (prompt.length > 10000) {
       return res.status(400).json({ error: 'Prompt too long (max 10000 characters)' });
     }
-
     const data = await callGeminiAPI(prompt);
     const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
     if (!responseText) {
       return res.status(500).json({ error: 'No valid response from AI service' });
     }
-
-    res.status(200).json(data);
+    console.log('Sending response:', { status: 200, data: { text: responseText } });
+    res.status(200).json({ text: responseText });
   } catch (error) {
-    console.error('Error in POST /api/gemini:', error.message);
-    let statusCode = 500;
-    let errorMessage = 'Internal Server Error';
-    if (error.message.includes('timeout')) {
-      statusCode = 504;
-      errorMessage = 'Gateway Timeout';
-    } else if (error.message.includes('GEMINI_API_KEY')) {
-      statusCode = 503;
-      errorMessage = 'Service Configuration Error';
-    }
-    res.status(statusCode).json({
-      error: errorMessage,
-      details: error.message,
-      timestamp: new Date().toISOString()
-    });
+    console.error('Error in POST /api/gemini:', error.message, error.stack);
+    const statusCode = error.message.includes('timeout') ? 504 : error.message.includes('GEMINI_API_KEY') ? 503 : 500;
+    const errorMessage = error.message.includes('timeout') ? 'Gateway Timeout' : 'Internal Server Error';
+    res.status(statusCode).json({ error: errorMessage, details: error.message });
   }
 });
 
@@ -255,65 +205,28 @@ app.get('/api/diagnose', (req, res) => {
   res.json({
     message: 'Server diagnostics',
     timestamp: new Date().toISOString(),
-    server: {
-      nodeVersion: process.version,
-      platform: process.platform,
-      uptime: process.uptime(),
-      environment: process.env.NODE_ENV || 'production',
-      port: PORT
-    },
-    api: {
-      hasGeminiKey: !!process.env.GEMINI_API_KEY,
-      supportedMethods: {
-        '/api/gemini': ['POST', 'OPTIONS'],
-        '/api/health': ['GET', 'OPTIONS'],
-        '/api/training-data': ['GET', 'OPTIONS'],
-        '/api/diagnose': ['GET', 'OPTIONS']
-      }
-    }
+    server: { nodeVersion: process.version, environment: process.env.NODE_ENV || 'production', port: PORT },
+    api: { hasGeminiKey: !!process.env.GEMINI_API_KEY }
   });
 });
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({
-    error: 'Not Found',
-    message: `${req.method} ${req.originalUrl} not found`,
-    availableEndpoints: [
-      'GET /',
-      'GET /api/health',
-      'GET /api/training-data',
-      'POST /api/gemini',
-      'GET /api/diagnose'
-    ]
-  });
+  res.status(404).json({ error: 'Not Found', message: `${req.method} ${req.originalUrl} not found` });
 });
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error('Global error:', err.message);
-  res.status(500).json({
-    error: 'Internal Server Error',
-    message: err.message,
-    timestamp: new Date().toISOString()
-  });
+  console.error('Global error:', err.message, err.stack);
+  res.status(500).json({ error: 'Internal Server Error', message: err.message });
 });
 
 // Start server
 const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`CR8 Backend Server Started on Railway, port: ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'production'}`);
+  console.log(`CR8 Backend Server started on port ${PORT}, Environment: ${process.env.NODE_ENV || 'production'}`);
   console.log(`Gemini API Key: ${process.env.GEMINI_API_KEY ? 'Configured' : 'Missing'}`);
 });
 
 // Graceful shutdown
-const gracefulShutdown = (signal) => {
-  console.log(`${signal} received. Shutting down...`);
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
-};
-
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => { server.close(() => process.exit(0)); });
+process.on('SIGINT', () => { server.close(() => process.exit(0)); });

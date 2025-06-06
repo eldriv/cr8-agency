@@ -4,12 +4,7 @@ import { CONFIG, UTILS, PROMPT_TEMPLATE } from '@config';
 
 const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
   <div className="text-center p-8 space-y-6">
-    <img 
-      src={CONFIG.APP.LOGO_PATH} 
-      alt={CONFIG.APP.LOGO_ALT} 
-      className="w-40 h-30 mx-auto"
-      onError={(e) => { e.target.style.display = 'none'; }}
-    />
+    <img src={CONFIG.APP.LOGO_PATH} alt={CONFIG.APP.LOGO_ALT} className="w-40 h-30 mx-auto" onError={(e) => { e.target.style.display = 'none'; }} />
     <h3 className="text-xl font-bold text-white">{CONFIG.APP.NAME}</h3>
     <p className="text-gray-400 text-sm leading-relaxed">
       {trainingDataStatus === 'loaded' ? CONFIG.MESSAGES.WELCOME.SUBTITLE_LOADED :
@@ -17,41 +12,24 @@ const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
        trainingDataStatus === 'fallback' ? 'Using fallback CR8 information' : CONFIG.MESSAGES.NO_TRAINING_DATA}
     </p>
     <div className="flex flex-wrap gap-2 justify-center">
-      {(isMobile ? CONFIG.SUGGESTIONS.MOBILE_SPECIFIC : [
-        ...CONFIG.SUGGESTIONS.CR8_SPECIFIC,
-        ...CONFIG.SUGGESTIONS.GENERAL
-      ]).map((suggestion, index) => (
-        <button
-          key={index}
-          onClick={() => setInputMessage(suggestion)}
-          className="px-4 py-2 text-xs bg-gray-800/60 hover:bg-white hover:text-black text-gray-300 rounded-full transition-all duration-200 border border-gray-700/50"
-        >
-          {suggestion}
-        </button>
-      ))}
+      {(isMobile ? CONFIG.SUGGESTIONS.MOBILE_SPECIFIC : [...CONFIG.SUGGESTIONS.CR8_SPECIFIC, ...CONFIG.SUGGESTIONS.GENERAL])
+        .map((suggestion, index) => (
+          <button key={index} onClick={() => setInputMessage(suggestion)} className="px-4 py-2 text-xs bg-gray-800/60 hover:bg-white hover:text-black text-gray-300 rounded-full transition-all duration-200 border border-gray-700/50">
+            {suggestion}
+          </button>
+        ))}
     </div>
   </div>
 );
 
 const Message = ({ message, copyMessage }) => (
   <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
-    <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-      message.role === 'user' 
-        ? 'bg-white text-black shadow-lg' 
-        : 'bg-gray-800/80 text-gray-100 border border-gray-700/50'
-    }`}>
-      <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
-        {message.content}
-      </div>
+    <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.role === 'user' ? 'bg-white text-black shadow-lg' : 'bg-gray-800/80 text-gray-100 border border-gray-700/50'}`}>
+      <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">{message.content}</div>
       <div className="flex items-center justify-between mt-2">
-        <span className="text-xs opacity-60">
-          {UTILS.formatTime(message.timestamp)}
-        </span>
+        <span className="text-xs opacity-60">{UTILS.formatTime(message.timestamp)}</span>
         {message.role === 'assistant' && message.content && (
-          <button
-            onClick={() => copyMessage(message.content)}
-            className="opacity-40 hover:opacity-80 transition-opacity p-1 rounded"
-          >
+          <button onClick={() => copyMessage(message.content)} className="opacity-40 hover:opacity-80 transition-opacity p-1 rounded">
             <Copy size={12} />
           </button>
         )}
@@ -82,9 +60,7 @@ const ChatHeader = ({ isMobile, connectionStatus, trainingDataStatus, chatHistor
         <h3 className="font-semibold text-white text-sm">{isMobile ? CONFIG.APP.MOBILE_NAME : CONFIG.APP.NAME}</h3>
         <div className="flex items-center space-x-2">
           <div className={`w-2 h-2 rounded-full ${connectionStatus === CONFIG.STATUS.CONNECTION.CONNECTED ? 'bg-green-400' : 'bg-red-400'}`} />
-          <span className="text-xs text-gray-400">
-            {connectionStatus === CONFIG.STATUS.CONNECTION.CONNECTED ? 'Online' : 'Offline'}
-          </span>
+          <span className="text-xs text-gray-400">{connectionStatus === CONFIG.STATUS.CONNECTION.CONNECTED ? 'Online' : 'Offline'}</span>
           <div className={`w-2 h-2 rounded-full ${
             trainingDataStatus === 'loaded' ? 'bg-blue-400' : 
             trainingDataStatus === 'fallback' ? 'bg-yellow-400' : 
@@ -94,24 +70,10 @@ const ChatHeader = ({ isMobile, connectionStatus, trainingDataStatus, chatHistor
       </div>
     </div>
     <div className="flex items-center space-x-1">
-      {chatHistory.length > 0 && (
-        <button onClick={restoreLastChat} className="p-2 hover:bg-gray-800/60 rounded-lg transition-colors">
-          <RotateCcw size={16} className="text-gray-400" />
-        </button>
-      )}
-      {messages.length > 0 && (
-        <button onClick={clearChat} className="p-2 hover:bg-gray-800/60 rounded-lg transition-colors">
-          <Trash2 size={16} className="text-gray-400" />
-        </button>
-      )}
-      {!isMobile && (
-        <button onClick={toggleMinimize} className="p-2 hover:bg-gray-800/60 rounded-lg transition-colors">
-          {isMinimized ? <Maximize2 size={16} className="text-gray-400" /> : <Minimize2 size={16} className="text-gray-400" />}
-        </button>
-      )}
-      <button onClick={toggleChat} className="p-2 hover:bg-gray-800/60 rounded-lg transition-colors">
-        <X size={16} className="text-gray-400" />
-      </button>
+      {chatHistory.length > 0 && <button onClick={restoreLastChat} className="p-2 hover:bg-gray-800/60 rounded-lg"><RotateCcw size={16} className="text-gray-400" /></button>}
+      {messages.length > 0 && <button onClick={clearChat} className="p-2 hover:bg-gray-800/60 rounded-lg"><Trash2 size={16} className="text-gray-400" /></button>}
+      {!isMobile && <button onClick={toggleMinimize} className="p-2 hover:bg-gray-800/60 rounded-lg">{isMinimized ? <Maximize2 size={16} className="text-gray-400" /> : <Minimize2 size={16} className="text-gray-400" />}</button>}
+      <button onClick={toggleChat} className="p-2 hover:bg-gray-800/60 rounded-lg"><X size={16} className="text-gray-400" /></button>
     </div>
   </div>
 );
@@ -132,18 +94,13 @@ const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress
           disabled={isLoading}
         />
       </div>
-      <button
-        onClick={sendMessage}
-        disabled={isLoading || !inputMessage.trim()}
-        className="h-[52px] px-4 bg-white hover:bg-gray-200 disabled:bg-gray-700 disabled:cursor-not-allowed text-black disabled:text-gray-400 rounded-2xl transition-all duration-200 shadow-lg"
-      >
+      <button onClick={sendMessage} disabled={isLoading || !inputMessage.trim()} className="h-[52px] px-4 bg-white hover:bg-gray-200 disabled:bg-gray-700 disabled:cursor-not-allowed text-black disabled:text-gray-400 rounded-2xl transition-all duration-200 shadow-lg">
         <Send size={18} />
       </button>
     </div>
     {connectionStatus === CONFIG.STATUS.CONNECTION.OFFLINE && (
       <div className="mt-3 text-xs text-red-400 flex items-center space-x-2 bg-red-500/10 rounded-lg p-2 border border-red-500/20">
-        <span>⚠️</span>
-        <span>Backend server disconnected</span>
+        <span>⚠️</span><span>Backend server disconnected</span>
       </div>
     )}
   </div>
@@ -166,9 +123,7 @@ const ChatWidget = () => {
   const API_BASE = CONFIG.API.getApiBase();
   const ENDPOINTS = CONFIG.API.getEndpoints(API_BASE);
 
-  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-
-  useEffect(() => { scrollToBottom(); }, [messages]);
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
   useEffect(() => { loadTrainingData(); checkBackendConnection(); }, []);
   useEffect(() => {
     if (isOpen && !isMinimized && window.innerWidth > 768) {
@@ -180,16 +135,11 @@ const ChatWidget = () => {
     setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADING);
     console.log('Fetching training data from:', ENDPOINTS.TRAINING_DATA);
     try {
-      const response = await UTILS.fetchWithTimeout(ENDPOINTS.TRAINING_DATA, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'text/plain' },
-        mode: 'cors'
-      });
+      const response = await UTILS.fetchWithTimeout(ENDPOINTS.TRAINING_DATA, { method: 'GET', headers: { 'Accept': 'text/plain' }, mode: 'cors' });
       const data = await response.text();
       if (UTILS.isValidTrainingData(data)) {
         setTrainingData(data);
         setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADED);
-        console.log('Training data loaded successfully');
       } else {
         throw new Error('Invalid training data');
       }
@@ -206,16 +156,12 @@ const ChatWidget = () => {
   };
 
   const checkBackendConnection = async () => {
-    console.log('Checking backend connection at:', ENDPOINTS.HEALTH_CHECK);
+    console.log('Checking connection at:', ENDPOINTS.HEALTH_CHECK);
     try {
-      const response = await UTILS.fetchWithTimeout(ENDPOINTS.HEALTH_CHECK, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        mode: 'cors'
-      });
+      const response = await UTILS.fetchWithTimeout(ENDPOINTS.HEALTH_CHECK, { method: 'GET', headers: { 'Content-Type': 'application/json' }, mode: 'cors' });
       setConnectionStatus(response.ok ? CONFIG.STATUS.CONNECTION.CONNECTED : CONFIG.STATUS.CONNECTION.OFFLINE);
     } catch (error) {
-      console.error('Backend connection check failed:', error.message);
+      console.error('Connection check failed:', error.message);
       setConnectionStatus(CONFIG.STATUS.CONNECTION.OFFLINE);
       setTimeout(checkBackendConnection, 5000);
     }
@@ -246,7 +192,7 @@ const ChatWidget = () => {
 
     try {
       const prompt = PROMPT_TEMPLATE.buildHybridPrompt(userMessage, trainingData);
-      console.log('Sending POST to:', ENDPOINTS.BACKEND_PROXY, 'Body:', { prompt });
+      console.log('Sending to:', ENDPOINTS.BACKEND_PROXY, 'Body:', JSON.stringify({ prompt }));
 
       const response = await UTILS.fetchWithTimeout(ENDPOINTS.BACKEND_PROXY, {
         method: 'POST',
@@ -255,10 +201,17 @@ const ChatWidget = () => {
         mode: 'cors'
       });
 
-      const data = await response.json();
-      console.log('Response data:', data);
+      console.log('Response status:', response.status, 'OK:', response.ok);
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('Non-OK response:', { status: response.status, text });
+        throw new Error(`HTTP error! Status: ${response.status}, Text: ${text}`);
+      }
 
-      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || CONFIG.MESSAGES.NO_RESPONSE;
+      const data = await response.json();
+      console.log('Parsed response:', data);
+
+      const aiResponse = data.text || CONFIG.MESSAGES.NO_RESPONSE;
 
       setMessages(newMessages);
       const finalMessage = { role: 'assistant', content: '', timestamp: new Date() };
@@ -270,7 +223,7 @@ const ChatWidget = () => {
 
       setConnectionStatus(CONFIG.STATUS.CONNECTION.CONNECTED);
     } catch (error) {
-      console.error('Error sending message:', error.message);
+      console.error('Send message error:', error.message, error.stack);
       let errorMessage = CONFIG.MESSAGES.DEFAULT_ERROR;
       if (error.message.includes('fetch') || error.message.includes('timeout')) {
         errorMessage += CONFIG.MESSAGES.CONNECTION_ERROR;
@@ -311,7 +264,7 @@ const ChatWidget = () => {
   };
 
   const copyMessage = (content) => {
-    UTILS.copyToClipboard(content).catch(() => {});
+    UTILS.copyToClipboard(content).catch(err => console.error('Copy failed:', err));
   };
 
   const restoreLastChat = () => {
@@ -324,43 +277,16 @@ const ChatWidget = () => {
 
   const ChatWindow = ({ isMobile }) => (
     <div className={`${isMobile ? 'fixed inset-0 z-[9999]' : `w-96 h-[600px] ${isMinimized ? 'h-16' : ''}`} bg-black/95 border border-gray-800/60 ${isMobile ? '' : 'rounded-3xl'} shadow-2xl transition-all duration-300 flex flex-col overflow-hidden`}>
-      <ChatHeader
-        isMobile={isMobile}
-        connectionStatus={connectionStatus}
-        trainingDataStatus={trainingDataStatus}
-        chatHistory={chatHistory}
-        restoreLastChat={restoreLastChat}
-        clearChat={clearChat}
-        messages={messages}
-        toggleMinimize={toggleMinimize}
-        isMinimized={isMinimized}
-        toggleChat={toggleChat}
-      />
+      <ChatHeader isMobile={isMobile} connectionStatus={connectionStatus} trainingDataStatus={trainingDataStatus} chatHistory={chatHistory} restoreLastChat={restoreLastChat} clearChat={clearChat} messages={messages} toggleMinimize={toggleMinimize} isMinimized={isMinimized} toggleChat={toggleChat} />
       {!isMinimized && (
         <>
           <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-700">
-            {messages.length === 0 && (
-              <WelcomeMessage
-                trainingDataStatus={trainingDataStatus}
-                setInputMessage={setInputMessage}
-                isMobile={isMobile}
-              />
-            )}
-            {messages.map((message, index) => (
-              <Message key={index} message={message} copyMessage={copyMessage} />
-            ))}
+            {messages.length === 0 && <WelcomeMessage trainingDataStatus={trainingDataStatus} setInputMessage={setInputMessage} isMobile={isMobile} />}
+            {messages.map((message, index) => <Message key={index} message={message} copyMessage={copyMessage} />)}
             {(isLoading || isTyping) && <TypingIndicator />}
             <div ref={messagesEndRef} />
           </div>
-          <ChatInputArea
-            inputRef={inputRef}
-            inputMessage={inputMessage}
-            setInputMessage={setInputMessage}
-            handleKeyPress={handleKeyPress}
-            isLoading={isLoading}
-            connectionStatus={connectionStatus}
-            sendMessage={sendMessage}
-          />
+          <ChatInputArea inputRef={inputRef} inputMessage={inputMessage} setInputMessage={setInputMessage} handleKeyPress={handleKeyPress} isLoading={isLoading} connectionStatus={connectionStatus} sendMessage={sendMessage} />
         </>
       )}
     </div>
@@ -369,27 +295,11 @@ const ChatWidget = () => {
   return (
     <>
       <div className="hidden md:block fixed bottom-6 right-6 z-50">
-        {!isOpen && (
-          <button
-            onClick={toggleChat}
-            className="group bg-black hover:bg-gray-900 text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white"
-          >
-            <MessageCircle size={28} className="text-white group-hover:rotate-12 transition-transform duration-300" />
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full animate-pulse"></div>
-          </button>
-        )}
+        {!isOpen && <button onClick={toggleChat} className="group bg-black hover:bg-gray-900 text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white"><MessageCircle size={28} className="text-white group-hover:rotate-12 transition-transform duration-300" /><div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full animate-pulse"></div></button>}
         {isOpen && <ChatWindow isMobile={false} />}
       </div>
       <div className="md:hidden">
-        {!isOpen && (
-          <button
-            onClick={toggleChat}
-            className="fixed bottom-6 right-6 z-[9998] group bg-black hover:bg-gray-900 text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white"
-          >
-            <MessageCircle size={28} className="text-white group-hover:rotate-12 transition-transform duration-300" />
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full animate-pulse"></div>
-          </button>
-        )}
+        {!isOpen && <button onClick={toggleChat} className="fixed bottom-6 right-6 z-[9998] group bg-black hover:bg-gray-900 text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white"><MessageCircle size={28} className="text-white group-hover:rotate-12 transition-transform duration-300" /><div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full animate-pulse"></div></button>}
         {isOpen && <ChatWindow isMobile={true} />}
       </div>
     </>

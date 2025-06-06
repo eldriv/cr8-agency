@@ -1,12 +1,9 @@
 export const CONFIG = {
   API: {
     getApiBase: () => {
-      const isProduction = process.env.NODE_ENV === 'production';
-      const apiBase = isProduction 
+      return process.env.NODE_ENV === 'production'
         ? 'https://cr8-agency-production.up.railway.app'
         : 'http://localhost:3002';
-      console.log('API Base:', apiBase, 'Environment:', process.env.NODE_ENV);
-      return apiBase;
     },
     getEndpoints: (apiBase) => ({
       BACKEND_PROXY: `${apiBase}/api/gemini`,
@@ -14,7 +11,6 @@ export const CONFIG = {
       TRAINING_DATA: `${apiBase}/api/training-data`
     })
   },
-
   DEFAULT_TRAINING_DATA: `CR8 - Digital Solutions Company
 
 CR8 is a digital creative agency that helps clients bring their creative vision to life through graphic design, video editing, animation, and motion graphics.
@@ -62,44 +58,19 @@ Brands trust CR8 because we:
 - Uphold the highest quality standards
 - Align projects with brand identity
 - Stay current with industry trends`,
-
   UI: {
-    DESKTOP: {
-      CHAT_WIDTH: 'chat-window-desktop',
-      CHAT_HEIGHT: 'chat-window-desktop', 
-      MINIMIZED_HEIGHT: 'minimized',
-      MINIMIZED_WIDTH: 'minimized'
-    },
-    MOBILE: {
-      SAFE_AREA_TOP: 'safe-area-top',
-      SAFE_AREA_BOTTOM: 'safe-area-bottom'
-    },
-    ANIMATIONS: {
-      TYPING_DELAY: {
-        BASE: 50,
-        RANDOM: 50
-      },
-      BOUNCE_DELAYS: ['0.1s', '0.2s', '0.3s']
-    },
-    FIXED_DIMENSIONS: {
-      DESKTOP: {
-        WIDTH: '384px',
-        HEIGHT: '600px',
-        MINIMIZED_HEIGHT: '56px'
-      }
-    }
+    DESKTOP: { CHAT_WIDTH: 'chat-window-desktop', CHAT_HEIGHT: 'chat-window-desktop', MINIMIZED_HEIGHT: 'minimized', MINIMIZED_WIDTH: 'minimized' },
+    MOBILE: { SAFE_AREA_TOP: 'safe-area-top', SAFE_AREA_BOTTOM: 'safe-area-bottom' },
+    ANIMATIONS: { TYPING_DELAY: { BASE: 50, RANDOM: 50 }, BOUNCE_DELAYS: ['0.1s', '0.2s', '0.3s'] },
+    FIXED_DIMENSIONS: { DESKTOP: { WIDTH: '384px', HEIGHT: '600px', MINIMIZED_HEIGHT: '56px' } }
   },
-
   MESSAGES: {
     DEFAULT_ERROR: 'Sorry, I encountered an error. ',
     CONNECTION_ERROR: 'Cannot connect to the backend server.',
     RETRY_MESSAGE: 'Please try again.',
     NO_RESPONSE: 'Sorry, I could not generate a response.',
     NO_TRAINING_DATA: 'Using general knowledge mode - specific CR8 data not available.',
-    PLACEHOLDERS: {
-      DESKTOP: 'Ask about CR8 or any questions...',
-      MOBILE: 'Type your message...'
-    },
+    PLACEHOLDERS: { DESKTOP: 'Ask about CR8 or any questions...', MOBILE: 'Type your message...' },
     WELCOME: {
       TITLE: 'CR8 Assistant',
       SUBTITLE_LOADED: "I can help with CR8 information and general questions.",
@@ -107,56 +78,24 @@ Brands trust CR8 because we:
       MOBILE_SUBTITLE: "I'm here to help you with any questions."
     }
   },
-
   SUGGESTIONS: {
-    CR8_SPECIFIC: [
-      "What is CR8?",
-      "What services does CR8 offer?",
-      "Tell me about CR8's portfolio"
-    ],
+    CR8_SPECIFIC: ["What is CR8?", "What services does CR8 offer?", "Tell me about CR8's portfolio"],
     GENERAL: [],
-    MOBILE_SPECIFIC: [
-      "What is CR8?",
-      "CR8 services?",
-      "Contact CR8?",
-      "CR8 portfolio?"
-    ]
+    MOBILE_SPECIFIC: ["What is CR8?", "CR8 services?", "Contact CR8?", "CR8 portfolio?"]
   },
-
   STATUS: {
-    CONNECTION: {
-      CONNECTED: 'connected',
-      OFFLINE: 'offline', 
-      UNKNOWN: 'unknown'
-    },
-    TRAINING_DATA: {
-      LOADED: 'loaded',
-      LOADING: 'loading',
-      FALLBACK: 'fallback',
-      FAILED: 'failed'
-    }
+    CONNECTION: { CONNECTED: 'connected', OFFLINE: 'offline', UNKNOWN: 'unknown' },
+    TRAINING_DATA: { LOADED: 'loaded', LOADING: 'loading', FALLBACK: 'fallback', FAILED: 'failed' }
   },
-
-  FETCH: {
-    TIMEOUT: 30000,
-    MAX_RETRIES: 3
-  },
-
-  APP: {
-    NAME: 'CR8 Assistant',
-    MOBILE_NAME: 'CR8 AI',
-    LOGO_PATH: '/img/logo.png',
-    LOGO_ALT: 'CR8 Logo'
-  }
+  FETCH: { TIMEOUT: 30000, MAX_RETRIES: 3 },
+  APP: { NAME: 'CR8 Assistant', MOBILE_NAME: 'CR8 AI', LOGO_PATH: '/img/logo.png', LOGO_ALT: 'CR8 Logo' }
 };
 
 export const PROMPT_TEMPLATE = {
   buildHybridPrompt: (userMessage, trainingData) => {
-    const hasValidTrainingData = trainingData && 
-                                trainingData.trim().length > 50 &&
-                                trainingData !== CONFIG.MESSAGES.NO_TRAINING_DATA;
-    if (hasValidTrainingData) {
-      return `You are an AI assistant for CR8. Use the following information EXCLUSIVELY for CR8-related questions:
+    const hasValidTrainingData = trainingData && trainingData.trim().length > 50 && trainingData !== CONFIG.MESSAGES.NO_TRAINING_DATA;
+    return hasValidTrainingData
+      ? `You are an AI assistant for CR8. Use only the following for CR8 questions:
 
 === CR8 INFORMATION ===
 ${trainingData.trim()}
@@ -164,47 +103,22 @@ ${trainingData.trim()}
 
 User Question: ${userMessage}
 
-Instructions:
-1. For CR8-specific questions, use only the provided CR8 information.
-2. For general questions, use your general knowledge.
-3. Be concise, professional, and helpful.
-4. If CR8 data is insufficient, say: "Based on available CR8 information, [answer], but I lack full details."
-5. Response:`;
-    } else {
-      return `You are a helpful AI assistant. User asked: "${userMessage}"
+Instructions: 1. Use only CR8 data for CR8 questions. 2. Use general knowledge for other questions. 3. Be concise and professional. 4. If CR8 data is insufficient, say: "Based on available CR8 information, [answer], but I lack full details." 5. Response:`
+      : `You are a helpful AI assistant. User asked: "${userMessage}"
 
-I lack specific CR8 information but can assist with general questions about technology, web development, or AI.
+No CR8 data available, but I can help with general technology questions.
 
 Response:`;
-    }
   }
 };
 
 export const UTILS = {
   formatTime: (timestamp) => {
-    try {
-      return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } catch (error) {
-      return 'Unknown time';
-    }
+    try { return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); } catch { return 'Unknown time'; }
   },
-
   sleep: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
-
-  copyToClipboard: async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      console.log('Text copied to clipboard');
-    } catch (error) {
-      console.error('Failed to copy text:', error);
-    }
-  },
-
-  isValidTrainingData: (data) => {
-    return data && typeof data === 'string' && data.trim().length > 50 &&
-           data.trim() !== CONFIG.MESSAGES.NO_TRAINING_DATA;
-  },
-
+  copyToClipboard: async (text) => { try { await navigator.clipboard.writeText(text); console.log('Copied'); } catch (err) { console.error('Copy failed:', err); } },
+  isValidTrainingData: (data) => data && typeof data === 'string' && data.trim().length > 50 && data.trim() !== CONFIG.MESSAGES.NO_TRAINING_DATA,
   fetchWithTimeout: async (url, options = {}) => {
     const { timeout = CONFIG.FETCH.TIMEOUT, ...fetchOptions } = options;
     let lastError;
@@ -213,25 +127,14 @@ export const UTILS = {
         console.log(`Fetch attempt ${i + 1}/${CONFIG.FETCH.MAX_RETRIES}: ${url}`);
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
-        const response = await fetch(url, {
-          ...fetchOptions,
-          signal: controller.signal,
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            ...fetchOptions.headers
-          }
-        });
+        const response = await fetch(url, { ...fetchOptions, signal: controller.signal, mode: 'cors', headers: { 'Content-Type': 'application/json', ...fetchOptions.headers } });
         clearTimeout(timeoutId);
-        console.log(`Fetch successful, status: ${response.status}`);
+        console.log(`Fetch success, status: ${response.status}`);
         return response;
       } catch (error) {
         lastError = error;
-        console.error(`Fetch attempt ${i + 1} failed: ${error.message}`);
-        if (i < CONFIG.FETCH.MAX_RETRIES - 1) {
-          await UTILS.sleep(1000 * Math.pow(2, i));
-        }
+        console.error(`Fetch failed: ${error.message}`);
+        if (i < CONFIG.FETCH.MAX_RETRIES - 1) await UTILS.sleep(1000 * Math.pow(2, i));
       }
     }
     throw lastError || new Error('Fetch failed after retries');
