@@ -1,4 +1,6 @@
-// config.js
+// src/config.js
+import { CONFIG, UTILS, PROMPT_TEMPLATE } from '@config';
+
 export const CONFIG = {
   API: {
     getApiBase: () => {
@@ -8,10 +10,10 @@ export const CONFIG = {
           // Local development backend
           return 'http://localhost:3002';
         }
-        // Production backend URL from environment variable (Netlify build env var)
+        // Production backend URL from env var
         return process.env.REACT_APP_API_BASE || 'https://cr8-backend.onrender.com';
       }
-      // fallback for SSR or other env
+      // fallback for SSR or build time
       return process.env.REACT_APP_API_BASE || 'https://cr8-backend.onrender.com';
     },
 
@@ -23,10 +25,11 @@ export const CONFIG = {
       VERSION: `${apiBase}/api/version`,
     }),
   },
+
   TRAINING_DATA_PATHS: [
     '/api/training-data',
     '/data/training.txt',
-    '/training.txt'
+    '/training.txt',
   ],
 
   DEFAULT_TRAINING_DATA: `CR8 - Digital Solutions Company
@@ -168,4 +171,18 @@ If you're asking about CR8 specifically, I apologize that I don't have detailed 
 Please provide a helpful response based on general knowledge:`;
     }
   },
+};
+
+// Basic utility functions
+export const UTILS = {
+  copyToClipboard: (text) => {
+    if (navigator.clipboard) {
+      return navigator.clipboard.writeText(text);
+    }
+    return Promise.reject(new Error('Clipboard API not supported'));
+  },
+
+  sleep: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
+
+  // Add more utilities as needed
 };
