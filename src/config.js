@@ -166,8 +166,8 @@ Brands trust CR8 because we:
     HEADERS: {
       ACCEPT_TEXT: 'text/plain',
       ACCEPT_JSON: 'application/json',
-      CONTENT_TYPE_JSON: 'application/json',
-      CACHE_CONTROL: 'no-cache'
+      CONTENT_TYPE_JSON: 'application/json'
+      // Removed cache-control from default headers to avoid CORS issues
     },
     
     MIN_CONTENT_LENGTH: 50,
@@ -274,6 +274,7 @@ export const UTILS = {
            data.trim() !== CONFIG.MESSAGES.NO_TRAINING_DATA;
   },
 
+  // Updated fetchWithTimeout to handle both text and JSON responses
   fetchWithTimeout: async (url, options = {}) => {
     const { timeout = CONFIG.FETCH.TIMEOUT, ...fetchOptions } = options;
     
@@ -294,7 +295,7 @@ export const UTILS = {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'Cache-Control': 'no-cache',
+          // Removed cache-control header to avoid CORS issues
           ...fetchOptions.headers
         }
       });
@@ -306,6 +307,42 @@ export const UTILS = {
         throw new Error('Request timeout');
       }
       throw error;
+    }
+  },
+
+  // New utility to safely parse API responses
+  parseApiResponse: async (response) => {
+    try {
+      const contentType = response.headers.get('content-type');
+      
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        
+        // Handle different response formats
+        if (data.response) {
+          return data.response; // New format: { response: "..." }
+        } else if (data.trainingData) {
+          return data.trainingData; // Training data format: { trainingData: "..." }
+        } else if (data.reply) {
+          return data.reply; // Old format: { reply: "..." }
+        } else if (typeof data === 'string') {
+          return data; // Direct string response
+        } else {
+          return JSON.stringify(data); // Fallback to stringify
+        }
+      } else {
+        // Handle plain text responses
+        return await response.text();
+      }
+    } catch (error) {
+      console.error('Error parsing API response:', error);
+      // Fallback to text parsing
+      try {
+        return await response.text();
+      } catch (textError) {
+        console.error('Error parsing as text:', textError);
+        throw new Error('Unable to parse API response');
+      }
     }
   },
 
@@ -372,16 +409,10 @@ export const UTILS = {
       console.log(`Response status: ${response.status}`);
       
       if (response.ok) {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const data = await response.json();
-          console.log('Response data:', data);
-          return { success: true, status: response.status, data };
-        } else {
-          const text = await response.text();
-          console.log('Response text:', text.substring(0, 200) + '...');
-          return { success: true, status: response.status, text: text.substring(0, 200) };
-        }
+        const parsedResponse = await UTILS.parseApiResponse(response);
+        console.log('Parsed response:', typeof parsedResponse === 'string' ? 
+          parsedResponse.substring(0, 200) + '...' : parsedResponse);
+        return { success: true, status: response.status, data: parsedResponse };
       } else {
         return { success: false, status: response.status, error: response.statusText };
       }
