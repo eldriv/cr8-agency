@@ -89,7 +89,7 @@ export const CONFIG = {
   // FIXED: Training data configuration - backend endpoint first
   TRAINING_DATA_PATHS: [
     // Use the backend endpoint as the primary source
-    CONFIG?.API?.getApiBase ? CONFIG.API.getApiBase() + API_CONFIG.ENDPOINTS.TRAINING_DATA : 'https://cr8-backend.onrender.com/api/training-data',
+    () => CONFIG.API.getApiBase() + API_CONFIG.ENDPOINTS.TRAINING_DATA,
     '/data/training-data.txt',
     '/assets/training-data.txt',
     '/training-data.txt'
@@ -261,9 +261,9 @@ We serve clients who need visual storytelling and branding services. Our goal is
   }
 };
 
-// Enhanced UTILS with better error handling
+// FIXED: Enhanced UTILS with better training data fetching
 export const UTILS = {
-  // Enhanced fetch with better error handling and debugging
+  // Enhanced fetch with better error handling
   fetchWithTimeout: async (url, options = {}) => {
     const { timeout = CONFIG.FETCH.TIMEOUT, ...fetchOptions } = options;
     
@@ -282,7 +282,7 @@ export const UTILS = {
         signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
+          'Accept': 'text/plain, application/json', // Accept both formats
           ...fetchOptions.headers
         }
       });
@@ -325,7 +325,7 @@ export const UTILS = {
         console.log(`❌ Attempt ${attempt} failed:`, error.message);
         
         if (attempt < maxAttempts) {
-          const backoffDelay = delay * Math.pow(2, attempt - 1); // Exponential backoff
+          const backoffDelay = delay * Math.pow(2, attempt - 1);
           console.log(`⏳ Waiting ${backoffDelay}ms before retry...`);
           await UTILS.sleep(backoffDelay);
         }
@@ -336,87 +336,217 @@ export const UTILS = {
     throw lastError;
   },
 
-  // Test connection to backend
-  testConnection: async () => {
-    const baseUrl = CONFIG.API.getApiBase();
-    const endpoints = CONFIG.API.getEndpoints(baseUrl);
-    
-    try {
-      console.log('🔍 Testing connection to:', endpoints.HEALTH_CHECK);
-      const response = await UTILS.fetchWithTimeout(endpoints.HEALTH_CHECK, {
-        method: 'GET',
-        timeout: 10000
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Backend connection successful:', data);
-        return { success: true, data };
-      } else {
-        console.log('❌ Backend health check failed:', response.status);
-        return { success: false, error: `Health check failed: ${response.status}` };
-      }
-    } catch (error) {
-      console.log('❌ Backend connection failed:', error.message);
-      return { success: false, error: error.message };
-    }
-  },
-
-  // Debug API configuration
-  debugAPI: async () => {
-    const baseUrl = CONFIG.API.getApiBase();
-    const endpoints = CONFIG.API.getEndpoints(baseUrl);
-    
-    console.log('🔍 API Debug Info:', {
-      isDevelopment,
-      baseUrl,
-      endpoints,
-      environment: process.env.NODE_ENV
-    });
-    
-    // Test debug endpoint if available
-    try {
-      const response = await UTILS.fetchWithTimeout(endpoints.DEBUG, {
-        method: 'GET',
-        timeout: 5000
-      });
-      
-      if (response.ok) {
-        const debugData = await response.json();
-        console.log('🔍 Backend debug info:', debugData);
-        return debugData;
-      }
-    } catch (error) {
-      console.log('ℹ️ Debug endpoint not available:', error.message);
-    }
-    
-    return null;
-  },
-
-  // Format timestamp
-  formatTime: (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString([], { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
-    });
-  },
-
   // Sleep utility
   sleep: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
 
-  // Validate training data
-  isValidTrainingData: (data) => {
-    return data && typeof data === 'string' && data.trim().length > 0;
+  // FIXED: Enhanced training data fetching with proper error handling
+  fetchTrainingData: async () => {
+    console.log('📚 Starting training data fetch...');
+    
+    // Get training data paths (resolve function if needed)
+    const paths = CONFIG.TRAINING_DATA_PATHS.map(path => 
+      typeof path === 'function' ? path() : path
+    );
+    
+    console.log('📋 Training data paths to try:', paths);
+    
+    for (const path of paths) {
+      try {
+        console.log(`Fetching training data from: ${path}`);
+        
+        const response = await UTILS.fetchWithTimeout(path, { 
+          method: 'GET',
+          headers: {
+            'Accept': 'text/plain, application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch training data from ${path}: ${response.status}`);
+        }
+        
+        // Try to get content as text first
+        let content;
+        const contentType = response.headers.get('content-type') || '';
+        
+        if (contentType.includes('application/json')) {
+          const data = await response.json();
+          content = data.content || data.data || JSON.stringify(data);
+        } else {
+          content = await response.text();
+        }
+        
+        if (content && content.trim()) {
+          console.log('✅ Training data loaded successfully from:', path);
+          console.log('📊 Content length:', content.length);
+          return content;
+        } else {
+          throw new Error('Empty content received');
+        }
+        
+      } catch (error) {
+        console.log(`Error fetching training data: ${error.message}`);
+        continue; // Try next path
+      }
+    }
+    
+    // If all paths fail, use default training data
+    console.log('⚠️ Using default training data as fallback');
+    return CONFIG.DEFAULT_TRAINING_DATA;
+  },
+
+  // FIXED: Prompt template usage
+  formatPrompt: (userPrompt, trainingData = '') => {
+    try {
+      // PROMPT_TEMPLATE is a string, not a function
+      let prompt = PROMPT_TEMPLATE;
+      
+      // Replace placeholder with actual user prompt
+      prompt = prompt.replace('{prompt}', userPrompt || 'Hello');
+      
+      // Add training data context if available
+      if (trainingData && trainingData.trim()) {
+        prompt = `${trainingData}\n\n${prompt}`;
+      }
+      
+      return prompt;
+    } catch (error) {
+      console.error('❌ Error formatting prompt:', error);
+      // Fallback prompt
+      return `You are CR8, an AI assistant for a creative digital agency. User: ${userPrompt}`;
+    }
+  },
+
+  // Enhanced API call with better error handling
+  callAPI: async (prompt, trainingData = '') => {
+    try {
+      console.log('🚀 Making API call...');
+      
+      const apiBase = CONFIG.API.getApiBase();
+      const endpoints = CONFIG.API.getEndpoints(apiBase);
+      
+      console.log('🔗 API Base:', apiBase);
+      console.log('🔗 Chat endpoint:', endpoints.BACKEND_PROXY);
+      
+      // Format the prompt properly
+      const formattedPrompt = UTILS.formatPrompt(prompt, trainingData);
+      
+      const requestBody = {
+        prompt: formattedPrompt,
+        // Add metadata for better context
+        metadata: {
+          source: 'cr8-chat-widget',
+          timestamp: new Date().toISOString(),
+          userPrompt: prompt
+        }
+      };
+      
+      console.log('📤 Request body:', {
+        ...requestBody,
+        prompt: requestBody.prompt.substring(0, 200) + '...' // Log truncated prompt
+      });
+      
+      const response = await UTILS.fetchWithTimeout(endpoints.BACKEND_PROXY, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('📥 API response received:', {
+        hasResponse: !!data.response,
+        responseLength: data.response?.length || 0
+      });
+      
+      return data.response || 'No response generated';
+      
+    } catch (error) {
+      console.error('❌ API call error:', error);
+      throw error;
+    }
+  },
+
+  // Health check utility
+  checkBackendHealth: async () => {
+    try {
+      const apiBase = CONFIG.API.getApiBase();
+      const endpoints = CONFIG.API.getEndpoints(apiBase);
+      
+      console.log(`Checking backend connection at: ${endpoints.HEALTH_CHECK}`);
+      
+      const response = await UTILS.fetchWithTimeout(endpoints.HEALTH_CHECK, {
+        method: 'GET',
+        timeout: 10000 // Shorter timeout for health check
+      });
+      
+      console.log(`Health check response: ${response.status}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        return { status: 'healthy', data };
+      } else {
+        return { status: 'unhealthy', error: `HTTP ${response.status}` };
+      }
+      
+    } catch (error) {
+      console.log('Health check failed:', error.message);
+      return { status: 'error', error: error.message };
+    }
+  },
+
+  // Utility to validate configuration
+  validateConfig: () => {
+    const issues = [];
+    
+    // Check if PROMPT_TEMPLATE is properly defined
+    if (typeof PROMPT_TEMPLATE !== 'string') {
+      issues.push('PROMPT_TEMPLATE should be a string');
+    }
+    
+    // Check API configuration
+    if (!CONFIG.API.getApiBase()) {
+      issues.push('API base URL not configured');
+    }
+    
+    // Check training data paths
+    if (!CONFIG.TRAINING_DATA_PATHS || CONFIG.TRAINING_DATA_PATHS.length === 0) {
+      issues.push('No training data paths configured');
+    }
+    
+    if (issues.length > 0) {
+      console.warn('⚠️ Configuration issues:', issues);
+      return { valid: false, issues };
+    }
+    
+    console.log('✅ Configuration validation passed');
+    return { valid: true, issues: [] };
   }
 };
 
-// Export environment info
-export const ENV = {
-  isDevelopment,
-  isProduction: !isDevelopment,
-  apiBase: CONFIG.API.getApiBase()
-};
+// Initialize and validate configuration on load
+(() => {
+  console.log('🏗️ Initializing CR8 Configuration...');
+  
+  // Validate configuration
+  const validation = UTILS.validateConfig();
+  if (!validation.valid) {
+    console.error('❌ Configuration validation failed:', validation.issues);
+  }
+  
+  // Log environment info
+  console.log('🌍 Environment:', isDevelopment ? 'Development' : 'Production');
+  console.log('🔗 API Base:', CONFIG.API.getApiBase());
+  console.log('📱 App Version:', CONFIG.APP.VERSION);
+  
+  console.log('✅ CR8 Configuration initialized successfully');
+})();
 
+// Export for use in other modules
 export default CONFIG;
