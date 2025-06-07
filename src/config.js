@@ -16,7 +16,8 @@ export const CONFIG = {
     },
 
     getEndpoints: (apiBase) => ({
-      BACKEND_PROXY: `${apiBase}/api/gemini`,
+      // ✅ FIXED: Changed from /api/gemini to /api/chat
+      BACKEND_PROXY: `${apiBase}/api/chat`,
       HEALTH_CHECK: `${apiBase}/api/health`,
       TRAINING_DATA: `${apiBase}/api/training-data`,
       DIAGNOSE: `${apiBase}/api/diagnose`,
@@ -334,4 +335,4 @@ export const UTILS = {
 
 // Log configuration on load
 console.log('API Base URL:', CONFIG.API.getApiBase());
-console.log('Environment:', process.env.NODE_ENV);  
+console.log('Environment:', process.env.NODE_ENV);
