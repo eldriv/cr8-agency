@@ -479,12 +479,12 @@ const sendMessage = async () => {
         {/* Floating Action Button - Desktop */}
         {!isOpen && (
           <button
-            onClick={toggleChat}
-            className="group bg-black hover:bg-gray-900 text-white p-4 w-6 h-6 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 border border-gray-800"
-          >
-            <MessageCircle size={24} className="group-hover:rotate-12 transition-transform duration-300" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full animate-ping"></div>
-          </button>
+          onClick={toggleChat}
+          className="group fixed bottom-6 right-6 z-50 bg-black hover:bg-gray-900 text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white backdrop-blur-sm flex items-center justify-center"
+        >
+          <MessageCircle size={28} className="text-white group-hover:rotate-12 transition-transform duration-300" />
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full animate-pulse"></div>
+        </button>
         )}
 
         {/* Chat Window - Desktop */}
@@ -559,12 +559,12 @@ const sendMessage = async () => {
         {/* Floating Action Button - Mobile */}
         {!isOpen && (
           <button
-            onClick={toggleChat}
-            className="fixed bottom-4 right-4 z-50 group bg-black hover:bg-gray-900 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 border border-gray-800"
-          >
-            <MessageCircle size={24} className="group-hover:rotate-12 transition-transform duration-300" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full animate-ping"></div>
-          </button>
+          onClick={toggleChat}
+          className="group fixed bottom-6 right-6 z-50 bg-black hover:bg-gray-900 text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white backdrop-blur-sm flex items-center justify-center"
+        >
+          <MessageCircle size={28} className="text-white group-hover:rotate-12 transition-transform duration-300" />
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full animate-pulse"></div>
+        </button>
         )}
 
         {/* Full Screen Chat - Mobile */}
