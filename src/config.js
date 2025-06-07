@@ -4,15 +4,17 @@ export const CONFIG = {
       if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
 
+        // Local development
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
           return 'http://localhost:3002';
         }
 
-        // ✅ FIXED: Use the correct Render backend URL
+        // Production - Use environment variable or fallback to Render URL
         return process.env.REACT_APP_API_BASE || 'https://cr8-backend.onrender.com';
       }
 
-      return process.env.REACT_APP_API_BASE || 'http://localhost:3002';
+      // Server-side rendering fallback
+      return process.env.REACT_APP_API_BASE || 'https://cr8-backend.onrender.com';
     },
 
     getEndpoints: (apiBase) => ({
@@ -169,7 +171,7 @@ Brands trust CR8 because we:
     },
     
     MIN_CONTENT_LENGTH: 50,
-    TIMEOUT: 15000, // Increased timeout for Render
+    TIMEOUT: 20000, // Increased timeout for Render cold starts
     MAX_RETRIES: 3
   },
 
@@ -236,7 +238,7 @@ export const UTILS = {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(text);
         console.log('Text copied to clipboard successfully');
-        return;
+        return true;
       }
       
       const textArea = document.createElement('textarea');
@@ -252,6 +254,7 @@ export const UTILS = {
         const successful = document.execCommand('copy');
         if (successful) {
           console.log('Text copied using fallback method');
+          return true;
         } else {
           throw new Error('Copy command failed');
         }
@@ -260,7 +263,7 @@ export const UTILS = {
       }
     } catch (error) {
       console.error('Failed to copy text:', error);
-      throw error;
+      return false;
     }
   },
 
@@ -291,6 +294,7 @@ export const UTILS = {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
           ...fetchOptions.headers
         }
       });
@@ -313,10 +317,17 @@ export const UTILS = {
     console.log('🔍 Connection Debug:');
     console.log('API Base:', apiBase);
     console.log('Endpoints:', endpoints);
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('Window location:', typeof window !== 'undefined' ? window.location.href : 'Server-side');
     
     try {
-      // Test health endpoint
-      const healthResponse = await UTILS.fetchWithTimeout(endpoints.HEALTH_CHECK);
+      // Test health endpoint first
+      console.log('Testing health endpoint...');
+      const healthResponse = await UTILS.fetchWithTimeout(endpoints.HEALTH_CHECK, {
+        method: 'GET',
+        timeout: 10000
+      });
+      
       console.log('Health check status:', healthResponse.status);
       
       if (healthResponse.ok) {
@@ -324,14 +335,85 @@ export const UTILS = {
         console.log('Health data:', healthData);
       }
       
-      return { status: 'connected', apiBase, healthResponse: healthResponse.status };
+      // Test training data endpoint
+      console.log('Testing training data endpoint...');
+      const trainingResponse = await UTILS.fetchWithTimeout(endpoints.TRAINING_DATA, {
+        method: 'GET',
+        timeout: 10000
+      });
+      
+      console.log('Training data status:', trainingResponse.status);
+      
+      return { 
+        status: 'connected', 
+        apiBase, 
+        healthStatus: healthResponse.status,
+        trainingDataStatus: trainingResponse.status
+      };
     } catch (error) {
       console.error('Connection test failed:', error);
-      return { status: 'failed', apiBase, error: error.message };
+      return { 
+        status: 'failed', 
+        apiBase, 
+        error: error.message 
+      };
+    }
+  },
+
+  // Test specific endpoint
+  testEndpoint: async (endpoint) => {
+    try {
+      console.log(`Testing endpoint: ${endpoint}`);
+      const response = await UTILS.fetchWithTimeout(endpoint, {
+        method: 'GET',
+        timeout: 10000
+      });
+      
+      console.log(`Response status: ${response.status}`);
+      
+      if (response.ok) {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const data = await response.json();
+          console.log('Response data:', data);
+          return { success: true, status: response.status, data };
+        } else {
+          const text = await response.text();
+          console.log('Response text:', text.substring(0, 200) + '...');
+          return { success: true, status: response.status, text: text.substring(0, 200) };
+        }
+      } else {
+        return { success: false, status: response.status, error: response.statusText };
+      }
+    } catch (error) {
+      console.error(`Error testing ${endpoint}:`, error);
+      return { success: false, error: error.message };
     }
   }
 };
 
-// Log configuration on load
-console.log('API Base URL:', CONFIG.API.getApiBase());
-console.log('Environment:', process.env.NODE_ENV);
+// Initialize and log configuration on load
+(() => {
+  const apiBase = CONFIG.API.getApiBase();
+  console.log('🚀 CR8 Config Initialized');
+  console.log('API Base URL:', apiBase);
+  console.log('Environment:', process.env.NODE_ENV);
+  console.log('React App API Base:', process.env.REACT_APP_API_BASE);
+  
+  if (typeof window !== 'undefined') {
+    console.log('Client-side - Window location:', window.location.href);
+    console.log('Hostname:', window.location.hostname);
+    
+    // Auto-test connection in development
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      setTimeout(() => {
+        console.log('🧪 Running auto-connection test...');
+        UTILS.debugConnection().then(result => {
+          console.log('Connection test result:', result);
+        });
+      }, 1000);
+    }
+  } else {
+    console.log('Server-side rendering');
+  }
+})();
