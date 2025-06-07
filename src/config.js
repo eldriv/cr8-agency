@@ -4,12 +4,14 @@ export const CONFIG = {
     getApiBase: () => {
       if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
-
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
+          // Local development backend
           return 'http://localhost:3002';
         }
+        // Production backend URL from environment variable (Netlify build env var)
         return process.env.REACT_APP_API_BASE || 'https://cr8-backend.onrender.com';
       }
+      // fallback for SSR or other env
       return process.env.REACT_APP_API_BASE || 'https://cr8-backend.onrender.com';
     },
 
@@ -18,10 +20,9 @@ export const CONFIG = {
       HEALTH_CHECK: `${apiBase}/api/health`,
       TRAINING_DATA: `${apiBase}/api/training-data`,
       DIAGNOSE: `${apiBase}/api/diagnose`,
-      VERSION: `${apiBase}/api/version`
+      VERSION: `${apiBase}/api/version`,
     }),
   },
-
   TRAINING_DATA_PATHS: [
     '/api/training-data',
     '/data/training.txt',
