@@ -11,7 +11,7 @@ const isDevelopment = typeof window !== 'undefined' && (
 const API_CONFIG = {
   BACKEND_URLS: {
     PRODUCTION: 'https://cr8-backend.onrender.com',
-    DEVELOPMENT: 'http://localhost:3002',
+    DEVELOPMENT: 'http://localhost:10000', // FIXED: Changed from 3002 to match backend
     FALLBACK: 'https://cr8-backend.onrender.com'
   },
   
@@ -282,7 +282,7 @@ export const UTILS = {
         signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'text/plain, application/json', // Accept both formats
+          'Accept': 'application/json, text/plain', // FIXED: Prioritize JSON first
           ...fetchOptions.headers
         }
       });
@@ -357,7 +357,7 @@ export const UTILS = {
         const response = await UTILS.fetchWithTimeout(path, { 
           method: 'GET',
           headers: {
-            'Accept': 'text/plain, application/json'
+            'Accept': 'application/json, text/plain' // FIXED: Prioritize JSON first
           }
         });
         
@@ -365,13 +365,14 @@ export const UTILS = {
           throw new Error(`Failed to fetch training data from ${path}: ${response.status}`);
         }
         
-        // Try to get content as text first
+        // Try to get content as JSON first, then text
         let content;
         const contentType = response.headers.get('content-type') || '';
         
         if (contentType.includes('application/json')) {
           const data = await response.json();
-          content = data.content || data.data || JSON.stringify(data);
+          // FIXED: Handle the correct backend response format
+          content = data.content || data.data || data.text || JSON.stringify(data);
         } else {
           content = await response.text();
         }
@@ -417,7 +418,7 @@ export const UTILS = {
     }
   },
 
-  // Enhanced API call with better error handling
+  // FIXED: Enhanced API call with correct response parsing
   callAPI: async (prompt, trainingData = '') => {
     try {
       console.log('🚀 Making API call...');
@@ -431,14 +432,9 @@ export const UTILS = {
       // Format the prompt properly
       const formattedPrompt = UTILS.formatPrompt(prompt, trainingData);
       
+      // FIXED: Send only what the backend expects
       const requestBody = {
-        prompt: formattedPrompt,
-        // Add metadata for better context
-        metadata: {
-          source: 'cr8-chat-widget',
-          timestamp: new Date().toISOString(),
-          userPrompt: prompt
-        }
+        prompt: formattedPrompt
       };
       
       console.log('📤 Request body:', {
@@ -461,15 +457,48 @@ export const UTILS = {
       
       const data = await response.json();
       console.log('📥 API response received:', {
-        hasResponse: !!data.response,
-        responseLength: data.response?.length || 0
+        hasCandidates: !!data.candidates,
+        candidatesLength: data.candidates?.length || 0,
+        source: data.source || 'unknown'
       });
       
-      return data.response || 'No response generated';
+      // FIXED: Handle the correct response format from your backend
+      let responseText = '';
+      
+      if (data.candidates && data.candidates.length > 0) {
+        // Extract text from the Gemini-style response format
+        responseText = data.candidates[0]?.content?.parts?.[0]?.text;
+      } else if (data.response) {
+        // Fallback: if backend changes to use 'response' property
+        responseText = data.response;
+      } else if (data.text) {
+        // Another fallback format
+        responseText = data.text;
+      }
+      
+      if (!responseText || !responseText.trim()) {
+        console.warn('⚠️ Empty response from API');
+        return 'I received an empty response. Could you try asking your question again?';
+      }
+      
+      console.log('✅ Response extracted successfully:', {
+        length: responseText.length,
+        preview: responseText.substring(0, 100) + '...'
+      });
+      
+      return responseText;
       
     } catch (error) {
       console.error('❌ API call error:', error);
-      throw error;
+      
+      // Return user-friendly error messages
+      if (error.message.includes('timeout')) {
+        return 'The request took too long to process. Please try again.';
+      } else if (error.message.includes('fetch')) {
+        return 'Unable to connect to the server. Please check your internet connection.';
+      } else {
+        return `I encountered an error: ${error.message}. Please try again.`;
+      }
     }
   },
 
