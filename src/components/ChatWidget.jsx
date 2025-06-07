@@ -1,32 +1,34 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, Send, X, Minimize2, Maximize2, RotateCcw, Copy, Trash2 } from 'lucide-react';
-import { CONFIG, UTILS, PROMPT_TEMPLATE } from "@config";
+import { CONFIG, UTILS } from '@config';
 
 const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
   <div className="text-center p-8 space-y-6">
-    <img 
-      src={CONFIG.APP.LOGO_PATH} 
-      alt={CONFIG.APP.LOGO_ALT} 
+    <img
+      src={CONFIG.APP.LOGO_PATH}
+      alt={CONFIG.APP.LOGO_ALT}
       className="w-40 h-30 mx-auto"
       onError={(e) => {
-        e.target.style.display = 'none';
+        e.target.src = CONFIG.APP.LOGO_FALLBACK;
       }}
     />
     <h3 className="text-xl font-bold text-white">{CONFIG.APP.NAME}</h3>
     <p className="text-gray-400 text-sm leading-relaxed">
-      {trainingDataStatus === 'loaded' ? CONFIG.MESSAGES.WELCOME.SUBTITLE_LOADED :
-       trainingDataStatus === 'loading' ? CONFIG.MESSAGES.WELCOME.SUBTITLE_LOADING :
-       trainingDataStatus === 'fallback' ? 'Using default information' : CONFIG.MESSAGES.NO_TRAINING_DATA}
+      {trainingDataStatus === CONFIG.STATUS.TRAINING_DATA.LOADED
+        ? CONFIG.MESSAGES.WELCOME.SUBTITLE_LOADED
+        : trainingDataStatus === CONFIG.STATUS.TRAINING_DATA.LOADING
+        ? CONFIG.MESSAGES.WELCOME.SUBTITLE_LOADING
+        : CONFIG.MESSAGES.WELCOME.SUBTITLE_FALLBACK}
     </p>
     <div className="flex flex-wrap gap-2 justify-center">
-      {(isMobile ? (CONFIG.SUGGESTIONS.MOBILE_SPECIFIC || []) : [
-        ...(CONFIG.SUGGESTIONS.CR8_SPECIFIC || []),
-        ...(CONFIG.SUGGESTIONS.GENERAL || [])
-      ]).map((suggestion, index) => (
+      {(isMobile ? CONFIG.SUGGESTIONS.MOBILE_SPECIFIC : [
+          ...CONFIG.SUGGESTIONS.CR8_SPECIFIC,
+          ...CONFIG.SUGGESTIONS.GENERAL
+        ]).map((suggestion, index) => (
         <button
           key={index}
           onClick={() => setInputMessage(suggestion)}
-          className="px-4 py-4 text-xs bg-gray-800/60 hover:bg-white hover:text-black text-gray-300 rounded-full transition-all duration-200 backdrop-blur-sm border border-gray-700/50 hover:border-white"
+          className="px-4 py-2 text-xs bg-gray-800/60 hover:bg-white hover:text-black text-gray-300 rounded-full transition-all duration-200 backdrop-blur-sm border border-gray-700/50 hover:border-white"
         >
           {suggestion}
         </button>
@@ -37,11 +39,13 @@ const WelcomeMessage = ({ trainingDataStatus, setInputMessage, isMobile }) => (
 
 const Message = ({ message, copyMessage }) => (
   <div className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
-    <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-      message.role === 'user' 
-        ? 'bg-white text-black shadow-lg' 
-        : 'bg-gray-800/80 text-gray-100 backdrop-blur-sm border border-gray-700/50'
-    }`}>
+    <div
+      className={`max-w-[85%] rounded-2xl px-4 py-3 ${
+        message.role === 'user'
+          ? 'bg-white text-black shadow-lg'
+          : 'bg-gray-800/80 text-gray-100 backdrop-blur-sm border border-gray-700/50'
+      }`}
+    >
       <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
         {message.content}
       </div>
@@ -146,6 +150,25 @@ const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress
   </div>
 );
 
+const ErrorBoundary = ({ children }) => {
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    if (error) {
+      console.error('ErrorBoundary caught:', error);
+    }
+  }, [error]);
+  try {
+    return children;
+  } catch (err) {
+    setError(err);
+    return (
+      <div className="p-4 text-red-400">
+        An error occurred. Please refresh the page and try again.
+      </div>
+    );
+  }
+};
+
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -160,13 +183,19 @@ const ChatWidget = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  const API_BASE = CONFIG.API.getApiBase();
-  const ENDPOINTS = CONFIG.API.getEndpoints(API_BASE);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
-  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
-  useEffect(() => { scrollToBottom(); }, [messages]);
-  useEffect(() => { loadTrainingData(); checkBackendConnection(); }, []);
+  useEffect(() => {
+    loadTrainingData();
+    checkBackendConnection();
+  }, []);
+
   useEffect(() => {
     if (isOpen && !isMinimized && window.innerWidth > 768) {
       setTimeout(() => inputRef.current?.focus(), 100);
@@ -175,45 +204,31 @@ const ChatWidget = () => {
 
   const loadTrainingData = async () => {
     setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADING);
-    for (const path of CONFIG.TRAINING_DATA_PATHS) {
-      try {
-        console.log('Fetching training data from:', path);
-        const response = await UTILS.fetchWithTimeout(path, {
-          method: 'GET',
-          headers: { 'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON, 'Accept': CONFIG.FETCH.HEADERS.ACCEPT_JSON },
-          timeout: CONFIG.FETCH.TIMEOUT,
-        });
-        if (!response.ok) throw new Error(`Failed to fetch training data from ${path}: ${response.status}`);
-        const data = await response.text();
-        if (UTILS.isValidTrainingData(data)) {
-          setTrainingData(data);
-          setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADED);
-          return;
-        }
-      } catch (error) {
-        console.error('Error fetching training data:', error.message);
+    try {
+      const data = await UTILS.fetchTrainingData();
+      if (UTILS.isValidTrainingData(data)) {
+        setTrainingData(data);
+        setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADED);
+      } else {
+        setTrainingData(CONFIG.DEFAULT_TRAINING_DATA);
+        setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.FALLBACK);
       }
-    }
-    if (CONFIG.DEFAULT_TRAINING_DATA && UTILS.isValidTrainingData(CONFIG.DEFAULT_TRAINING_DATA)) {
+    } catch (error) {
+      console.error('Error loading training data:', error);
       setTrainingData(CONFIG.DEFAULT_TRAINING_DATA);
       setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.FALLBACK);
-      return;
     }
-    setTrainingData(CONFIG.MESSAGES.NO_TRAINING_DATA);
-    setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.FAILED);
   };
 
   const checkBackendConnection = async () => {
     try {
-      console.log('Checking backend connection at:', ENDPOINTS.HEALTH_CHECK);
-      const response = await fetch(ENDPOINTS.HEALTH_CHECK, {
-        method: 'GET',
-        headers: { 'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON },
-      });
-      console.log('Health check response:', response.status);
-      setConnectionStatus(response.ok ? CONFIG.STATUS.CONNECTION.CONNECTED : CONFIG.STATUS.CONNECTION.OFFLINE);
+      const { status } = await UTILS.checkBackendHealth();
+      setConnectionStatus(status === 'healthy' ? CONFIG.STATUS.CONNECTION.CONNECTED : CONFIG.STATUS.CONNECTION.OFFLINE);
+      if (status !== 'healthy') {
+        setTimeout(checkBackendConnection, 5000);
+      }
     } catch (error) {
-      console.error('Backend connection check failed:', error.message);
+      console.error('Backend connection check failed:', error);
       setConnectionStatus(CONFIG.STATUS.CONNECTION.OFFLINE);
       setTimeout(checkBackendConnection, 5000);
     }
@@ -238,67 +253,34 @@ const ChatWidget = () => {
     const newMessages = [...messages, { role: 'user', content: userMessage, timestamp: new Date() }];
     setMessages(newMessages);
     setIsLoading(true);
-
-    const tempMessage = { role: 'assistant', content: '', timestamp: new Date(), isTyping: true };
-    setMessages([...newMessages, tempMessage]);
+    setIsTyping(true);
 
     try {
-      const prompt = PROMPT_TEMPLATE.buildHybridPrompt(userMessage, trainingData);
-      const apiBase = CONFIG.API.getApiBase();
-      const endpoints = CONFIG.API.getEndpoints(apiBase);
-
-      console.log('Sending POST request to:', endpoints.BACKEND_PROXY);
-      console.log('Prompt:', prompt);
-
-      const response = await fetch(endpoints.BACKEND_PROXY, {
-        method: 'POST',
-        headers: { 'Content-Type': CONFIG.FETCH.HEADERS.CONTENT_TYPE_JSON },
-        body: JSON.stringify({ prompt }),
-      });
-
-      console.log('Response status:', response.status);
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`HTTP error! status: ${response.status}, details: ${errorData.error || 'Unknown error'}`);
-      }
-
-      const data = await response.json();
-      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 
-                         data.content?.parts?.[0]?.text || 
-                         data.text || 
-                         CONFIG.MESSAGES.NO_RESPONSE;
-
-      setMessages(newMessages);
+      const response = await UTILS.callAPI(userMessage, trainingData);
+      setIsTyping(false);
       const finalMessage = { role: 'assistant', content: '', timestamp: new Date() };
       setMessages([...newMessages, finalMessage]);
-
-      await typeMessage(aiResponse, (partialMessage) => {
+      await typeMessage(response, (partialMessage) => {
         setMessages([...newMessages, { ...finalMessage, content: partialMessage }]);
       });
-
       setConnectionStatus(CONFIG.STATUS.CONNECTION.CONNECTED);
     } catch (error) {
-      console.error('Error sending message:', error.message);
-      let errorMessage = CONFIG.MESSAGES.DEFAULT_ERROR;
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        errorMessage += CONFIG.MESSAGES.CONNECTION_ERROR;
-        setConnectionStatus(CONFIG.STATUS.CONNECTION.OFFLINE);
-      } else {
-        errorMessage += CONFIG.MESSAGES.RETRY_MESSAGE;
-      }
+      console.error('Error sending message:', error);
+      setIsTyping(false);
+      const errorMessage = error.message || CONFIG.MESSAGES.DEFAULT_ERROR + CONFIG.MESSAGES.RETRY_MESSAGE;
       setMessages([...newMessages, { role: 'assistant', content: errorMessage, timestamp: new Date() }]);
+      setConnectionStatus(CONFIG.STATUS.CONNECTION.OFFLINE);
     } finally {
       setIsLoading(false);
     }
   };
 
- const handleKeyPress = (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-};
-
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
@@ -315,7 +297,7 @@ const ChatWidget = () => {
   };
 
   const copyMessage = (content) => {
-    UTILS.copyToClipboard(content).catch(() => {});
+    UTILS.copyToClipboard(content).catch((err) => console.error('Copy failed:', err));
   };
 
   const restoreLastChat = () => {
@@ -327,53 +309,53 @@ const ChatWidget = () => {
   };
 
   const ChatWindow = ({ isMobile }) => (
-    <div className={`${isMobile ? 'fixed inset-0 z-[9999]' : `w-96 h-[600px] ${isMinimized ? 'h-16' : ''}`} bg-black/95 backdrop-blur-2xl border border-gray-800/60 ${isMobile ? '' : 'rounded-3xl'} shadow-2xl transition-all duration-300 flex flex-col overflow-hidden`}>
-      <ChatHeader
-        isMobile={isMobile}
-        connectionStatus={connectionStatus}
-        trainingDataStatus={trainingDataStatus}
-        chatHistory={chatHistory}
-        restoreLastChat={restoreLastChat}
-        clearChat={clearChat}
-        messages={messages}
-        toggleMinimize={toggleMinimize}
-        isMinimized={isMinimized}
-        toggleChat={toggleChat}
-      />
-
-      {!isMinimized && (
-        <>
-          <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-            {messages.length === 0 && (
-              <WelcomeMessage
-                trainingDataStatus={trainingDataStatus}
-                setInputMessage={setInputMessage}
-                isMobile={isMobile}
-              />
-            )}
-            {messages.map((message, index) => (
-              <Message key={index} message={message} copyMessage={copyMessage} />
-            ))}
-            {(isLoading || isTyping) && <TypingIndicator />}
-            <div ref={messagesEndRef} />
-          </div>
-          <ChatInputArea
-            inputRef={inputRef}
-            inputMessage={inputMessage}
-            setInputMessage={setInputMessage}
-            handleKeyPress={handleKeyPress}
-            isLoading={isLoading}
-            connectionStatus={connectionStatus}
-            sendMessage={sendMessage}
-          />
-        </>
-      )}
-    </div>
+    <ErrorBoundary>
+      <div className={`${isMobile ? 'fixed inset-0 z-[9999]' : `w-96 h-[600px] ${isMinimized ? 'h-16' : ''}`} bg-black/95 backdrop-blur-2xl border border-gray-800/60 ${isMobile ? '' : 'rounded-3xl'} shadow-2xl transition-all duration-300 flex flex-col overflow-hidden`}>
+        <ChatHeader
+          isMobile={isMobile}
+          connectionStatus={connectionStatus}
+          trainingDataStatus={trainingDataStatus}
+          chatHistory={chatHistory}
+          restoreLastChat={restoreLastChat}
+          clearChat={clearChat}
+          messages={messages}
+          toggleMinimize={toggleMinimize}
+          isMinimized={isMinimized}
+          toggleChat={toggleChat}
+        />
+        {!isMinimized && (
+          <>
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+              {messages.length === 0 && (
+                <WelcomeMessage
+                  trainingDataStatus={trainingDataStatus}
+                  setInputMessage={setInputMessage}
+                  isMobile={isMobile}
+                />
+              )}
+              {messages.map((message, index) => (
+                <Message key={index} message={message} copyMessage={copyMessage} />
+              ))}
+              {(isLoading || isTyping) && <TypingIndicator />}
+              <div ref={messagesEndRef} />
+            </div>
+            <ChatInputArea
+              inputRef={inputRef}
+              inputMessage={inputMessage}
+              setInputMessage={setInputMessage}
+              handleKeyPress={handleKeyPress}
+              isLoading={isLoading}
+              connectionStatus={connectionStatus}
+              sendMessage={sendMessage}
+            />
+          </>
+        )}
+      </div>
+    </ErrorBoundary>
   );
 
   return (
-    <>
-      {/* Desktop */}
+    <ErrorBoundary>
       <div className="hidden md:block fixed bottom-6 right-6 z-50">
         {!isOpen && (
           <button
@@ -386,8 +368,6 @@ const ChatWidget = () => {
         )}
         {isOpen && <ChatWindow isMobile={false} />}
       </div>
-
-      {/* Mobile */}
       <div className="md:hidden">
         {!isOpen && (
           <button
@@ -400,7 +380,7 @@ const ChatWidget = () => {
         )}
         {isOpen && <ChatWindow isMobile={true} />}
       </div>
-    </>
+    </ErrorBoundary>
   );
 };
 
