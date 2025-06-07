@@ -7,11 +7,11 @@ const isDevelopment = process.env.NODE_ENV === 'development' ||
 
 // API Configuration
 const API_CONFIG = {
-  // Backend URLs - Update these with your actual deployment URLs
+  // Backend URLs - Updated with your actual deployment URLs
   BACKEND_URLS: {
-    PRODUCTION: 'https://your-render-app.onrender.com', // Replace with your Render URL
+    PRODUCTION: 'https://cr8-backend.onrender.com', // Updated with your actual Render URL
     DEVELOPMENT: 'http://localhost:3002', // Updated to match your port
-    FALLBACK: 'https://your-render-app.onrender.com' // Fallback URL
+    FALLBACK: 'https://cr8-backend.onrender.com' // Updated fallback URL
   },
   
   // API endpoints
@@ -157,58 +157,59 @@ We serve clients who need visual storytelling and branding services. Our goal is
     }
   },
 
-  // Suggestions for users
+  // Suggestions for users - Updated for CR8
   SUGGESTIONS: {
     GENERAL: [
-      "Hello! How can you help me?",
-      "What can you do?",
-      "Tell me a joke",
-      "Help me with coding",
-      "Explain something interesting"
+      "What services does CR8 offer?",
+      "Tell me about your pricing packages",
+      "How does your creative process work?",
+      "Can I see your portfolio?",
+      "How can I contact CR8?"
     ],
     
     CR8_SPECIFIC: [
       "What are your capabilities?",
       "How do you work?",
-      "Can you help with programming?",
-      "What topics can we discuss?"
+      "Can you help with video editing?",
+      "Tell me about motion graphics",
+      "What's your creative process?"
     ],
     
     MOBILE_SPECIFIC: [
-      "Hi there!",
-      "What's new?",
-      "Quick question",
-      "Help please"
+      "Hi CR8! 👋",
+      "Show me your work",
+      "Pricing info?",
+      "Contact details"
     ]
   },
 
   // Messages
   MESSAGES: {
     WELCOME: {
-      SUBTITLE_LOADED: "I'm ready to help you with questions, coding, creative tasks, and more!",
-      SUBTITLE_LOADING: "Loading my knowledge base...",
-      SUBTITLE_FALLBACK: "Running with basic configuration"
+      SUBTITLE_LOADED: "I'm ready to help you unleash your creative vision with CR8's services!",
+      SUBTITLE_LOADING: "Loading CR8 creative knowledge...",
+      SUBTITLE_FALLBACK: "Ready to help with your creative projects"
     },
     
-    NO_TRAINING_DATA: "I'm here to help! Ask me anything.",
-    NO_RESPONSE: "I'm having trouble generating a response right now. Could you try rephrasing your question?",
+    NO_TRAINING_DATA: "I'm here to help with your creative needs! Ask me about CR8's services.",
+    NO_RESPONSE: "I'm having trouble generating a response right now. Could you try rephrasing your creative question?",
     DEFAULT_ERROR: "I encountered an issue while processing your request. ",
     CONNECTION_ERROR: "It seems there's a connection problem with the server. Please check your internet connection and try again.",
     RETRY_MESSAGE: "Please try again, and if the problem persists, let me know!",
     
-    LOADING: "Thinking...",
-    TYPING: "Typing...",
+    LOADING: "Creating...",
+    TYPING: "Crafting response...",
     
     ERRORS: {
       NETWORK: "Network error. Please check your connection and try again.",
-      SERVER: "Server error. The service might be temporarily unavailable.",
+      SERVER: "Server error. The creative service might be temporarily unavailable.",
       TIMEOUT: "Request timed out. Please try again.",
       UNKNOWN: "An unexpected error occurred. Please try again."
     }
   }
 };
 
-// Utility functions
+// Utility functions (same as before)
 export const UTILS = {
   // Format timestamp for display
   formatTime: (timestamp) => {
@@ -321,21 +322,22 @@ export const UTILS = {
   }
 };
 
-// Prompt template builder
+// Prompt template builder - Updated for CR8
 export const PROMPT_TEMPLATE = {
   buildHybridPrompt: (userMessage, trainingData = '') => {
     const systemPrompt = `
 ${trainingData}
 
 ## Current Context
-You are an AI assistant having a conversation with a user. Respond helpfully, accurately, and conversationally.
+You are an AI assistant for CR8 Digital Creative Agency. CR8 specializes in bringing creative visions to life through graphic design, video editing, animation, and motion graphics.
 
 ## Instructions
-- Provide clear, helpful responses
-- Be friendly and professional
+- Be friendly, creative, and professional
+- Focus on visual storytelling and creative solutions
+- Provide clear, helpful responses about CR8's services
 - Use examples when helpful
-- Ask clarifying questions if needed
-- Keep responses focused and relevant
+- Ask clarifying questions about creative projects
+- Keep responses focused and relevant to creative work
 
 ## User Message:
 ${userMessage}
@@ -347,7 +349,7 @@ ${userMessage}
   },
 
   buildSimplePrompt: (userMessage) => {
-    return `User: ${userMessage}\n\nAssistant: `;
+    return `User: ${userMessage}\n\nCR8 Assistant: `;
   }
 };
 
