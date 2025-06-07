@@ -113,99 +113,50 @@ const ChatHeader = ({ isMobile, connectionStatus, trainingDataStatus, chatHistor
   </div>
 );
 
-// Improved AutoResizeInput component with optimized performance
-const AutoResizeInput = ({ value, onChange, onSubmit, disabled, placeholder }) => {
-  const textareaRef = useRef(null);
-  const [isFocused, setIsFocused] = useState(false);
-
-  // Optimized auto-resize function
-  const adjustHeight = () => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
+const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress, isLoading, connectionStatus, sendMessage }) => {
+  // Add this function to handle textarea auto-resize
+  const handleInputChange = (e) => {
+    const textarea = e.target;
+    setInputMessage(e.target.value);
     
-    // Use requestAnimationFrame to avoid blocking typing
-    requestAnimationFrame(() => {
-      textarea.style.height = 'auto';
-      const scrollHeight = textarea.scrollHeight;
-      const maxHeight = 120; // Maximum height in pixels
-      const newHeight = Math.min(scrollHeight, maxHeight);
-      textarea.style.height = newHeight + 'px';
-    });
-  };
-
-  // Only adjust height when value changes, with debouncing
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      adjustHeight();
-    }, 0); // Minimal delay to avoid interfering with typing
-
-    return () => clearTimeout(timeoutId);
-  }, [value]);
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      onSubmit();
-    }
-  };
-
-  const handleChange = (e) => {
-    onChange(e.target.value);
+    // Auto-resize textarea
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
   };
 
   return (
-    <div className="relative flex-1">
-      <textarea
-        ref={textareaRef}
-        value={value}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        placeholder={placeholder}
-        disabled={disabled}
-        className={`w-full p-4 bg-gray-900/80 backdrop-blur-sm border border-gray-700/60 rounded-2xl text-white placeholder-gray-500 resize-none transition-all duration-200 ${
-          isFocused ? 'ring-2 ring-white/50 border-white/50' : ''
-        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-        style={{
-          minHeight: '52px',
-          maxHeight: '120px',
-          overflow: 'auto',
-          // Prevent layout shift during typing
-          transition: 'border-color 0.2s, box-shadow 0.2s'
-        }}
-      />
+    <div className="p-4 bg-black/90 backdrop-blur-xl border-t border-gray-800/60">
+      <div className="flex items-end space-x-3">
+        <div className="flex-1 relative">
+          <textarea
+            ref={inputRef}
+            value={inputMessage}
+            onChange={handleInputChange} // Use the new handler instead of inline
+            onKeyPress={handleKeyPress}
+            placeholder="Type your message..."
+            className="w-full p-4 bg-gray-900/80 backdrop-blur-sm border border-gray-700/60 rounded-2xl text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200"
+            rows="1"
+            style={{ minHeight: '52px', maxHeight: '120px' }}
+            disabled={isLoading}
+          />
+        </div>
+        <button
+          onClick={sendMessage}
+          disabled={isLoading || !inputMessage.trim()}
+          className="h-[52px] px-4 bg-white hover:bg-gray-200 disabled:bg-gray-700 disabled:cursor-not-allowed text-black disabled:text-gray-400 rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none flex items-center justify-center"
+        >
+          <Send size={18} />
+        </button>
+      </div>
+      {connectionStatus === CONFIG.STATUS.CONNECTION.OFFLINE && (
+        <div className="mt-3 text-xs text-red-400 flex items-center space-x-2 bg-red-500/10 rounded-lg p-2 border border-red-500/20">
+          <span>⚠️</span>
+          <span>Backend server disconnected</span>
+        </div>
+      )}
     </div>
   );
 };
-
-const ChatInputArea = ({ inputMessage, setInputMessage, sendMessage, isLoading, connectionStatus }) => (
-  <div className="p-4 bg-black/90 backdrop-blur-xl border-t border-gray-800/60">
-    <div className="flex items-end space-x-3">
-      <AutoResizeInput
-        value={inputMessage}
-        onChange={setInputMessage}
-        onSubmit={sendMessage}
-        disabled={isLoading}
-        placeholder="Type your message..."
-      />
-      <button
-        onClick={sendMessage}
-        disabled={isLoading || !inputMessage.trim()}
-        className="h-[52px] px-4 bg-white hover:bg-gray-200 disabled:bg-gray-700 disabled:cursor-not-allowed text-black disabled:text-gray-400 rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none flex items-center justify-center flex-shrink-0"
-      >
-        <Send size={18} />
-      </button>
-    </div>
-    {connectionStatus === CONFIG.STATUS.CONNECTION.OFFLINE && (
-      <div className="mt-3 text-xs text-red-400 flex items-center space-x-2 bg-red-500/10 rounded-lg p-2 border border-red-500/20">
-        <span>⚠️</span>
-        <span>Backend server disconnected</span>
-      </div>
-    )}
-  </div>
-);
-
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -218,6 +169,7 @@ const ChatWidget = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const API_BASE = CONFIG.API.getApiBase();
   const ENDPOINTS = CONFIG.API.getEndpoints(API_BASE);
@@ -226,6 +178,11 @@ const ChatWidget = () => {
 
   useEffect(() => { scrollToBottom(); }, [messages]);
   useEffect(() => { loadTrainingData(); checkBackendConnection(); }, []);
+  useEffect(() => {
+    if (isOpen && !isMinimized && window.innerWidth > 768) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [isOpen, isMinimized]);
 
   const loadTrainingData = async () => {
     setTrainingDataStatus(CONFIG.STATUS.TRAINING_DATA.LOADING);
@@ -285,9 +242,8 @@ const ChatWidget = () => {
     setIsTyping(false);
   };
 
-  const sendMessage = useCallback(async () => {
+  const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
-    
     const userMessage = inputMessage.trim();
     setInputMessage('');
     const newMessages = [...messages, { role: 'user', content: userMessage, timestamp: new Date() }];
@@ -345,7 +301,15 @@ const ChatWidget = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [inputMessage, isLoading, messages, trainingData]);
+  };
+
+ const handleKeyPress = (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+};
+
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
@@ -405,11 +369,13 @@ const ChatWidget = () => {
             <div ref={messagesEndRef} />
           </div>
           <ChatInputArea
+            inputRef={inputRef}
             inputMessage={inputMessage}
             setInputMessage={setInputMessage}
-            sendMessage={sendMessage}
+            handleKeyPress={handleKeyPress}
             isLoading={isLoading}
             connectionStatus={connectionStatus}
+            sendMessage={sendMessage}
           />
         </>
       )}
