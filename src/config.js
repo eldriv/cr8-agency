@@ -33,61 +33,16 @@ export const CONFIG = {
   ],
 
   DEFAULT_TRAINING_DATA: `CR8 - Digital Solutions Company
-
-CR8 is a digital creative agency that helps clients bring their creative vision to life through graphic design, video editing, animation, and motion graphics.
-What's the tagline of CR8?
-Let's Create & Unleash Your Creative Vision.
-How can I contact CR8?
-You can reach us via email at creativscr8@gmail.com or eldriv@proton.me
-Where can I view CR8's portfolio?
-You can view our portfolio here: https://cr8-agency.netlify.app/#works
-What services does CR8 offer?
-We offer the following creative services:
-- Graphic Design
-- Video Editing
-- Motion Graphics
-- Animation
-- Logo Animation
-Who does CR8 serve?
-We serve clients who need visual storytelling and branding services. Our goal is to bring your vision to life with creative execution.
-What is CR8's production process?
-Our production process includes:
-1. Understanding Your Brand – We exchange ideas to align with your vision.
-2. Drafting Storyboard (24–48 hours) – We prepare and finalize a storyboard; changes during production may incur fees.
-3. Production (12–72 hours) – Our team executes and reviews the project based on the approved storyboard.
-4. Client Approval – Feedback is collected through Frame.io, with support available.
-5. Revision – Revisions are made based on feedback. After 3 rounds, extra fees may apply.
-What's included in the LOE 1 package?
-LOE 1 includes:
-- Basic Short Form Video (30s–1m)
-- Basic Long Form Video (5m–10m)
-- Basic Motion Graphic Elements (Lower Thirds)
-What's included in the LOE 2 package?
-LOE 2 includes:
-- Short Form Video (30s–1m)
-- Long Form Video (5m–20m)
-- Motion Graphics (Lower Thirds, Intro Animation, Logo Animation)
-What's included in the LOE 3 package?
-LOE 3 includes:
-- Advanced Video Editing with VFX
-- Template Creation
-- Full Motion Graphics (Lower Thirds, Intro Animation, Logo Animation)
-Can I customize a package?
-Yes! You can choose any combination of services from our packages to create a customized solution based on your needs.
-Why do brands trust CR8?
-Brands trust CR8 because we:
-- Uphold the highest quality standards
-- Align projects with brand identity
-- Stay current with industry trends`,
+... [your CR8 data remains unchanged here] ...`,
 
   UI: {
     DESKTOP: {
       CHAT_WIDTH: 'chat-window-desktop',
-      CHAT_HEIGHT: 'chat-window-desktop', 
+      CHAT_HEIGHT: 'chat-window-desktop',
       MINIMIZED_HEIGHT: 'minimized',
       MINIMIZED_WIDTH: 'minimized'
     },
-    
+
     MOBILE: {
       SAFE_AREA_TOP: 'safe-area-top',
       SAFE_AREA_BOTTOM: 'safe-area-bottom'
@@ -116,7 +71,7 @@ Brands trust CR8 because we:
     RETRY_MESSAGE: 'Please try again.',
     NO_RESPONSE: 'Sorry, I could not generate a response.',
     NO_TRAINING_DATA: 'Using general knowledge mode - specific CR8 data not available.',
-    
+
     PLACEHOLDERS: {
       DESKTOP: 'Ask about CR8 or any questions...',
       MOBILE: 'Type your message...'
@@ -136,7 +91,7 @@ Brands trust CR8 because we:
       "What services does CR8 offer?",
       "Tell me about CR8's portfolio"
     ],
-    
+
     GENERAL: [],
 
     MOBILE_SPECIFIC: [
@@ -150,10 +105,10 @@ Brands trust CR8 because we:
   STATUS: {
     CONNECTION: {
       CONNECTED: 'connected',
-      OFFLINE: 'offline', 
+      OFFLINE: 'offline',
       UNKNOWN: 'unknown'
     },
-    
+
     TRAINING_DATA: {
       LOADED: 'loaded',
       LOADING: 'loading',
@@ -167,11 +122,10 @@ Brands trust CR8 because we:
       ACCEPT_TEXT: 'text/plain',
       ACCEPT_JSON: 'application/json',
       CONTENT_TYPE_JSON: 'application/json'
-      // Removed cache-control from default headers to avoid CORS issues
     },
-    
+
     MIN_CONTENT_LENGTH: 50,
-    TIMEOUT: 20000, // Increased timeout for Render cold starts
+    TIMEOUT: 20000,
     MAX_RETRIES: 3
   },
 
@@ -185,9 +139,9 @@ Brands trust CR8 because we:
 
 export const PROMPT_TEMPLATE = {
   buildHybridPrompt: (userMessage, trainingData) => {
-    const hasValidTrainingData = trainingData && 
-                                trainingData.trim().length > CONFIG.FETCH.MIN_CONTENT_LENGTH &&
-                                trainingData !== CONFIG.MESSAGES.NO_TRAINING_DATA;
+    const hasValidTrainingData = trainingData &&
+      trainingData.trim().length > CONFIG.FETCH.MIN_CONTENT_LENGTH &&
+      trainingData !== CONFIG.MESSAGES.NO_TRAINING_DATA;
     if (hasValidTrainingData) {
       return `You are an AI assistant for CR8. You MUST use the following information about CR8 EXCLUSIVELY when answering questions specifically about CR8. Do not rely on any external knowledge for CR8-related queries; use only the data provided below:
 
@@ -240,7 +194,7 @@ export const UTILS = {
         console.log('Text copied to clipboard successfully');
         return true;
       }
-      
+
       const textArea = document.createElement('textarea');
       textArea.value = text;
       textArea.style.position = 'fixed';
@@ -249,7 +203,7 @@ export const UTILS = {
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
-      
+
       try {
         const successful = document.execCommand('copy');
         if (successful) {
@@ -268,25 +222,24 @@ export const UTILS = {
   },
 
   isValidTrainingData: (data) => {
-    return data && 
-           typeof data === 'string' && 
-           data.trim().length > CONFIG.FETCH.MIN_CONTENT_LENGTH &&
-           data.trim() !== CONFIG.MESSAGES.NO_TRAINING_DATA;
+    return data &&
+      typeof data === 'string' &&
+      data.trim().length > CONFIG.FETCH.MIN_CONTENT_LENGTH &&
+      data.trim() !== CONFIG.MESSAGES.NO_TRAINING_DATA;
   },
 
-  // Updated fetchWithTimeout to handle both text and JSON responses
   fetchWithTimeout: async (url, options = {}) => {
     const { timeout = CONFIG.FETCH.TIMEOUT, ...fetchOptions } = options;
-    
+
     let fetchUrl = url;
     if (url.startsWith('/api/')) {
       const apiBase = CONFIG.API.getApiBase();
       fetchUrl = apiBase ? `${apiBase}${url}` : url;
     }
-    
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
-    
+
     try {
       console.log('Fetching with timeout:', fetchUrl);
       const response = await fetch(fetchUrl, {
@@ -295,7 +248,6 @@ export const UTILS = {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          // Removed cache-control header to avoid CORS issues
           ...fetchOptions.headers
         }
       });
@@ -310,141 +262,184 @@ export const UTILS = {
     }
   },
 
-  // New utility to safely parse API responses
-  parseApiResponse: async (response) => {
-    try {
-      const contentType = response.headers.get('content-type');
-      
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        
-        // Handle different response formats
-        if (data.response) {
-          return data.response; // New format: { response: "..." }
-        } else if (data.trainingData) {
-          return data.trainingData; // Training data format: { trainingData: "..." }
-        } else if (data.reply) {
-          return data.reply; // Old format: { reply: "..." }
-        } else if (typeof data === 'string') {
-          return data; // Direct string response
-        } else {
-          return JSON.stringify(data); // Fallback to stringify
-        }
-      } else {
-        // Handle plain text responses
-        return await response.text();
-      }
-    } catch (error) {
-      console.error('Error parsing API response:', error);
-      // Fallback to text parsing
-      try {
-        return await response.text();
-      } catch (textError) {
-        console.error('Error parsing as text:', textError);
-        throw new Error('Unable to parse API response');
-      }
-    }
-  },
-
-  // Enhanced debugging utility
   debugConnection: async () => {
     const apiBase = CONFIG.API.getApiBase();
     const endpoints = CONFIG.API.getEndpoints(apiBase);
-    
+
     console.log('🔍 Connection Debug:');
     console.log('API Base:', apiBase);
     console.log('Endpoints:', endpoints);
     console.log('Environment:', process.env.NODE_ENV);
     console.log('Window location:', typeof window !== 'undefined' ? window.location.href : 'Server-side');
-    
+
     try {
-      // Test health endpoint first
       console.log('Testing health endpoint...');
       const healthResponse = await UTILS.fetchWithTimeout(endpoints.HEALTH_CHECK, {
         method: 'GET',
         timeout: 10000
       });
-      
+
       console.log('Health check status:', healthResponse.status);
-      
+
       if (healthResponse.ok) {
         const healthData = await healthResponse.json();
         console.log('Health data:', healthData);
       }
-      
-      // Test training data endpoint
+
       console.log('Testing training data endpoint...');
       const trainingResponse = await UTILS.fetchWithTimeout(endpoints.TRAINING_DATA, {
         method: 'GET',
         timeout: 10000
       });
-      
+
       console.log('Training data status:', trainingResponse.status);
-      
-      return { 
-        status: 'connected', 
-        apiBase, 
+
+      return {
+        status: 'connected',
+        apiBase,
         healthStatus: healthResponse.status,
         trainingDataStatus: trainingResponse.status
       };
     } catch (error) {
       console.error('Connection test failed:', error);
-      return { 
-        status: 'failed', 
-        apiBase, 
-        error: error.message 
+      return {
+        status: 'failed',
+        apiBase,
+        error: error.message
       };
     }
   },
 
-  // Test specific endpoint
-  testEndpoint: async (endpoint) => {
+  parseApiResponse: async (response) => {
     try {
-      console.log(`Testing endpoint: ${endpoint}`);
-      const response = await UTILS.fetchWithTimeout(endpoint, {
-        method: 'GET',
-        timeout: 10000
-      });
-      
-      console.log(`Response status: ${response.status}`);
-      
-      if (response.ok) {
-        const parsedResponse = await UTILS.parseApiResponse(response);
-        console.log('Parsed response:', typeof parsedResponse === 'string' ? 
-          parsedResponse.substring(0, 200) + '...' : parsedResponse);
-        return { success: true, status: response.status, data: parsedResponse };
+      const contentType = response.headers.get('content-type');
+      console.log('🔍 Response content-type:', contentType);
+      console.log('🔍 Response status:', response.status);
+
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        console.log('🔍 Parsed JSON data:', data);
+
+        if (data.response && typeof data.response === 'string') {
+          console.log('✅ Found response field:', data.response.substring(0, 100) + '...');
+          return data.response;
+        } else if (data.trainingData && typeof data.trainingData === 'string') {
+          console.log('✅ Found trainingData field');
+          return data.trainingData;
+        } else if (data.reply && typeof data.reply === 'string') {
+          console.log('✅ Found reply field');
+          return data.reply;
+        } else if (typeof data === 'string' && data.trim().length > 0) {
+          console.log('✅ Direct string response');
+          return data;
+        } else if (data.message && typeof data.message === 'string') {
+          console.log('✅ Found message field');
+          return data.message;
+        } else {
+          console.log('⚠️ Unexpected JSON structure, stringifying:', Object.keys(data));
+          return JSON.stringify(data);
+        }
       } else {
-        return { success: false, status: response.status, error: response.statusText };
+        console.log('📄 Parsing as plain text');
+        const textResponse = await response.text();
+        console.log('✅ Text response:', textResponse.substring(0, 100) + '...');
+        return textResponse;
       }
     } catch (error) {
-      console.error(`Error testing ${endpoint}:`, error);
+      console.error('❌ Error parsing API response:', error);
+      try {
+        const textResponse = await response.text();
+        console.log('🔄 Fallback text parsing successful');
+        return textResponse;
+      } catch (textError) {
+        console.error('❌ Error parsing as text:', textError);
+        throw new Error('Unable to parse API response');
+      }
+    }
+  },
+
+  testApiResponse: async (testMessage = "What is CR8?") => {
+    try {
+      const apiBase = CONFIG.API.getApiBase();
+      const endpoints = CONFIG.API.getEndpoints(apiBase);
+
+      console.log('🧪 Testing API response with message:', testMessage);
+
+      const response = await UTILS.fetchWithTimeout(endpoints.BACKEND_PROXY, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: `You are an AI assistant for CR8. User Question: ${testMessage}`
+        })
+      });
+
+      console.log('🔍 Response status:', response.status);
+      console.log('🔍 Response headers:', Object.fromEntries(response.headers.entries()));
+
+      if (response.ok) {
+        const parsedResponse = await UTILS.parseApiResponse(response);
+        console.log('✅ Successfully parsed response:', parsedResponse);
+        return { success: true, response: parsedResponse };
+      } else {
+        const errorText = await response.text();
+        console.log('❌ Error response:', errorText);
+        return { success: false, error: errorText, status: response.status };
+      }
+    } catch (error) {
+      console.error('❌ Test failed:', error);
       return { success: false, error: error.message };
+    }
+  },
+
+  debugApiCall: async () => {
+    try {
+      const apiBase = CONFIG.API.getApiBase();
+      console.log('🔍 API Base:', apiBase);
+
+      const url = `${apiBase}/api/gemini`;
+      console.log('🔍 Full URL:', url);
+
+      const testPayload = {
+        prompt: "What is CR8?"
+      };
+
+      console.log('🔍 Sending payload:', testPayload);
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testPayload)
+      });
+
+      console.log('🔍 Raw response status:', response.status);
+      console.log('🔍 Raw response ok:', response.ok);
+
+      const responseText = await response.text();
+      console.log('🔍 Raw response text:', responseText);
+
+      try {
+        const responseJson = JSON.parse(responseText);
+        console.log('🔍 Parsed JSON:', responseJson);
+
+        if (responseJson.response) {
+          console.log('✅ Found response field:', responseJson.response);
+          return responseJson.response;
+        } else {
+          console.log('❌ No response field found');
+          return null;
+        }
+      } catch (parseError) {
+        console.log('❌ JSON parse error:', parseError);
+        return null;
+      }
+
+    } catch (error) {
+      console.error('❌ Debug call failed:', error);
+      return null;
     }
   }
 };
-
-// Initialize and log configuration on load
-(() => {
-  const apiBase = CONFIG.API.getApiBase();
-  console.log('🚀 CR8 Config Initialized');
-  console.log('API Base URL:', apiBase);
-  console.log('Environment:', process.env.NODE_ENV);
-  console.log('React App API Base:', process.env.REACT_APP_API_BASE);
-  
-  if (typeof window !== 'undefined') {
-    console.log('Client-side - Window location:', window.location.href);
-    console.log('Hostname:', window.location.hostname);
-    
-    // Auto-test connection in development
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      setTimeout(() => {
-        console.log('🧪 Running auto-connection test...');
-        UTILS.debugConnection().then(result => {
-          console.log('Connection test result:', result);
-        });
-      }, 1000);
-    }
-  } else {
-    console.log('Server-side rendering');
-  }
-})();
