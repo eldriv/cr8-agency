@@ -11,7 +11,7 @@ const isDevelopment = typeof window !== 'undefined' && (
 const API_CONFIG = {
   BACKEND_URLS: {
     PRODUCTION: 'https://cr8-backend.onrender.com',
-    DEVELOPMENT: 'http://localhost:10000', // FIXED: Changed from 3002 to match backend
+    DEVELOPMENT: 'http://localhost:3002', // FIXED: Changed from 3002 to match backend
     FALLBACK: 'https://cr8-backend.onrender.com'
   },
   
