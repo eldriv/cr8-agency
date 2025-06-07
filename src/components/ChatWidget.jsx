@@ -114,51 +114,50 @@ const ChatHeader = ({ isMobile, connectionStatus, trainingDataStatus, chatHistor
 );
 
 const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress, isLoading, connectionStatus, sendMessage }) => {
-  // Auto-resize textarea function
-  const adjustTextareaHeight = (textarea) => {
-    if (textarea) {
-      textarea.style.height = 'auto';
-      const scrollHeight = textarea.scrollHeight;
-      const maxHeight = 120; // Match the maxHeight from style
-      textarea.style.height = Math.min(scrollHeight, maxHeight) + 'px';
+  const handleInput = (e) => {
+    const content = e.target.innerText;
+    setInputMessage(content);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
   };
 
-  // Handle input change
-  const handleInputChange = (e) => {
-    const textarea = e.target;
-    const wasFocused = document.activeElement === textarea;
-    setInputMessage(e.target.value);
-    adjustTextareaHeight(textarea);
-    if (wasFocused) {
-      textarea.focus(); // Restore focus after height adjustment
-    }
-  };
-
-  // Adjust height on mount only
+  // Focus the input when the chat opens or on mount
   useEffect(() => {
     if (inputRef.current) {
-      adjustTextareaHeight(inputRef.current);
+      inputRef.current.focus();
     }
-  }, []); // Empty dependency array to run only on mount
+  }, []);
+
+  // Update contenteditable div when inputMessage changes (e.g., from suggestion buttons)
+  useEffect(() => {
+    if (inputRef.current && inputRef.current.innerText !== inputMessage) {
+      inputRef.current.innerText = inputMessage;
+    }
+  }, [inputMessage]);
 
   return (
     <div className="p-4 bg-black/90 backdrop-blur-xl border-t border-gray-800/60">
       <div className="flex items-end space-x-3">
         <div className="flex-1 relative">
-          <textarea
+          <div
             ref={inputRef}
-            value={inputMessage}
-            onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
-            placeholder="Type your message..."
-            className="w-full p-4 bg-gray-900/80 backdrop-blur-sm border border-gray-700/60 rounded-2xl text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 overflow-hidden"
+            contentEditable={!isLoading}
+            onInput={handleInput}
+            onKeyDown={handleKeyDown}
+            className="w-full p-4 bg-gray-900/80 backdrop-blur-sm border border-gray-700/60 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 overflow-y-auto"
             style={{ 
               minHeight: '52px', 
               maxHeight: '120px',
-              lineHeight: '1.5'
+              lineHeight: '1.5',
+              whiteSpace: 'pre-wrap',
+              cursor: isLoading ? 'not-allowed' : 'text'
             }}
-            disabled={isLoading}
+            data-placeholder="Type your message..."
           />
         </div>
         <button
@@ -268,6 +267,7 @@ const ChatWidget = () => {
     if (!inputMessage.trim() || isLoading) return;
     const userMessage = inputMessage.trim();
     setInputMessage('');
+    if (inputRef.current) inputRef.current.innerText = ''; // Clear contenteditable
     const newMessages = [...messages, { role: 'user', content: userMessage, timestamp: new Date() }];
     setMessages(newMessages);
     setIsLoading(true);
@@ -278,7 +278,7 @@ const ChatWidget = () => {
     try {
       const prompt = PROMPT_TEMPLATE.buildHybridPrompt(userMessage, trainingData);
       const apiBase = CONFIG.API.getApiBase();
-      const endpoints = COMNFIG.API.getEndpoints(apiBase);
+      const endpoints = CONFIG.API.getEndpoints(apiBase);
 
       console.log('Sending POST request to:', endpoints.BACKEND_PROXY);
       console.log('Prompt:', prompt);
