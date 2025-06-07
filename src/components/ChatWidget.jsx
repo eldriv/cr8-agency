@@ -114,9 +114,8 @@ const ChatHeader = ({ isMobile, connectionStatus, trainingDataStatus, chatHistor
 );
 
 const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress, isLoading, connectionStatus, sendMessage }) => {
-  const handleInput = (e) => {
-    const content = e.target.innerText;
-    setInputMessage(content);
+  const handleInputChange = (e) => {
+    setInputMessage(e.target.value);
   };
 
   const handleKeyDown = (e) => {
@@ -126,38 +125,30 @@ const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress
     }
   };
 
-  // Focus the input when the chat opens or on mount
+  // Focus the input when the component mounts
   useEffect(() => {
-    if (inputRef.current) {
+    if (inputRef.current && !isLoading) {
       inputRef.current.focus();
     }
   }, []);
 
-  // Update contenteditable div when inputMessage changes (e.g., from suggestion buttons)
-  useEffect(() => {
-    if (inputRef.current && inputRef.current.innerText !== inputMessage) {
-      inputRef.current.innerText = inputMessage;
-    }
-  }, [inputMessage]);
-
   return (
     <div className="p-4 bg-black/90 backdrop-blur-xl border-t border-gray-800/60">
-      <div className="flex items-end space-x-3">
+      <div className="flex items-center space-x-3">
         <div className="flex-1 relative">
-          <div
+          <input
             ref={inputRef}
-            contentEditable={!isLoading}
-            onInput={handleInput}
+            type="text"
+            value={inputMessage}
+            onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            className="w-full p-4 bg-gray-900/80 backdrop-blur-sm border border-gray-700/60 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 overflow-y-auto"
+            placeholder="Type your message..."
+            className="w-full p-4 bg-gray-900/80 backdrop-blur-sm border border-gray-700/60 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200"
             style={{ 
-              minHeight: '52px', 
-              maxHeight: '120px',
-              lineHeight: '1.5',
-              whiteSpace: 'pre-wrap',
-              cursor: isLoading ? 'not-allowed' : 'text'
+              height: '52px',
+              lineHeight: '1.5'
             }}
-            data-placeholder="Type your message..."
+            disabled={isLoading}
           />
         </div>
         <button
@@ -200,8 +191,8 @@ const ChatWidget = () => {
   useEffect(() => { scrollToBottom(); }, [messages]);
   useEffect(() => { loadTrainingData(); checkBackendConnection(); }, []);
   useEffect(() => {
-    if (isOpen && !isMinimized && window.innerWidth > 768) {
-      setTimeout(() => inputRef.current?.focus(), 100);
+    if (isOpen && !isMinimized && window.innerWidth > 768 && inputRef.current) {
+      setTimeout(() => inputRef.current.focus(), 100);
     }
   }, [isOpen, isMinimized]);
 
@@ -267,7 +258,6 @@ const ChatWidget = () => {
     if (!inputMessage.trim() || isLoading) return;
     const userMessage = inputMessage.trim();
     setInputMessage('');
-    if (inputRef.current) inputRef.current.innerText = ''; // Clear contenteditable
     const newMessages = [...messages, { role: 'user', content: userMessage, timestamp: new Date() }];
     setMessages(newMessages);
     setIsLoading(true);
