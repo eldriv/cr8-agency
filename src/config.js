@@ -1,6 +1,3 @@
-// src/config.js
-import { CONFIG, UTILS, PROMPT_TEMPLATE } from '@config';
-
 export const CONFIG = {
   API: {
     getApiBase: () => {
