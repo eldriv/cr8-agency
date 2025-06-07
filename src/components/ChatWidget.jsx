@@ -124,18 +124,23 @@ const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress
     }
   };
 
-  // Handle input change with auto-resize
+  // Handle input change
   const handleInputChange = (e) => {
+    const textarea = e.target;
+    const wasFocused = document.activeElement === textarea;
     setInputMessage(e.target.value);
-    adjustTextareaHeight(e.target);
+    adjustTextareaHeight(textarea);
+    if (wasFocused) {
+      textarea.focus(); // Restore focus after height adjustment
+    }
   };
 
-  // Adjust height when component mounts or inputMessage changes
+  // Adjust height on mount only
   useEffect(() => {
     if (inputRef.current) {
       adjustTextareaHeight(inputRef.current);
     }
-  }, [inputMessage]);
+  }, []); // Empty dependency array to run only on mount
 
   return (
     <div className="p-4 bg-black/90 backdrop-blur-xl border-t border-gray-800/60">
@@ -273,7 +278,7 @@ const ChatWidget = () => {
     try {
       const prompt = PROMPT_TEMPLATE.buildHybridPrompt(userMessage, trainingData);
       const apiBase = CONFIG.API.getApiBase();
-      const endpoints = CONFIG.API.getEndpoints(apiBase);
+      const endpoints = COMNFIG.API.getEndpoints(apiBase);
 
       console.log('Sending POST request to:', endpoints.BACKEND_PROXY);
       console.log('Prompt:', prompt);
