@@ -23,7 +23,7 @@ const API_CONFIG = {
   }
 };
 
-// PROMPT_TEMPLATE - Fix for undefined error
+// FIXED: PROMPT_TEMPLATE as string (not function)
 export const PROMPT_TEMPLATE = `You are CR8, an AI assistant for a creative digital agency. You are helpful, creative, professional, and knowledgeable about marketing, branding, design, video editing, motion graphics, and business strategy.
 
 About CR8:
@@ -86,9 +86,10 @@ export const CONFIG = {
     })
   },
 
-  // Training data configuration - Fix 404 errors
+  // FIXED: Training data configuration - backend endpoint first
   TRAINING_DATA_PATHS: [
-    '/api/training-data', // Backend endpoint first
+    // Use the backend endpoint as the primary source
+    CONFIG?.API?.getApiBase ? CONFIG.API.getApiBase() + API_CONFIG.ENDPOINTS.TRAINING_DATA : 'https://cr8-backend.onrender.com/api/training-data',
     '/data/training-data.txt',
     '/assets/training-data.txt',
     '/training-data.txt'
@@ -260,9 +261,9 @@ We serve clients who need visual storytelling and branding services. Our goal is
   }
 };
 
-// Enhanced UTILS with comprehensive error handling
+// Enhanced UTILS with better error handling
 export const UTILS = {
-  // Enhanced fetch with better error handling
+  // Enhanced fetch with better error handling and debugging
   fetchWithTimeout: async (url, options = {}) => {
     const { timeout = CONFIG.FETCH.TIMEOUT, ...fetchOptions } = options;
     
@@ -324,7 +325,7 @@ export const UTILS = {
         console.log(`❌ Attempt ${attempt} failed:`, error.message);
         
         if (attempt < maxAttempts) {
-          const backoffDelay = delay * Math.pow(2, attempt - 1);
+          const backoffDelay = delay * Math.pow(2, attempt - 1); // Exponential backoff
           console.log(`⏳ Waiting ${backoffDelay}ms before retry...`);
           await UTILS.sleep(backoffDelay);
         }
@@ -361,88 +362,35 @@ export const UTILS = {
     }
   },
 
-  // Logo loading with fallback
-  loadLogo: () => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve(CONFIG.APP.LOGO_PATH);
-      img.onerror = () => {
-        console.log('⚠️ Logo failed to load, using fallback');
-        resolve(CONFIG.APP.LOGO_FALLBACK);
-      };
-      img.src = CONFIG.APP.LOGO_PATH;
-    });
-  },
-
-  // Safe video element creation
-  createVideoElement: (src, options = {}) => {
-    const video = document.createElement('video');
+  // Debug API configuration
+  debugAPI: async () => {
+    const baseUrl = CONFIG.API.getApiBase();
+    const endpoints = CONFIG.API.getEndpoints(baseUrl);
     
-    // Apply safe video settings
-    video.preload = CONFIG.UI.VIDEO.PRELOAD;
-    video.muted = CONFIG.UI.VIDEO.MUTED;
-    video.autoplay = CONFIG.UI.VIDEO.AUTOPLAY;
-    video.controls = CONFIG.UI.VIDEO.CONTROLS;
-    video.loop = CONFIG.UI.VIDEO.LOOP;
-    
-    // Add error handling
-    video.addEventListener('error', (e) => {
-      console.log('Video error handled:', e.target.error);
-      // Hide video or show fallback
-      if (CONFIG.UI.VIDEO.FALLBACK_ENABLED) {
-        video.style.display = 'none';
-      }
+    console.log('🔍 API Debug Info:', {
+      isDevelopment,
+      baseUrl,
+      endpoints,
+      environment: process.env.NODE_ENV
     });
     
-    // Apply custom options
-    Object.assign(video, options);
-    
-    if (src) {
-      video.src = src;
+    // Test debug endpoint if available
+    try {
+      const response = await UTILS.fetchWithTimeout(endpoints.DEBUG, {
+        method: 'GET',
+        timeout: 5000
+      });
+      
+      if (response.ok) {
+        const debugData = await response.json();
+        console.log('🔍 Backend debug info:', debugData);
+        return debugData;
+      }
+    } catch (error) {
+      console.log('ℹ️ Debug endpoint not available:', error.message);
     }
     
-    return video;
-  },
-
-  // Prevent layout shift
-  preventLayoutShift: () => {
-    // Add CSS to prevent layout shift
-    const style = document.createElement('style');
-    style.textContent = `
-      .video-container {
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .video-container video {
-        transition: opacity 0.3s ease;
-      }
-      
-      .video-container video.loading {
-        opacity: 0;
-      }
-      
-      .video-container video.loaded {
-        opacity: 1;
-      }
-      
-      .video-error {
-        display: none;
-      }
-      
-      /* Prevent flash of unstyled content */
-      .chat-widget {
-        visibility: hidden;
-      }
-      
-      .chat-widget.loaded {
-        visibility: visible;
-      }
-    `;
-    
-    if (document.head) {
-      document.head.appendChild(style);
-    }
+    return null;
   },
 
   // Format timestamp
@@ -461,20 +409,6 @@ export const UTILS = {
   // Validate training data
   isValidTrainingData: (data) => {
     return data && typeof data === 'string' && data.trim().length > 0;
-  },
-
-  // Safe prompt template usage
-  buildPrompt: (userPrompt) => {
-    try {
-      if (typeof PROMPT_TEMPLATE === 'undefined') {
-        console.warn('PROMPT_TEMPLATE is undefined, using fallback');
-        return `You are CR8, a helpful AI assistant for a creative agency. User: ${userPrompt}`;
-      }
-      return PROMPT_TEMPLATE.replace('{prompt}', userPrompt);
-    } catch (error) {
-      console.error('Error building prompt:', error);
-      return `You are CR8, a helpful AI assistant for a creative agency. User: ${userPrompt}`;
-    }
   }
 };
 
@@ -484,16 +418,5 @@ export const ENV = {
   isProduction: !isDevelopment,
   apiBase: CONFIG.API.getApiBase()
 };
-
-// Initialize on load
-if (typeof window !== 'undefined') {
-  // Prevent layout shift
-  UTILS.preventLayoutShift();
-  
-  // Load logo with fallback
-  UTILS.loadLogo().then(logoSrc => {
-    console.log('Logo loaded:', logoSrc !== CONFIG.APP.LOGO_PATH ? 'fallback' : 'original');
-  });
-}
 
 export default CONFIG;
