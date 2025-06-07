@@ -10,7 +10,7 @@ const API_CONFIG = {
   // Backend URLs - Updated to match your actual deployment
   BACKEND_URLS: {
     PRODUCTION: 'https://cr8-backend.onrender.com', // Your Render URL
-    DEVELOPMENT: 'http://localhost:10000', // Match your local backend port
+    DEVELOPMENT: 'http://localhost:3002', // Match your local backend port
     FALLBACK: 'https://cr8-backend.onrender.com'
   },
   
