@@ -7,8 +7,6 @@ export const CONFIG = {
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
           return 'http://localhost:3002';
         }
-
-        // ✅ FIXED: Use the correct Render backend URL
         return process.env.REACT_APP_API_BASE || 'https://cr8-backend.onrender.com';
       }
 

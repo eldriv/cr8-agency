@@ -113,38 +113,66 @@ const ChatHeader = ({ isMobile, connectionStatus, trainingDataStatus, chatHistor
   </div>
 );
 
-const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress, isLoading, connectionStatus, sendMessage }) => (
-  <div className="p-4 bg-black/90 backdrop-blur-xl border-t border-gray-800/60">
-    <div className="flex items-end space-x-3">
-      <div className="flex-1 relative">
-        <textarea
-          ref={inputRef}
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Type your message..."
-          className="w-full p-4 bg-gray-900/80 backdrop-blur-sm border border-gray-700/60 rounded-2xl text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200"
-          rows="1"
-          style={{ minHeight: '52px', maxHeight: '120px' }}
-          disabled={isLoading}
-        />
+const ChatInputArea = ({ inputRef, inputMessage, setInputMessage, handleKeyPress, isLoading, connectionStatus, sendMessage }) => {
+  // Auto-resize textarea function
+  const adjustTextareaHeight = (textarea) => {
+    if (textarea) {
+      textarea.style.height = 'auto';
+      const scrollHeight = textarea.scrollHeight;
+      const maxHeight = 120; // Match the maxHeight from style
+      textarea.style.height = Math.min(scrollHeight, maxHeight) + 'px';
+    }
+  };
+
+  // Handle input change with auto-resize
+  const handleInputChange = (e) => {
+    setInputMessage(e.target.value);
+    adjustTextareaHeight(e.target);
+  };
+
+  // Adjust height when component mounts or inputMessage changes
+  useEffect(() => {
+    if (inputRef.current) {
+      adjustTextareaHeight(inputRef.current);
+    }
+  }, [inputMessage]);
+
+  return (
+    <div className="p-4 bg-black/90 backdrop-blur-xl border-t border-gray-800/60">
+      <div className="flex items-end space-x-3">
+        <div className="flex-1 relative">
+          <textarea
+            ref={inputRef}
+            value={inputMessage}
+            onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
+            placeholder="Type your message..."
+            className="w-full p-4 bg-gray-900/80 backdrop-blur-sm border border-gray-700/60 rounded-2xl text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white/50 transition-all duration-200 overflow-hidden"
+            style={{ 
+              minHeight: '52px', 
+              maxHeight: '120px',
+              lineHeight: '1.5'
+            }}
+            disabled={isLoading}
+          />
+        </div>
+        <button
+          onClick={sendMessage}
+          disabled={isLoading || !inputMessage.trim()}
+          className="h-[52px] px-4 bg-white hover:bg-gray-200 disabled:bg-gray-700 disabled:cursor-not-allowed text-black disabled:text-gray-400 rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none flex items-center justify-center"
+        >
+          <Send size={18} />
+        </button>
       </div>
-      <button
-        onClick={sendMessage}
-        disabled={isLoading || !inputMessage.trim()}
-        className="h-[52px] px-4 bg-white hover:bg-gray-200 disabled:bg-gray-700 disabled:cursor-not-allowed text-black disabled:text-gray-400 rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none flex items-center justify-center"
-      >
-        <Send size={18} />
-      </button>
+      {connectionStatus === CONFIG.STATUS.CONNECTION.OFFLINE && (
+        <div className="mt-3 text-xs text-red-400 flex items-center space-x-2 bg-red-500/10 rounded-lg p-2 border border-red-500/20">
+          <span>⚠️</span>
+          <span>Backend server disconnected</span>
+        </div>
+      )}
     </div>
-    {connectionStatus === CONFIG.STATUS.CONNECTION.OFFLINE && (
-      <div className="mt-3 text-xs text-red-400 flex items-center space-x-2 bg-red-500/10 rounded-lg p-2 border border-red-500/20">
-        <span>⚠️</span>
-        <span>Backend server disconnected</span>
-      </div>
-    )}
-  </div>
-);
+  );
+};
 
 const ChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -292,13 +320,12 @@ const ChatWidget = () => {
     }
   };
 
- const handleKeyPress = (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-};
-
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
