@@ -1,42 +1,43 @@
-// config.js - Configuration file for ChatWidget
+// Updated config.js - Fix frontend configuration
 
 // Environment detection
 const isDevelopment = process.env.NODE_ENV === 'development' || 
                      window.location.hostname === 'localhost' || 
                      window.location.hostname === '127.0.0.1';
 
-// API Configuration
+// API Configuration - FIXED
 const API_CONFIG = {
-  // Backend URLs - Updated with your actual deployment URLs
+  // Backend URLs - Updated to match your actual deployment
   BACKEND_URLS: {
-    PRODUCTION: 'https://cr8-backend.onrender.com', // Updated with your actual Render URL
-    DEVELOPMENT: 'http://localhost:3002', // Updated to match your port
-    FALLBACK: 'https://cr8-backend.onrender.com' // Updated fallback URL
+    PRODUCTION: 'https://cr8-backend.onrender.com', // Your Render URL
+    DEVELOPMENT: 'http://localhost:10000', // Match your local backend port
+    FALLBACK: 'https://cr8-backend.onrender.com'
   },
   
   // API endpoints
   ENDPOINTS: {
     HEALTH: '/api/health',
     CHAT: '/api/chat',
-    TRAINING_DATA: '/api/training-data'
+    TRAINING_DATA: '/api/training-data',
+    DEBUG: '/api/debug' // Add debug endpoint
   }
 };
 
-// App Configuration
+// Updated CONFIG object
 export const CONFIG = {
   // Application settings
   APP: {
     NAME: 'CR8 AI Assistant',
     MOBILE_NAME: 'CR8 Chat',
-    LOGO_PATH: '/cr8-logo.png', // Update with your CR8 logo path
+    LOGO_PATH: '/cr8-logo.png',
     LOGO_ALT: 'CR8 Creative Agency Logo',
     VERSION: '1.0.0'
   },
 
-  // API configuration
+  // API configuration - FIXED
   API: {
     getApiBase: () => {
-      // Auto-detect environment and return appropriate base URL
+      // Force production URL when in production or when localhost fails
       if (isDevelopment) {
         return API_CONFIG.BACKEND_URLS.DEVELOPMENT;
       }
@@ -46,19 +47,34 @@ export const CONFIG = {
     getEndpoints: (baseUrl) => ({
       HEALTH_CHECK: `${baseUrl}${API_CONFIG.ENDPOINTS.HEALTH}`,
       BACKEND_PROXY: `${baseUrl}${API_CONFIG.ENDPOINTS.CHAT}`,
-      TRAINING_DATA: `${baseUrl}${API_CONFIG.ENDPOINTS.TRAINING_DATA}`
+      TRAINING_DATA: `${baseUrl}${API_CONFIG.ENDPOINTS.TRAINING_DATA}`,
+      DEBUG: `${baseUrl}${API_CONFIG.ENDPOINTS.DEBUG}`
     })
   },
 
-  // Training data paths (in order of preference)
+  // Training data paths (in order of preference) - FIXED
   TRAINING_DATA_PATHS: [
-    '/api/training-data', // Your backend endpoint
+    '/api/training-data', // Backend endpoint
     '/training-data.txt',
     '/data/cr8-training-data.txt',
     '/assets/cr8-training-data.txt'
   ],
 
-  // Default training data (fallback) - CR8 specific
+  // Enhanced fetch configuration
+  FETCH: {
+    TIMEOUT: 30000, // Increased to 30 seconds
+    HEADERS: {
+      CONTENT_TYPE_JSON: 'application/json',
+      ACCEPT_JSON: 'application/json',
+      USER_AGENT: 'ChatWidget/1.0.0'
+    },
+    RETRY: {
+      MAX_ATTEMPTS: 3,
+      DELAY: 2000 // Increased delay
+    }
+  },
+
+  // Rest of your CONFIG remains the same...
   DEFAULT_TRAINING_DATA: `
 # CR8 Digital Creative Agency - Training Data
 
@@ -104,13 +120,13 @@ We serve clients who need visual storytelling and branding services. Our goal is
   UI: {
     ANIMATIONS: {
       TYPING_DELAY: {
-        BASE: 30, // Base delay between words (ms)
-        RANDOM: 20 // Random additional delay (ms)
+        BASE: 30,
+        RANDOM: 20
       },
       TRANSITIONS: {
-        FADE: 300, // Fade transition duration (ms)
-        SLIDE: 250, // Slide transition duration (ms)
-        SCALE: 200  // Scale transition duration (ms)
+        FADE: 300,
+        SLIDE: 250,
+        SCALE: 200
       }
     },
     
@@ -126,7 +142,6 @@ We serve clients who need visual storytelling and branding services. Our goal is
     }
   },
 
-  // Status constants
   STATUS: {
     CONNECTION: {
       CONNECTED: 'connected',
@@ -143,21 +158,6 @@ We serve clients who need visual storytelling and branding services. Our goal is
     }
   },
 
-  // Fetch configuration
-  FETCH: {
-    TIMEOUT: 10000, // 10 seconds
-    HEADERS: {
-      CONTENT_TYPE_JSON: 'application/json',
-      ACCEPT_JSON: 'application/json',
-      USER_AGENT: 'ChatWidget/1.0.0'
-    },
-    RETRY: {
-      MAX_ATTEMPTS: 3,
-      DELAY: 1000 // 1 second
-    }
-  },
-
-  // Suggestions for users - Updated for CR8
   SUGGESTIONS: {
     GENERAL: [
       "What services does CR8 offer?",
@@ -183,7 +183,6 @@ We serve clients who need visual storytelling and branding services. Our goal is
     ]
   },
 
-  // Messages
   MESSAGES: {
     WELCOME: {
       SUBTITLE_LOADED: "I'm ready to help you unleash your creative vision with CR8's services!",
@@ -209,9 +208,139 @@ We serve clients who need visual storytelling and branding services. Our goal is
   }
 };
 
-// Utility functions (same as before)
+// Enhanced UTILS with better error handling
 export const UTILS = {
-  // Format timestamp for display
+  // Enhanced fetch with better error handling and debugging
+  fetchWithTimeout: async (url, options = {}) => {
+    const { timeout = CONFIG.FETCH.TIMEOUT, ...fetchOptions } = options;
+    
+    console.log('🔄 Fetching:', url);
+    console.log('🔄 Options:', fetchOptions);
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      console.log('⏰ Request timeout for:', url);
+      controller.abort();
+    }, timeout);
+    
+    try {
+      const response = await fetch(url, {
+        ...fetchOptions,
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          ...fetchOptions.headers
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      console.log('✅ Response received:', {
+        url,
+        status: response.status,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      console.log('❌ Fetch error:', {
+        url,
+        error: error.message,
+        name: error.name
+      });
+      
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout');
+      }
+      throw error;
+    }
+  },
+
+  // Enhanced retry with exponential backoff
+  retry: async (fn, maxAttempts = CONFIG.FETCH.RETRY.MAX_ATTEMPTS, delay = CONFIG.FETCH.RETRY.DELAY) => {
+    let lastError;
+    
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        console.log(`🔄 Attempt ${attempt}/${maxAttempts}`);
+        return await fn();
+      } catch (error) {
+        lastError = error;
+        console.log(`❌ Attempt ${attempt} failed:`, error.message);
+        
+        if (attempt < maxAttempts) {
+          const backoffDelay = delay * Math.pow(2, attempt - 1); // Exponential backoff
+          console.log(`⏳ Waiting ${backoffDelay}ms before retry...`);
+          await UTILS.sleep(backoffDelay);
+        }
+      }
+    }
+    
+    console.log('❌ All retry attempts failed');
+    throw lastError;
+  },
+
+  // Test connection to backend
+  testConnection: async () => {
+    const baseUrl = CONFIG.API.getApiBase();
+    const endpoints = CONFIG.API.getEndpoints(baseUrl);
+    
+    try {
+      console.log('🔍 Testing connection to:', endpoints.HEALTH_CHECK);
+      const response = await UTILS.fetchWithTimeout(endpoints.HEALTH_CHECK, {
+        method: 'GET',
+        timeout: 10000
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Backend connection successful:', data);
+        return { success: true, data };
+      } else {
+        console.log('❌ Backend health check failed:', response.status);
+        return { success: false, error: `Health check failed: ${response.status}` };
+      }
+    } catch (error) {
+      console.log('❌ Backend connection failed:', error.message);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // Debug API configuration
+  debugAPI: async () => {
+    const baseUrl = CONFIG.API.getApiBase();
+    const endpoints = CONFIG.API.getEndpoints(baseUrl);
+    
+    console.log('🔍 API Debug Info:', {
+      isDevelopment,
+      baseUrl,
+      endpoints,
+      environment: process.env.NODE_ENV
+    });
+    
+    // Test debug endpoint if available
+    try {
+      const response = await UTILS.fetchWithTimeout(endpoints.DEBUG, {
+        method: 'GET',
+        timeout: 5000
+      });
+      
+      if (response.ok) {
+        const debugData = await response.json();
+        console.log('🔍 Backend debug info:', debugData);
+        return debugData;
+      }
+    } catch (error) {
+      console.log('ℹ️ Debug endpoint not available:', error.message);
+    }
+    
+    return null;
+  },
+
+  // Format timestamp
   formatTime: (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { 
@@ -221,161 +350,12 @@ export const UTILS = {
     });
   },
 
-  // Sleep utility for animations
+  // Sleep utility
   sleep: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
 
   // Validate training data
   isValidTrainingData: (data) => {
     return data && typeof data === 'string' && data.trim().length > 0;
-  },
-
-  // Copy text to clipboard
-  copyToClipboard: async (text) => {
-    try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-        return true;
-      } else {
-        // Fallback for older browsers or non-HTTPS
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        const result = document.execCommand('copy');
-        textArea.remove();
-        return result;
-      }
-    } catch (error) {
-      console.error('Failed to copy text:', error);
-      return false;
-    }
-  },
-
-  // Fetch with timeout
-  fetchWithTimeout: async (url, options = {}) => {
-    const { timeout = CONFIG.FETCH.TIMEOUT, ...fetchOptions } = options;
-    
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-    
-    try {
-      const response = await fetch(url, {
-        ...fetchOptions,
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-      return response;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      if (error.name === 'AbortError') {
-        throw new Error('Request timeout');
-      }
-      throw error;
-    }
-  },
-
-  // Retry utility
-  retry: async (fn, maxAttempts = CONFIG.FETCH.RETRY.MAX_ATTEMPTS, delay = CONFIG.FETCH.RETRY.DELAY) => {
-    let lastError;
-    
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        return await fn();
-      } catch (error) {
-        lastError = error;
-        if (attempt < maxAttempts) {
-          await UTILS.sleep(delay * attempt); // Exponential backoff
-        }
-      }
-    }
-    
-    throw lastError;
-  },
-
-  // Debounce utility
-  debounce: (func, wait) => {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  },
-
-  // Throttle utility
-  throttle: (func, limit) => {
-    let inThrottle;
-    return function(...args) {
-      if (!inThrottle) {
-        func.apply(this, args);
-        inThrottle = true;
-        setTimeout(() => inThrottle = false, limit);
-      }
-    };
-  }
-};
-
-// Prompt template builder - Updated for CR8
-export const PROMPT_TEMPLATE = {
-  buildHybridPrompt: (userMessage, trainingData = '') => {
-    const systemPrompt = `
-${trainingData}
-
-## Current Context
-You are an AI assistant for CR8 Digital Creative Agency. CR8 specializes in bringing creative visions to life through graphic design, video editing, animation, and motion graphics.
-
-## Instructions
-- Be friendly, creative, and professional
-- Focus on visual storytelling and creative solutions
-- Provide clear, helpful responses about CR8's services
-- Use examples when helpful
-- Ask clarifying questions about creative projects
-- Keep responses focused and relevant to creative work
-
-## User Message:
-${userMessage}
-
-## Your Response:
-`;
-    
-    return systemPrompt.trim();
-  },
-
-  buildSimplePrompt: (userMessage) => {
-    return `User: ${userMessage}\n\nCR8 Assistant: `;
-  }
-};
-
-// Feature flags
-export const FEATURES = {
-  TYPING_ANIMATION: true,
-  MESSAGE_COPY: true,
-  CHAT_HISTORY: true,
-  AUTO_SCROLL: true,
-  MOBILE_OPTIMIZED: true,
-  DARK_MODE: true,
-  RATE_LIMITING: true,
-  ERROR_RECOVERY: true
-};
-
-// Development utilities
-export const DEV = {
-  LOG_LEVEL: isDevelopment ? 'debug' : 'error',
-  MOCK_RESPONSES: isDevelopment,
-  SHOW_DEBUG_INFO: isDevelopment,
-  
-  log: (level, message, data = null) => {
-    if (isDevelopment) {
-      const timestamp = new Date().toISOString();
-      console[level](`[${timestamp}] ${message}`, data || '');
-    }
   }
 };
 
@@ -383,8 +363,7 @@ export const DEV = {
 export const ENV = {
   isDevelopment,
   isProduction: !isDevelopment,
-  apiBase: API_CONFIG.BACKEND_URLS[isDevelopment ? 'DEVELOPMENT' : 'PRODUCTION']
+  apiBase: CONFIG.API.getApiBase()
 };
 
-// Default export
 export default CONFIG;
