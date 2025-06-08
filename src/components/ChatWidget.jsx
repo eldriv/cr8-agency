@@ -318,7 +318,6 @@ const ChatWidget = () => {
           return;
         }
       } catch (error) {
-        // Silently continue to next path
       }
     }
 
@@ -362,9 +361,6 @@ const ChatWidget = () => {
     setIsTyping(false);
   };
 
-  // Updated sendMessage function for your ChatWidget component
-// Replace the existing sendMessage function with this:
-
 const sendMessage = async () => {
   if (!inputMessage.trim() || isLoading) return;
 
@@ -380,7 +376,6 @@ const sendMessage = async () => {
   try {
     const prompt = PROMPT_TEMPLATE.buildHybridPrompt(userMessage, trainingData);
     
-    // Use the full API endpoint URL
     const apiBase = CONFIG.API.getApiBase();
     const endpoints = CONFIG.API.getEndpoints(apiBase);
 

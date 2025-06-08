@@ -5,7 +5,6 @@ const ChatControls = ({ className = "" }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Check if Chatbase is loaded
     const checkLoaded = setInterval(() => {
       if (window.chatbase) {
         setIsLoaded(true);
@@ -16,7 +15,6 @@ const ChatControls = ({ className = "" }) => {
     return () => clearInterval(checkLoaded);
   }, []);
 
-  // Sync with ChatbaseWidget controls if available
   useEffect(() => {
     const syncWithWidget = () => {
       if (window.ChatbaseWidgetControls) {
