@@ -6,14 +6,6 @@ Modern marketing website for **CR8 Agency** — a creative studio offering graph
 
 ---
 
-## About this project
-
-This project is open source with their permission and will actively be used by my client, CR8 Agency. It is developed in close collaboration to ensure it meets their needs and reflects their brand. Contributions and forks are welcome.
-
-**Note:** The backend API will not be publicized, it's intended to be separated for private use. You will see in the code under `src/config.js` that the backend URL has been deployed through [Render](https://render.com) (`https://cr8-backend.onrender.com` in production, `http://localhost:3002` locally).
-
----
-
 ## Features
 
 - **Full-viewport hero** with cinematic background video and left-aligned content
