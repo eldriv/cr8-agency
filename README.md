@@ -1,51 +1,166 @@
-# CR8 Agency Website
+# CR8 Agency
 
-<div>
-    <img src="https://img.shields.io/badge/-React_JS-black?style=for-the-badge&logoColor=white&logo=react&color=88CE02" alt="react.js" />
-    <img src="https://img.shields.io/badge/-GSAP-black?style=for-the-badge&logoColor=white&logo=greensock&color=61DAFB" alt="greensock" />
-    <img src="https://img.shields.io/badge/-Tailwind_CSS-black?style=for-the-badge&logoColor=white&logo=tailwindcss&color=06B6D4" alt="tailwindcss" />
-</div>
+Modern marketing website for **CR8 Agency** — a creative studio offering graphic design, video editing, motion graphics, animation, and web development.
 
-This is the official web project for CR8 Agency, built with a modern JavaScript stack to reflect the brand's creative identity and deliver a fast, responsive user experience.
+**Live site:** [cr8-agency.netlify.app](https://cr8-agency.netlify.app)
 
-## Overview
+---
 
-The site was designed and developed with performance, clarity, and scalability in mind. In addition to showcasing CR8's work and mission, the website includes an AI-powered chat widget that allows visitors to interact with the brand in real-time.
+## About this project
 
-## AI Chat Integration
+This project is open source with their permission and will actively be used by my client, CR8 Agency. It is developed in close collaboration to ensure it meets their needs and reflects their brand. Contributions and forks are welcome.
 
-An AI assistant is embedded directly into the site as a chat widget. It's designed to engage users, answer questions about CR8 and in general. This makes the site not just a static presentation, but a dynamic touchpoint between CR8 and its audience.
+**Note:** The backend API will not be publicized, it's intended to be separated for private use. You will see in the code under `src/config.js` that the backend URL has been deployed through [Render](https://render.com) (`https://cr8-backend.onrender.com` in production, `http://localhost:3002` locally).
 
-## Getting Started
+---
 
-### Clone the Repository
+## Features
+
+- **Full-viewport hero** with cinematic background video and left-aligned content
+- **About, Services, Works, and Contact** sections with scroll reveals and brand styling
+- **Interactive service cards** with hover UI scenes tailored to each offering
+- **Reels-style portfolio carousel** with snap scrolling and pagination
+- **AI chat widget** powered by the private CR8 backend (Gemini proxy)
+- **Contact form** via Formspree
+- **Responsive layout** optimized for mobile and desktop
+- **Scroll progress indicator** in the navigation bar
+
+---
+
+## Tech stack
+
+| Layer | Tools |
+| --- | --- |
+| Frontend | React 18, Vite 6, Tailwind CSS |
+| Animation | GSAP, CSS transitions, custom UI scenes |
+| Icons | Lucide React |
+| Contact | Formspree |
+| Chat API | External Node backend on Render (not included in this repo) |
+| Hosting | Netlify (frontend) |
+
+---
+
+## Project structure
+
+```
+cr8-agency/
+├── public/
+│   ├── img/              # Logos, thumbnails, favicon
+│   ├── videos/           # Hero and portfolio reel assets
+│   ├── lottie/           # Optional Lottie JSON assets
+│   └── data/             # Fallback training data for chat
+├── src/
+│   ├── components/       # UI sections (Hero, About, Features, etc.)
+│   ├── components/ui/    # Reusable UI (ServiceCard, Reveal, etc.)
+│   ├── data/             # Shared service definitions
+│   ├── config.js         # API URLs, chat config, training data
+│   ├── App.jsx           # Page layout and section composition
+│   └── index.css         # Global styles and design tokens
+├── index.html
+├── package.json
+├── tailwind.config.js
+└── vite.config.js
+```
+
+---
+
+## Getting started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 18+ (20+ recommended)
+- npm
+
+### Install
 
 ```bash
 git clone https://github.com/eldriv/cr8-agency.git
 cd cr8-agency
+npm install
 ```
 
-### Installation
+### Run locally
 
 ```bash
-make install
+npm run dev
 ```
 
-### Local Development
+Open [http://localhost:5173](http://localhost:5173).
+
+### Build for production
 
 ```bash
-make dev
+npm run build
+npm run preview   # optional — preview the production build locally
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser to view the project.
+### Lint
 
-## Live Site
+```bash
+npm run lint
+```
 
-The live site is available at:
-👉 [Live Site](https://cr8-agency.netlify.app/)
+---
 
-## About
+## Configuration
 
-This project is open source with their permission and will actively be used by my client, CR8 Agency. It is developed in close collaboration to ensure it meets their needs and reflects their brand. Contributions and forks are welcome.
+### Backend API (`src/config.js`)
 
-> **Note:** The backend API will not be publicized, it's intended to be separated for private use. You will see in the code under src/config.js that the backend URL has been deployed through [Render](https://cr8-backend.onrender.com/)
+The frontend resolves the chat API base URL automatically:
+
+| Environment | API base |
+| --- | --- |
+| Local dev | `http://localhost:3002` |
+| Production | `https://cr8-backend.onrender.com` |
+
+You can override production with an environment variable at build time:
+
+```bash
+REACT_APP_API_BASE=https://your-api.example.com npm run build
+```
+
+**Endpoints consumed by the chat widget:**
+
+- `POST /api/chat` — AI chat proxy
+- `GET /api/health` — Health check
+- `GET /api/training-data` — CR8 training context
+- `GET /api/version` — API version
+- `GET /api/diagnose` — Diagnostics
+
+The backend service itself is **private** and not part of this repository. To run chat locally, you need a compatible backend running on port `3002`, or the widget will show a disconnected/offline state.
+
+### Contact form
+
+The contact section uses [Formspree](https://formspree.io). The endpoint is defined in `src/components/Contact.jsx`. Replace it with your own Formspree form ID if you fork this project.
+
+---
+
+## Deployment
+
+**Frontend:** Deploy the `dist/` folder (generated by `npm run build`) to Netlify, Vercel, or any static host.
+
+**Backend:** Hosted separately on Render. Do not commit API keys or private backend source to this repo.
+
+---
+
+## Contributing
+
+Contributions and forks are welcome. If you open a PR or fork for your own use:
+
+1. Keep the CR8 attribution if you retain significant portions of the design or copy.
+2. Replace Formspree and API endpoints with your own services.
+3. Do not expose or commit private backend credentials.
+
+---
+
+## CR8 Agency
+
+- **Tagline:** Let's Create & Unleash Your Creative Vision.
+- **Email:** creativscr8@gmail.com · eldriv@proton.me
+- **Portfolio:** [cr8-agency.netlify.app/#works](https://cr8-agency.netlify.app/#works)
+
+---
+
+## License
+
+This frontend is open source with CR8 Agency's permission. See repository license terms if a `LICENSE` file is present; otherwise treat the project as shared with attribution to CR8 Agency.
